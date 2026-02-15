@@ -323,5 +323,80 @@
     "severity": null,
     "cause_summary": "The detected pattern does not match known defect categories.",
     "synthetic_count": 0
+  },
+  {
+    "inspection_id": "INS-1770962862",
+    "timestamp": "2026-02-13 11:37:42",
+    "defect_class": "Edge ring",
+    "confidence": 0.8684,
+    "top_predictions": [
+      {
+        "label": "Edge ring",
+        "prob": 0.8684079647064209
+      },
+      {
+        "label": "scratch",
+        "prob": 0.05824870243668556
+      },
+      {
+        "label": "Local",
+        "prob": 0.03635435178875923
+      }
+    ],
+    "inference_time_ms": 10086,
+    "drift_detected": false,
+    "severity": null,
+    "cause_summary": "The detected pattern does not match known defect categories.",
+    "synthetic_count": 0
+  },
+  {
+    "inspection_id": "INS-1770962971",
+    "timestamp": "2026-02-13 11:39:31",
+    "defect_class": "scratch",
+    "confidence": 0.9986,
+    "top_predictions": [
+      {
+        "label": "scratch",
+        "prob": 0.9985785484313965
+      },
+      {
+        "label": "Local",
+        "prob": 0.0012915357947349548
+      },
+      {
+        "label": "center",
+        "prob": 0.00012131848052376881
+      }
+    ],
+    "inference_time_ms": 2422,
+    "drift_detected": false,
+    "severity": "High",
+    "cause_summary": "Physical contact from handling equipment or misaligned wafer transport mechanisms.",
+    "synthetic_count": 0
+  },
+  {
+    "inspection_id": "INS-1770963234",
+    "timestamp": "2026-02-13 11:43:54",
+    "defect_class": "Edge ring",
+    "confidence": 0.9027,
+    "top_predictions": [
+      {
+        "label": "Edge ring",
+        "prob": 0.9026715755462646
+      },
+      {
+        "label": "scratch",
+        "prob": 0.029055900871753693
+      },
+      {
+        "label": "center",
+        "prob": 0.028785547241568565
+      }
+    ],
+    "inference_time_ms": 2155,
+    "drift_detected": false,
+    "severity": null,
+    "cause_summary": "The detected pattern does not match known defect categories.",
+    "synthetic_count": 0
   }
 ]
