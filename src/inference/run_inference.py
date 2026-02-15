@@ -26,11 +26,14 @@ model = model.to(DEVICE)
 model.eval()
 
 # -------------------------
-# Transform
+# Transform (match training: Resize, CenterCrop, ImageNet norm)
 # -------------------------
+imagenet_norm = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 transform = transforms.Compose([
-    transforms.Resize(IMAGE_SIZE),
+    transforms.Resize(256),
+    transforms.CenterCrop(IMAGE_SIZE),
     transforms.ToTensor(),
+    imagenet_norm,
 ])
 
 # -------------------------

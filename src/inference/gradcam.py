@@ -51,15 +51,19 @@ target_layer.register_backward_hook(backward_hook)
 # -------------------------
 # Grad-CAM Function
 # -------------------------
+# Match training preprocessing (ImageNet norm)
+imagenet_norm = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+gradcam_transform = transforms.Compose([
+    transforms.Resize(256),
+    transforms.CenterCrop(IMAGE_SIZE),
+    transforms.ToTensor(),
+    imagenet_norm,
+])
+
+
 def generate_gradcam(image_path):
     image = Image.open(image_path).convert("RGB")
-
-    transform = transforms.Compose([
-        transforms.Resize(IMAGE_SIZE),
-        transforms.ToTensor()
-    ])
-
-    input_tensor = transform(image).unsqueeze(0).to(DEVICE)
+    input_tensor = gradcam_transform(image).unsqueeze(0).to(DEVICE)
 
     output = model(input_tensor)
     pred_class = output.argmax(dim=1).item()
