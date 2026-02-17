@@ -42,7 +42,7 @@ export default function Explainability() {
         </div>
       </div>
 
-      <div className={sideBySide ? "grid-2" : "grid-2"}>
+      <div className={sideBySide ? "grid-2" : ""}>
         <div className="card">
           <h3>Grad-CAM Visualization</h3>
           {hasData ? (

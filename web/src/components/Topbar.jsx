@@ -6,7 +6,11 @@ const titleMap = {
   "/ingestion": "Image Ingestion",
   "/defect-detection": "Defect Detection",
   "/explainability": "Explainability",
-  "/root-cause": "Root Cause Analysis"
+  "/root-cause": "Root Cause Analysis",
+  "/drift-monitoring": "Drift Monitoring",
+  "/synthetic-data": "Synthetic Data",
+  "/auto-retraining": "Auto-Retraining",
+  "/logs": "Logs & Artifacts"
 };
 
 export default function Topbar() {

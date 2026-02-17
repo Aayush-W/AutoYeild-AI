@@ -38,7 +38,7 @@ export default function ImageIngestion() {
         <div className="card">
           <h3>Image Upload</h3>
           <div className="upload-panel">
-            <div className="upload-icon">↑</div>
+            <div className="upload-icon">{"\u2191"}</div>
             <div style={{ fontWeight: 600 }}>Drop wafer image here</div>
             <div className="stat-foot">or click to browse</div>
             <div className="stat-foot">Supports: JPEG, PNG - Max 10MB</div>

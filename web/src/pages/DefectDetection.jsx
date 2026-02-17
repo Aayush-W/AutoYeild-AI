@@ -5,6 +5,7 @@ const defectDescriptions = {
   particle: "Foreign material deposition causing contamination",
   crack: "Structural fracture or stress-induced cracking",
   clean: "No defect detected on wafer surface",
+  normal: "No defect detected on wafer surface",
   random: "Scattered defect points across surface",
   local: "Localized defect cluster in a region",
   edge_ring: "Ring-shaped defects near wafer edge",
@@ -15,8 +16,12 @@ export default function DefectDetection() {
   const { inspection } = useInspection();
   const hasData = Boolean(inspection);
   const label = hasData ? inspection.defect_class : "Scratch";
+  const normalizedLabel = label
+    ?.toLowerCase()
+    .replace(/[\s-]+/g, "_")
+    .trim();
   const description =
-    defectDescriptions[label?.toLowerCase()] || "Defect description unavailable.";
+    defectDescriptions[normalizedLabel] || "Defect description unavailable.";
   const severity = inspection?.reasoning?.severity_assessment || "Medium";
 
   return (

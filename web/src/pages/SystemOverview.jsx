@@ -7,7 +7,7 @@ import { useInspection } from "../context/InspectionContext.jsx";
 
 export default function SystemOverview() {
   const { inspection, history, metrics } = useInspection();
-  const lastInspection = metrics?.summary?.last_inspection?.timestamp || inspection?.timestamp || "—";
+  const lastInspection = metrics?.summary?.last_inspection?.timestamp || inspection?.timestamp || "\u2014";
   const avgConfidence = metrics?.summary?.avg_confidence
     ? `${Math.round(metrics.summary.avg_confidence * 100)}%`
     : "95%";
