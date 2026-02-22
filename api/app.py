@@ -1,4 +1,5 @@
 import base64
+import asyncio
 import json
 import os
 import time
@@ -114,19 +115,22 @@ async def analyze_image(
         f.write(await file.read())
 
     start_time = time.time()
-    defect_class, confidence, top_predictions = predict_with_probs(str(file_path))
-    cam_class, cam_path = generate_gradcam(str(file_path))
-    reasoning = analyze_defect(defect_class, confidence)
+    
+    # Run CPU-bound inference in a separate thread to avoid blocking the async event loop
+    defect_class, confidence, top_predictions = await asyncio.to_thread(predict_with_probs, str(file_path))
+    cam_class, cam_path = await asyncio.to_thread(generate_gradcam, str(file_path))
+    reasoning = await asyncio.to_thread(analyze_defect, defect_class, confidence)
 
     drift_monitor = DriftMonitor(
         confidence_threshold=confidence_threshold,
         max_low_confidence=max_low_confidence,
     )
-    drift_detected = drift_monitor.update(confidence)
+    drift_detected = await asyncio.to_thread(drift_monitor.update, confidence)
 
     synth_paths = []
     if drift_detected:
-        synth_paths = generate_synthetic_images(
+        synth_paths = await asyncio.to_thread(
+            generate_synthetic_images,
             output_dir=str(SYNTH_DIR),
             num_images=synth_count,
             image_size=(synth_size, synth_size),
