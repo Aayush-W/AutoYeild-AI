@@ -4,8 +4,10 @@ from torchvision import transforms
 from torchvision.models import efficientnet_b0
 from PIL import Image
 import sys
+from pathlib import Path
 
-MODEL_PATH = "models/baseline_model.pt"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+MODEL_PATH = PROJECT_ROOT / "models" / "baseline_model.pt"
 IMAGE_SIZE = (224, 224)
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
@@ -13,7 +15,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 # -------------------------
 # Load model
 # -------------------------
-checkpoint = torch.load(MODEL_PATH, map_location=DEVICE)
+checkpoint = torch.load(str(MODEL_PATH), map_location=DEVICE)
 class_names = checkpoint["class_names"]
 num_classes = len(class_names)
 

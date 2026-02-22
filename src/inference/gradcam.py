@@ -5,19 +5,20 @@ import cv2
 from torchvision import transforms
 from torchvision.models import efficientnet_b0
 from PIL import Image
-import os
+from pathlib import Path
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-MODEL_PATH = "models/baseline_model.pt"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+MODEL_PATH = PROJECT_ROOT / "models" / "baseline_model.pt"
 IMAGE_SIZE = (224, 224)
-OUTPUT_DIR = "outputs/heatmaps"
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+OUTPUT_DIR = PROJECT_ROOT / "outputs" / "heatmaps"
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # -------------------------
 # Load model
 # -------------------------
-checkpoint = torch.load(MODEL_PATH, map_location=DEVICE)
+checkpoint = torch.load(str(MODEL_PATH), map_location=DEVICE)
 class_names = checkpoint["class_names"]
 num_classes = len(class_names)
 
@@ -89,9 +90,7 @@ def generate_gradcam(image_path):
 
     overlay = cv2.addWeighted(image_np, 0.6, heatmap_color, 0.4, 0)
 
-    output_path = os.path.join(
-        OUTPUT_DIR, f"gradcam_{os.path.basename(image_path)}"
-    )
-    cv2.imwrite(output_path, overlay)
+    output_path = OUTPUT_DIR / f"gradcam_{Path(image_path).name}"
+    cv2.imwrite(str(output_path), overlay)
 
-    return class_names[pred_class], output_path
+    return class_names[pred_class], str(output_path)
