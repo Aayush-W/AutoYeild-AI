@@ -2,7 +2,7 @@ import os
 import sys
 import time
 from pathlib import Path
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Literal, Tuple
 
 import streamlit as st
 from PIL import Image
@@ -17,6 +17,7 @@ from src.inference.gradcam import generate_gradcam
 from src.reasoning.root_cause_agent import analyze_defect
 from src.autonomy.drift_monitor import DriftMonitor
 from src.autonomy.triage_agent import triage
+from src.self_improvement.auto_retrainer import retrain_with_synthetic
 from src.self_improvement.synthetic_generator import generate_synthetic_images
 
 
@@ -145,6 +146,7 @@ def _save_upload(uploaded_file) -> str:
 def _get_session_drift_monitor(
     confidence_threshold: float,
     max_low_confidence: int,
+    synth_trigger_mode: Literal["below", "above"],
 ) -> DriftMonitor:
     """
     Return a DriftMonitor stored in Streamlit session state so the
@@ -154,11 +156,15 @@ def _get_session_drift_monitor(
         st.session_state["drift_monitor"] = DriftMonitor(
             confidence_threshold=confidence_threshold,
             max_low_confidence=max_low_confidence,
+            trigger_mode=synth_trigger_mode,
         )
-    # Always update thresholds so sidebar slider changes take effect immediately
+    # Always update monitor config so sidebar changes take effect immediately.
     dm = st.session_state["drift_monitor"]
-    dm.confidence_threshold = confidence_threshold
-    dm.max_low_confidence = max_low_confidence
+    dm.configure(
+        confidence_threshold=confidence_threshold,
+        max_low_confidence=max_low_confidence,
+        trigger_mode=synth_trigger_mode,
+    )
     return dm
 
 
@@ -166,15 +172,20 @@ def _run_autonomous_pipeline(
     image_path: str,
     confidence_threshold: float,
     max_low_confidence: int,
+    synth_trigger_mode: Literal["below", "above"],
     synth_count: int,
     synth_image_size: Tuple[int, int],
+    auto_retrain: bool,
+    retrain_epochs: int,
 ) -> Dict[str, Any]:
     defect_class, confidence = predict(image_path)
     cam_class, cam_path = generate_gradcam(image_path)
     reasoning = analyze_defect(defect_class, confidence)
 
     # Session-persistent drift monitor (accumulates across button clicks)
-    drift_mon = _get_session_drift_monitor(confidence_threshold, max_low_confidence)
+    drift_mon = _get_session_drift_monitor(
+        confidence_threshold, max_low_confidence, synth_trigger_mode
+    )
     drift_detected = drift_mon.update(confidence)
 
     # Active-learning triage
@@ -190,6 +201,16 @@ def _run_autonomous_pipeline(
             output_dir=SYNTH_DIR,
             num_images=synth_count,
             image_size=synth_image_size,
+            defect_class=defect_class,
+        )
+
+    retrain_result = None
+    if synth_paths and auto_retrain:
+        retrain_result = retrain_with_synthetic(
+            synthetic_paths=synth_paths,
+            target_class=defect_class,
+            epochs=max(1, retrain_epochs),
+            min_accuracy_delta=0.0,
         )
 
     return {
@@ -199,8 +220,10 @@ def _run_autonomous_pipeline(
         "cam_path": cam_path,
         "reasoning": reasoning,
         "drift_detected": drift_detected,
+        "synth_trigger_mode": synth_trigger_mode,
         "triage": triage_result,
         "synth_paths": synth_paths,
+        "retrain_result": retrain_result,
     }
 
 
@@ -274,8 +297,19 @@ def main() -> None:
     with st.sidebar:
         st.markdown("### Pipeline Controls")
         confidence_threshold = st.slider("Confidence Threshold", 0.1, 0.9, 0.45, 0.01)
-        max_low_confidence = st.slider("Max Low-Confidence Count", 1, 5, 1, 1)
+        synth_trigger_mode = st.selectbox(
+            "Synthetic Trigger Mode",
+            options=["above", "below"],
+            index=0,
+            help=(
+                "'above': generate when confidence is above threshold. "
+                "'below': generate when confidence is below threshold."
+            ),
+        )
+        max_low_confidence = st.slider("Consecutive Trigger Count", 1, 5, 1, 1)
         synth_count = st.slider("Synthetic Images", 2, 24, 10, 2)
+        auto_retrain = st.checkbox("Auto Retrain on Synthetic Batch", value=False)
+        retrain_epochs = st.slider("Retrain Epochs", 1, 5, 1, 1)
         synth_image_size = st.selectbox(
             "Synthetic Image Size",
             options=[(64, 64), (96, 96), (128, 128)],
@@ -307,8 +341,11 @@ def main() -> None:
                 image_path=image_path,
                 confidence_threshold=confidence_threshold,
                 max_low_confidence=max_low_confidence,
+                synth_trigger_mode=synth_trigger_mode,
                 synth_count=synth_count,
                 synth_image_size=synth_image_size,
+                auto_retrain=auto_retrain,
+                retrain_epochs=retrain_epochs,
             )
             status.update(label="Pipeline complete", state="complete", expanded=False)
 
@@ -323,6 +360,13 @@ def main() -> None:
                 [Image.open(p) for p in result["synth_paths"][:8]],
                 use_container_width=True,
             )
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        if result.get("retrain_result"):
+            rr = result["retrain_result"]
+            st.markdown('<div class="card">', unsafe_allow_html=True)
+            st.markdown('<div class="section-title">Retrain Outcome</div>', unsafe_allow_html=True)
+            st.write(rr)
             st.markdown("</div>", unsafe_allow_html=True)
 
     elif run_clicked and not uploaded:

@@ -1,4 +1,4 @@
-"""
+﻿"""
 Augmentation-based synthetic image generator for AutoYield-AI.
 
 Instead of random pixel noise, this generates realistic wafer images by
@@ -8,7 +8,7 @@ synthetic data retains true defect morphology and texture.
 
 Augmentation pipeline (applied randomly per image):
   - Random horizontal / vertical flip
-  - Random rotation  (0–360 °)
+  - Random rotation  (0â€“360 Â°)
   - Random brightness & contrast jitter
   - Random Gaussian blur
   - Random elastic / perspective warp
@@ -16,7 +16,7 @@ Augmentation pipeline (applied randomly per image):
 
 Falls back gracefully to noise-only generation if no source images are found.
 
-Usage (same API as before — drop-in replacement):
+Usage (same API as before â€” drop-in replacement):
     from src.self_improvement.synthetic_generator import generate_synthetic_images
 
     paths = generate_synthetic_images(
@@ -93,24 +93,24 @@ def _random_augment(img: Image.Image, rng: random.Random) -> Image.Image:
     if rng.random() < 0.5:
         img = img.transpose(Image.FLIP_TOP_BOTTOM)
 
-    # 2. Random rotation (full 360° — wafer maps are rotationally symmetric)
+    # 2. Random rotation (full 360Â° â€” wafer maps are rotationally symmetric)
     angle = rng.uniform(0, 360)
     img = img.rotate(angle, resample=Image.BILINEAR, expand=False)
 
-    # 3. Brightness jitter  [0.6 – 1.6]
+    # 3. Brightness jitter  [0.6 â€“ 1.6]
     factor = rng.uniform(0.6, 1.6)
     img = ImageEnhance.Brightness(img).enhance(factor)
 
-    # 4. Contrast jitter  [0.6 – 1.6]
+    # 4. Contrast jitter  [0.6 â€“ 1.6]
     factor = rng.uniform(0.6, 1.6)
     img = ImageEnhance.Contrast(img).enhance(factor)
 
-    # 5. Colour saturation jitter (RGB only)  [0.5 – 1.5]
+    # 5. Colour saturation jitter (RGB only)  [0.5 â€“ 1.5]
     if img.mode == "RGB":
         factor = rng.uniform(0.5, 1.5)
         img = ImageEnhance.Color(img).enhance(factor)
 
-    # 6. Gaussian blur  (radius 0 → no blur, up to 2.5)
+    # 6. Gaussian blur  (radius 0 -> no blur, up to 2.5)
     if rng.random() < 0.4:
         radius = rng.uniform(0.5, 2.5)
         img = img.filter(ImageFilter.GaussianBlur(radius=radius))
@@ -171,7 +171,7 @@ def _perspective_coeffs(
         coeffs = np.linalg.solve(arr, b)
         return coeffs.tolist()
     except np.linalg.LinAlgError:
-        # Degenerate — return identity
+        # Degenerate â€” return identity
         return [1, 0, 0, 0, 1, 0, 0, 0]
 
 
@@ -238,7 +238,7 @@ def generate_synthetic_images(
     batch_ts = datetime.now(tz=timezone.utc).strftime("%Y%m%d_%H%M%S")
     batch_id = uuid.uuid4().hex[:6]
 
-    # Cryptographically random seed — different every call even in the same second
+    # Cryptographically random seed â€” different every call even in the same second
     rng = random.Random(int.from_bytes(os.urandom(4), "little"))
 
     using_augmentation = bool(source_images)
@@ -278,6 +278,9 @@ def generate_synthetic_images(
     mode = "augmentation" if using_augmentation else "noise fallback"
     print(
         f"[synthetic_generator] Generated {num_images} images "
-        f"({mode}) → {output_dir}"
+        f"({mode}) -> {output_dir}"
     )
     return saved_paths
+
+
+

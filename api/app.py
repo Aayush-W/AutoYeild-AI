@@ -1,14 +1,13 @@
 import asyncio
 import base64
 import json
-import os
 import threading
 import time
 import uuid
 from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Literal
 
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,6 +17,7 @@ from src.inference.gradcam import generate_gradcam
 from src.reasoning.root_cause_agent import analyze_defect
 from src.autonomy.drift_monitor import get_drift_monitor
 from src.autonomy.triage_agent import triage
+from src.self_improvement.auto_retrainer import retrain_with_synthetic
 from src.self_improvement.synthetic_generator import generate_synthetic_images
 
 
@@ -133,8 +133,12 @@ async def analyze_image(
     file: UploadFile = File(...),
     confidence_threshold: float = Form(0.45),
     max_low_confidence: int = Form(3),
+    synth_trigger_mode: Literal["below", "above"] = Form("above"),
     synth_count: int = Form(10),
     synth_size: int = Form(64),
+    auto_retrain: bool = Form(False),
+    retrain_epochs: int = Form(1),
+    min_accuracy_delta: float = Form(0.0),
 ):
     UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -159,6 +163,7 @@ async def analyze_image(
     drift_mon = get_drift_monitor(
         confidence_threshold=confidence_threshold,
         max_low_confidence=max_low_confidence,
+        trigger_mode=synth_trigger_mode,
     )
     drift_detected = await asyncio.to_thread(drift_mon.update, confidence)
 
@@ -178,6 +183,17 @@ async def analyze_image(
             output_dir=str(SYNTH_DIR),
             num_images=synth_count,
             image_size=(synth_size, synth_size),
+            defect_class=defect_class,
+        )
+
+    retrain_result: Dict[str, Any] | None = None
+    if synth_paths and auto_retrain:
+        retrain_result = await asyncio.to_thread(
+            retrain_with_synthetic,
+            synthetic_paths=synth_paths,
+            target_class=defect_class,
+            epochs=max(1, retrain_epochs),
+            min_accuracy_delta=min_accuracy_delta,
         )
 
     inference_ms = int((time.time() - start_time) * 1000)
@@ -193,10 +209,13 @@ async def analyze_image(
         "top_predictions": top_predictions,
         "inference_time_ms": inference_ms,
         "drift_detected": drift_detected,
+        "synth_trigger_mode": synth_trigger_mode,
         "triage": triage_result,
         "severity": reasoning.get("severity_assessment"),
         "cause_summary": reasoning.get("cause_summary"),
         "synthetic_count": len(synth_paths),
+        "auto_retrain": auto_retrain,
+        "retrain_result": retrain_result,
     }
     _append_history(history_entry)
 
@@ -208,11 +227,14 @@ async def analyze_image(
         "top_predictions": top_predictions,
         "inference_time_ms": inference_ms,
         "drift_detected": drift_detected,
+        "synth_trigger_mode": synth_trigger_mode,
         "triage": triage_result,
         "reasoning": reasoning,
         "input_image": _encode_image(file_path),
         "heatmap_image": _encode_image(Path(cam_path)),
         "synthetic_images": [_encode_image(Path(p)) for p in synth_paths[:8]],
+        "auto_retrain": auto_retrain,
+        "retrain_result": retrain_result,
     }
 
     return response

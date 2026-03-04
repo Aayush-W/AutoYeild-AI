@@ -5,8 +5,11 @@ import { useInspection } from "../context/InspectionContext.jsx";
 export default function ImageIngestion() {
   const [file, setFile] = useState(null);
   const [confidenceThreshold, setConfidenceThreshold] = useState(0.45);
+  const [synthTriggerMode, setSynthTriggerMode] = useState("above");
   const [maxLowConfidence, setMaxLowConfidence] = useState(1);
   const [synthCount, setSynthCount] = useState(10);
+  const [autoRetrain, setAutoRetrain] = useState(false);
+  const [retrainEpochs, setRetrainEpochs] = useState(1);
   const navigate = useNavigate();
   const { runAnalysis, loading, error } = useInspection();
 
@@ -17,9 +20,13 @@ export default function ImageIngestion() {
     try {
       await runAnalysis(file, {
         confidenceThreshold,
+        synthTriggerMode,
         maxLowConfidence,
         synthCount,
-        synthSize: 64
+        synthSize: 64,
+        autoRetrain,
+        retrainEpochs,
+        minAccuracyDelta: 0.0
       });
       navigate("/defect-detection");
     } catch (err) {
@@ -62,7 +69,18 @@ export default function ImageIngestion() {
                 />
               </label>
               <label className="stat-foot">
-                Max Low-Confidence Count
+                Synthetic Trigger Mode
+                <select
+                  value={synthTriggerMode}
+                  onChange={(event) => setSynthTriggerMode(event.target.value)}
+                  style={{ marginLeft: 8 }}
+                >
+                  <option value="above">Above Threshold</option>
+                  <option value="below">Below Threshold</option>
+                </select>
+              </label>
+              <label className="stat-foot">
+                Consecutive Trigger Count
                 <input
                   type="number"
                   min="1"
@@ -82,6 +100,27 @@ export default function ImageIngestion() {
                   step="2"
                   value={synthCount}
                   onChange={(event) => setSynthCount(Number(event.target.value))}
+                  style={{ marginLeft: 8, width: 60 }}
+                />
+              </label>
+              <label className="stat-foot">
+                Auto Retrain
+                <input
+                  type="checkbox"
+                  checked={autoRetrain}
+                  onChange={(event) => setAutoRetrain(event.target.checked)}
+                  style={{ marginLeft: 8 }}
+                />
+              </label>
+              <label className="stat-foot">
+                Retrain Epochs
+                <input
+                  type="number"
+                  min="1"
+                  max="5"
+                  step="1"
+                  value={retrainEpochs}
+                  onChange={(event) => setRetrainEpochs(Number(event.target.value))}
                   style={{ marginLeft: 8, width: 60 }}
                 />
               </label>

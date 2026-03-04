@@ -1,20 +1,15 @@
-"""
-Persistent, file-backed drift monitor.
-
-Bug fixes vs previous revision:
-- get_drift_monitor() now UPDATES confidence_threshold and max_low_confidence
-  on the existing singleton whenever the caller passes different values.
-  Previously these were silently ignored after first creation, meaning drift
-  would never fire correctly if the threshold changed between requests.
-- _save_state() is now only called when the count actually changes, not on
-  every high-confidence update that resets to 0 unnecessarily.
-"""
 from __future__ import annotations
 
 import json
 import threading
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, Literal, Optional
+
+TriggerMode = Literal["below", "above"]
+
+DEFAULT_CONFIDENCE_THRESHOLD = 0.45
+DEFAULT_MAX_MATCH_COUNT = 3
+DEFAULT_TRIGGER_MODE: TriggerMode = "below"
 
 _STATE_FILE = (
     Path(__file__).resolve().parents[2] / "outputs" / "metrics" / "drift_state.json"
@@ -23,44 +18,88 @@ _STATE_FILE = (
 
 class DriftMonitor:
     """
-    Counts consecutive low-confidence predictions and declares drift when the
-    count reaches *max_low_confidence*.
+    Stateful threshold monitor.
 
-    Parameters
-    ----------
-    confidence_threshold:
-        Predictions below this value are considered "uncertain".
-    max_low_confidence:
-        Number of consecutive uncertain predictions required to declare drift.
-    state_file:
-        JSON file where the counter is persisted so state survives restarts.
+    A trigger is emitted once when the streak of matching confidences reaches
+    max_low_confidence. It does not fire on every request while the condition
+    stays true; it re-arms after a non-matching confidence.
     """
 
     def __init__(
         self,
-        confidence_threshold: float = 0.45,
-        max_low_confidence: int = 3,
+        confidence_threshold: float = DEFAULT_CONFIDENCE_THRESHOLD,
+        max_low_confidence: int = DEFAULT_MAX_MATCH_COUNT,
+        trigger_mode: TriggerMode = DEFAULT_TRIGGER_MODE,
         state_file: Path | None = None,
     ) -> None:
-        self.confidence_threshold = confidence_threshold
-        self.max_low_confidence = max_low_confidence
+        self.confidence_threshold = float(confidence_threshold)
+        self.max_low_confidence = int(max_low_confidence)
+        self.trigger_mode: TriggerMode = trigger_mode
         self._state_file = Path(state_file) if state_file else _STATE_FILE
         self._lock = threading.Lock()
         self._state = self._load_state()
+        self.configure(
+            confidence_threshold=self.confidence_threshold,
+            max_low_confidence=self.max_low_confidence,
+            trigger_mode=self.trigger_mode,
+        )
 
-    # ------------------------------------------------------------------
-    # Persistence helpers
-    # ------------------------------------------------------------------
+    def configure(
+        self,
+        confidence_threshold: float,
+        max_low_confidence: int,
+        trigger_mode: TriggerMode,
+    ) -> None:
+        if max_low_confidence < 1:
+            raise ValueError("max_low_confidence must be >= 1")
+        if trigger_mode not in {"below", "above"}:
+            raise ValueError("trigger_mode must be 'below' or 'above'")
+
+        config_changed = (
+            float(confidence_threshold) != float(self.confidence_threshold)
+            or int(max_low_confidence) != int(self.max_low_confidence)
+            or trigger_mode != self.trigger_mode
+        )
+
+        self.confidence_threshold = float(confidence_threshold)
+        self.max_low_confidence = int(max_low_confidence)
+        self.trigger_mode = trigger_mode
+        self._state["last_threshold"] = self.confidence_threshold
+        self._state["last_trigger_mode"] = self.trigger_mode
+        if config_changed:
+            # Prevent stale streak state from one mode/config affecting another.
+            self._state["match_count"] = 0
+            self._state["trigger_armed"] = True
+        self._save_state()
+
+    def _default_state(self) -> Dict[str, Any]:
+        return {
+            "match_count": 0,
+            "total_updates": 0,
+            "drift_events": 0,
+            "trigger_armed": True,
+            "last_threshold": self.confidence_threshold,
+            "last_trigger_mode": self.trigger_mode,
+            "last_confidence": None,
+        }
 
     def _load_state(self) -> Dict[str, Any]:
-        if self._state_file.exists():
-            try:
-                data = json.loads(self._state_file.read_text(encoding="utf-8"))
-                if isinstance(data, dict):
-                    return data
-            except Exception:
-                pass
-        return {"low_confidence_count": 0, "total_updates": 0, "drift_events": 0}
+        if not self._state_file.exists():
+            return self._default_state()
+
+        try:
+            data = json.loads(self._state_file.read_text(encoding="utf-8"))
+            if not isinstance(data, dict):
+                return self._default_state()
+        except Exception:
+            return self._default_state()
+
+        if "match_count" not in data and "low_confidence_count" in data:
+            data["match_count"] = int(data.get("low_confidence_count", 0))
+
+        merged = self._default_state()
+        merged.update(data)
+        return merged
 
     def _save_state(self) -> None:
         try:
@@ -69,83 +108,109 @@ class DriftMonitor:
                 json.dumps(self._state, indent=2), encoding="utf-8"
             )
         except Exception:
-            pass  # Non-fatal — in-memory count is still correct
+            pass
 
-    # ------------------------------------------------------------------
-    # Public API
-    # ------------------------------------------------------------------
+    def _is_match(self, confidence: float) -> bool:
+        if self.trigger_mode == "below":
+            return confidence < self.confidence_threshold
+        return confidence > self.confidence_threshold
 
     def update(self, confidence: float) -> bool:
-        """
-        Record a new prediction confidence.
-
-        Returns True if drift is detected (consecutive low-confidence count
-        has reached *max_low_confidence*).
-        """
         with self._lock:
-            self._state["total_updates"] = self._state.get("total_updates", 0) + 1
+            self._state["total_updates"] = int(self._state.get("total_updates", 0)) + 1
+            self._state["last_confidence"] = float(confidence)
+            self._state["last_threshold"] = self.confidence_threshold
+            self._state["last_trigger_mode"] = self.trigger_mode
 
-            if confidence < self.confidence_threshold:
-                self._state["low_confidence_count"] = (
-                    self._state.get("low_confidence_count", 0) + 1
-                )
+            if self._is_match(confidence):
+                self._state["match_count"] = int(self._state.get("match_count", 0)) + 1
             else:
-                self._state["low_confidence_count"] = 0
+                self._state["match_count"] = 0
+                self._state["trigger_armed"] = True
+                self._save_state()
+                return False
 
-            drift = self._state["low_confidence_count"] >= self.max_low_confidence
-
-            if drift:
-                self._state["drift_events"] = self._state.get("drift_events", 0) + 1
-                # Reset streak after signalling so next window starts fresh
-                self._state["low_confidence_count"] = 0
+            trigger_ready = (
+                bool(self._state.get("trigger_armed", True))
+                and int(self._state["match_count"]) >= self.max_low_confidence
+            )
+            if trigger_ready:
+                self._state["drift_events"] = int(self._state.get("drift_events", 0)) + 1
+                self._state["trigger_armed"] = False
+                self._save_state()
+                return True
 
             self._save_state()
-            return drift
+            return False
 
     def reset(self) -> None:
-        """Manually reset the drift counter (e.g. after retraining)."""
         with self._lock:
-            self._state["low_confidence_count"] = 0
+            self._state["match_count"] = 0
+            self._state["trigger_armed"] = True
             self._save_state()
 
     @property
     def low_confidence_count(self) -> int:
-        return self._state.get("low_confidence_count", 0)
+        return int(self._state.get("match_count", 0))
 
     @property
     def state(self) -> Dict[str, Any]:
-        return dict(self._state)
+        payload = dict(self._state)
+        payload["low_confidence_count"] = int(payload.get("match_count", 0))
+        return payload
 
-
-# ---------------------------------------------------------------------------
-# Process-level singleton
-# ---------------------------------------------------------------------------
 
 _singleton_lock = threading.Lock()
 _singleton: DriftMonitor | None = None
 
 
 def get_drift_monitor(
-    confidence_threshold: float = 0.45,
-    max_low_confidence: int = 3,
+    confidence_threshold: Optional[float] = None,
+    max_low_confidence: Optional[int] = None,
+    trigger_mode: Optional[TriggerMode] = None,
 ) -> DriftMonitor:
     """
-    Return the process-level DriftMonitor singleton.
+    Return process-level DriftMonitor singleton.
 
-    BUG FIX: thresholds are now updated on every call so that changing
-    confidence_threshold or max_low_confidence via the API Form parameters
-    takes effect immediately rather than being silently ignored after the
-    first request created the instance.
+    Passing None keeps the current singleton value for that parameter.
     """
     global _singleton
     with _singleton_lock:
         if _singleton is None:
             _singleton = DriftMonitor(
-                confidence_threshold=confidence_threshold,
-                max_low_confidence=max_low_confidence,
+                confidence_threshold=(
+                    DEFAULT_CONFIDENCE_THRESHOLD
+                    if confidence_threshold is None
+                    else confidence_threshold
+                ),
+                max_low_confidence=(
+                    DEFAULT_MAX_MATCH_COUNT
+                    if max_low_confidence is None
+                    else max_low_confidence
+                ),
+                trigger_mode=(
+                    DEFAULT_TRIGGER_MODE if trigger_mode is None else trigger_mode
+                ),
             )
-        else:
-            # Update thresholds in-place so per-request values are respected
-            _singleton.confidence_threshold = confidence_threshold
-            _singleton.max_low_confidence = max_low_confidence
+        elif (
+            confidence_threshold is not None
+            or max_low_confidence is not None
+            or trigger_mode is not None
+        ):
+            _singleton.configure(
+                confidence_threshold=(
+                    _singleton.confidence_threshold
+                    if confidence_threshold is None
+                    else confidence_threshold
+                ),
+                max_low_confidence=(
+                    _singleton.max_low_confidence
+                    if max_low_confidence is None
+                    else max_low_confidence
+                ),
+                trigger_mode=(
+                    _singleton.trigger_mode if trigger_mode is None else trigger_mode
+                ),
+            )
+
         return _singleton
