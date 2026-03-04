@@ -398,5 +398,180 @@
     "severity": null,
     "cause_summary": "The detected pattern does not match known defect categories.",
     "synthetic_count": 0
+  },
+  {
+    "inspection_id": "INS-1772624381",
+    "timestamp": "2026-03-04 17:09:41",
+    "defect_class": "Edge ring",
+    "confidence": 0.2675,
+    "top_predictions": [
+      {
+        "label": "Edge ring",
+        "prob": 0.26753729581832886
+      },
+      {
+        "label": "clean",
+        "prob": 0.22579063475131989
+      },
+      {
+        "label": "random",
+        "prob": 0.1479334831237793
+      }
+    ],
+    "inference_time_ms": 892,
+    "drift_detected": true,
+    "severity": null,
+    "cause_summary": "The detected pattern does not match known defect categories.",
+    "synthetic_count": 10
+  },
+  {
+    "inspection_id": "INS-20C7C1073691",
+    "timestamp": "2026-03-04 17:33:05",
+    "defect_class": "Edge ring",
+    "confidence": 0.2254,
+    "top_predictions": [
+      {
+        "label": "Edge ring",
+        "prob": 0.22537899017333984
+      },
+      {
+        "label": "clean",
+        "prob": 0.20485323667526245
+      },
+      {
+        "label": "center",
+        "prob": 0.17004817724227905
+      }
+    ],
+    "inference_time_ms": 1049,
+    "drift_detected": false,
+    "triage": {
+      "queued": true,
+      "reason": "low_confidence",
+      "entry_id": "RT-4828EEBC37"
+    },
+    "severity": "High",
+    "cause_summary": "Wafer misalignment, edge over-polishing, or uneven edge pressure application.",
+    "synthetic_count": 0
+  },
+  {
+    "inspection_id": "INS-08A829D0776E",
+    "timestamp": "2026-03-04 17:34:46",
+    "defect_class": "Edge ring",
+    "confidence": 0.2254,
+    "top_predictions": [
+      {
+        "label": "Edge ring",
+        "prob": 0.22537899017333984
+      },
+      {
+        "label": "clean",
+        "prob": 0.20485323667526245
+      },
+      {
+        "label": "center",
+        "prob": 0.17004817724227905
+      }
+    ],
+    "inference_time_ms": 619,
+    "drift_detected": false,
+    "triage": {
+      "queued": true,
+      "reason": "low_confidence",
+      "entry_id": "RT-5D1453938A"
+    },
+    "severity": "High",
+    "cause_summary": "Wafer misalignment, edge over-polishing, or uneven edge pressure application.",
+    "synthetic_count": 0
+  },
+  {
+    "inspection_id": "INS-91156A4CDB0D",
+    "timestamp": "2026-03-04 21:17:00",
+    "defect_class": "clean",
+    "confidence": 0.5229,
+    "top_predictions": [
+      {
+        "label": "clean",
+        "prob": 0.5229461789131165
+      },
+      {
+        "label": "center",
+        "prob": 0.19357240200042725
+      },
+      {
+        "label": "Local",
+        "prob": 0.1100001260638237
+      }
+    ],
+    "inference_time_ms": 740,
+    "drift_detected": false,
+    "triage": {
+      "queued": true,
+      "reason": "low_confidence",
+      "entry_id": "RT-62F1E51C48"
+    },
+    "severity": "None",
+    "cause_summary": "Wafer appears within normal process limits.",
+    "synthetic_count": 0
+  },
+  {
+    "inspection_id": "INS-909EEAB4DDDF",
+    "timestamp": "2026-03-04 21:17:49",
+    "defect_class": "Local",
+    "confidence": 0.2736,
+    "top_predictions": [
+      {
+        "label": "Local",
+        "prob": 0.27355334162712097
+      },
+      {
+        "label": "Edge ring",
+        "prob": 0.26349392533302307
+      },
+      {
+        "label": "random",
+        "prob": 0.16791033744812012
+      }
+    ],
+    "inference_time_ms": 459,
+    "drift_detected": true,
+    "triage": {
+      "queued": true,
+      "reason": "low_confidence",
+      "entry_id": "RT-2F931253DB"
+    },
+    "severity": "Medium",
+    "cause_summary": "Localized particle contamination or brief chamber instability.",
+    "synthetic_count": 10
+  },
+  {
+    "inspection_id": "INS-7816E59DD165",
+    "timestamp": "2026-03-04 21:25:28",
+    "defect_class": "Local",
+    "confidence": 0.2736,
+    "top_predictions": [
+      {
+        "label": "Local",
+        "prob": 0.27355334162712097
+      },
+      {
+        "label": "Edge ring",
+        "prob": 0.26349392533302307
+      },
+      {
+        "label": "random",
+        "prob": 0.16791033744812012
+      }
+    ],
+    "inference_time_ms": 2729,
+    "drift_detected": true,
+    "triage": {
+      "queued": true,
+      "reason": "low_confidence",
+      "entry_id": "RT-1E578906A0"
+    },
+    "severity": "Medium",
+    "cause_summary": "Localized particle contamination or brief chamber instability.",
+    "synthetic_count": 10
   }
 ]

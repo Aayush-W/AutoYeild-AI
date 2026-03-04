@@ -1,0 +1,47 @@
+[
+  {
+    "entry_id": "RT-4828EEBC37",
+    "timestamp": "2026-03-04T12:03:05.094433+00:00",
+    "image_path": "C:\\Users\\Aayush Walsangikar\\OneDrive\\Desktop\\AutoYeildAI\\outputs\\uploads\\a5bea95741c74cabac8759b868e9d181.jpg",
+    "predicted_class": "Edge ring",
+    "confidence": 0.2254,
+    "reason": "low_confidence",
+    "status": "pending"
+  },
+  {
+    "entry_id": "RT-5D1453938A",
+    "timestamp": "2026-03-04T12:04:46.080169+00:00",
+    "image_path": "C:\\Users\\Aayush Walsangikar\\OneDrive\\Desktop\\AutoYeildAI\\outputs\\uploads\\344ee225a61d4b4a9822564908b6b93c.jpg",
+    "predicted_class": "Edge ring",
+    "confidence": 0.2254,
+    "reason": "low_confidence",
+    "status": "pending"
+  },
+  {
+    "entry_id": "RT-62F1E51C48",
+    "timestamp": "2026-03-04T15:47:00.525492+00:00",
+    "image_path": "C:\\Users\\Aayush Walsangikar\\OneDrive\\Desktop\\AutoYeildAI\\outputs\\uploads\\65f7e7a3107d4f01b7fe376c2402ff24.jpg",
+    "predicted_class": "clean",
+    "confidence": 0.5229,
+    "reason": "low_confidence",
+    "status": "pending"
+  },
+  {
+    "entry_id": "RT-2F931253DB",
+    "timestamp": "2026-03-04T15:47:49.747588+00:00",
+    "image_path": "C:\\Users\\Aayush Walsangikar\\OneDrive\\Desktop\\AutoYeildAI\\outputs\\uploads\\957578eaa43949028fb98939f1a602bd.jpg",
+    "predicted_class": "Local",
+    "confidence": 0.2736,
+    "reason": "low_confidence",
+    "status": "pending"
+  },
+  {
+    "entry_id": "RT-1E578906A0",
+    "timestamp": "2026-03-04T15:55:28.383603+00:00",
+    "image_path": "C:\\Users\\Aayush Walsangikar\\OneDrive\\Desktop\\AutoYeildAI\\outputs\\uploads\\3e6d8a3355d247218546ab939d64b4a7.jpg",
+    "predicted_class": "Local",
+    "confidence": 0.2736,
+    "reason": "low_confidence",
+    "status": "pending"
+  }
+]

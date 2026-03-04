@@ -16,6 +16,7 @@ from src.inference.run_inference import predict
 from src.inference.gradcam import generate_gradcam
 from src.reasoning.root_cause_agent import analyze_defect
 from src.autonomy.drift_monitor import DriftMonitor
+from src.autonomy.triage_agent import triage
 from src.self_improvement.synthetic_generator import generate_synthetic_images
 
 
@@ -141,6 +142,26 @@ def _save_upload(uploaded_file) -> str:
     return file_path
 
 
+def _get_session_drift_monitor(
+    confidence_threshold: float,
+    max_low_confidence: int,
+) -> DriftMonitor:
+    """
+    Return a DriftMonitor stored in Streamlit session state so the
+    low-confidence counter persists across button clicks within a session.
+    """
+    if "drift_monitor" not in st.session_state:
+        st.session_state["drift_monitor"] = DriftMonitor(
+            confidence_threshold=confidence_threshold,
+            max_low_confidence=max_low_confidence,
+        )
+    # Always update thresholds so sidebar slider changes take effect immediately
+    dm = st.session_state["drift_monitor"]
+    dm.confidence_threshold = confidence_threshold
+    dm.max_low_confidence = max_low_confidence
+    return dm
+
+
 def _run_autonomous_pipeline(
     image_path: str,
     confidence_threshold: float,
@@ -152,11 +173,16 @@ def _run_autonomous_pipeline(
     cam_class, cam_path = generate_gradcam(image_path)
     reasoning = analyze_defect(defect_class, confidence)
 
-    drift_monitor = DriftMonitor(
-        confidence_threshold=confidence_threshold,
-        max_low_confidence=max_low_confidence,
+    # Session-persistent drift monitor (accumulates across button clicks)
+    drift_mon = _get_session_drift_monitor(confidence_threshold, max_low_confidence)
+    drift_detected = drift_mon.update(confidence)
+
+    # Active-learning triage
+    triage_result = triage(
+        image_path=image_path,
+        predicted_class=defect_class,
+        confidence=confidence,
     )
-    drift_detected = drift_monitor.update(confidence)
 
     synth_paths = []
     if drift_detected:
@@ -173,6 +199,7 @@ def _run_autonomous_pipeline(
         "cam_path": cam_path,
         "reasoning": reasoning,
         "drift_detected": drift_detected,
+        "triage": triage_result,
         "synth_paths": synth_paths,
     }
 
@@ -189,6 +216,18 @@ def _render_summary(result: Dict[str, Any]) -> None:
         )
     else:
         st.markdown('<span class="pill">Healthy confidence</span>', unsafe_allow_html=True)
+
+    triage_info = result.get("triage", {})
+    if triage_info.get("queued"):
+        reason_label = (
+            "Low confidence"
+            if triage_info["reason"] == "low_confidence"
+            else "Ambiguous prediction"
+        )
+        st.markdown(
+            f'<span class="pill pill-warn">🔬 Queued for human review ({reason_label})</span>',
+            unsafe_allow_html=True,
+        )
 
     st.write(
         f"**Prediction:** {result['defect_class']}  \n"

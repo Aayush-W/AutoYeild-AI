@@ -29,3 +29,5 @@ yarn-error.log*
 # OS generated files
 .DS_Store
 Thumbs.db
+# Python virtual environment
+.venv/

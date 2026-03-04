@@ -238,6 +238,3 @@ if __name__ == "__main__":
     accuracy, preds, targets = evaluate(return_all=True)
     metrics_payload = compute_classification_metrics(targets, preds, class_names)
     save_model(accuracy, metrics_payload)
-    final_accuracy, preds, targets = evaluate(return_all=True)
-    metrics_payload = compute_classification_metrics(targets, preds, class_names)
-    save_model(final_accuracy, metrics_payload)
