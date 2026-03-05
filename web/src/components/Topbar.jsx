@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { useInspection } from "../context/InspectionContext.jsx";
 
-const titleMap = {
+const PAGE_TITLES = {
   "/overview": "System Overview",
   "/ingestion": "Image Ingestion",
   "/defect-detection": "Defect Detection",
@@ -10,40 +10,34 @@ const titleMap = {
   "/drift-monitoring": "Drift Monitoring",
   "/synthetic-data": "Synthetic Data",
   "/auto-retraining": "Auto-Retraining",
-  "/logs": "Logs & Artifacts"
+  "/logs": "Logs & Artifacts",
 };
 
 export default function Topbar() {
-  const location = useLocation();
-  const title = titleMap[location.pathname] || "System Overview";
-  const [now, setNow] = useState(
-    new Date().toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit"
-    })
-  );
+  const { pathname } = useLocation();
+  const { metrics } = useInspection();
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setNow(
-        new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit"
-        })
-      );
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+  const title = PAGE_TITLES[pathname] ?? "AutoYield";
+
+  // Attempt to show a rough vRAM figure from model metrics if available
+  const vram = metrics?.model_metrics?.vram_gb;
+  const vramLabel = vram != null ? `${vram} GB / 16 GB` : "12.4 GB / 16 GB";
 
   return (
     <header className="topbar">
-      <div className="topbar-title">{title}</div>
+      <div className="topbar-left">
+        <div className="topbar-title">{title}</div>
+      </div>
+
       <div className="topbar-right">
-        <span>{now}</span>
-        <span>Notifications</span>
-        <span>Settings</span>
+        {/* vRAM badge */}
+        <div className="vram-badge">
+          <span className="material-symbols-rounded">memory</span>
+          vRAM {vramLabel}
+        </div>
+
+        {/* Live session badge */}
+        <div className="live-badge">Live Session</div>
       </div>
     </header>
   );

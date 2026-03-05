@@ -5,7 +5,7 @@ export default function Layout({ children }) {
   return (
     <div className="app-shell">
       <Sidebar />
-      <main className="main mini-grid">
+      <main className="main">
         <Topbar />
         <div className="content">{children}</div>
       </main>
