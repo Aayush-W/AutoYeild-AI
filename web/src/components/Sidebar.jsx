@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 
 const navGroups = [
   {
-    label: "Analytics",
+    label: "// Analytics",
     items: [
       { path: "/overview", icon: "dashboard", label: "System Overview" },
       { path: "/ingestion", icon: "upload_file", label: "Image Ingestion" },
@@ -12,7 +12,7 @@ const navGroups = [
     ],
   },
   {
-    label: "Autonomy",
+    label: "// Autonomy",
     items: [
       { path: "/drift-monitoring", icon: "monitor_heart", label: "Drift Monitoring" },
       { path: "/synthetic-data", icon: "auto_fix_high", label: "Synthetic Data" },
@@ -20,7 +20,7 @@ const navGroups = [
     ],
   },
   {
-    label: "System",
+    label: "// System",
     items: [
       { path: "/logs", icon: "history", label: "Logs & Artifacts" },
     ],
@@ -34,15 +34,15 @@ export default function Sidebar() {
       <div className="brand">
         <div className="brand-logo">AY</div>
         <div className="brand-text">
-          <h1>AutoYield</h1>
-          <span>Semiconductor AI</span>
+          <h1>AutoYield AI</h1>
+          <span>Semiconductor Inspection</span>
         </div>
       </div>
 
       {/* Navigation */}
       <nav className="nav">
         {navGroups.map((group) => (
-          <div key={group.label} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <div key={group.label} style={{ display: "flex", flexDirection: "column" }}>
             <div className="nav-section-label">{group.label}</div>
             {group.items.map((item) => (
               <NavLink
@@ -61,14 +61,16 @@ export default function Sidebar() {
       {/* Footer */}
       <div className="sidebar-footer">
         <div className="sidebar-user">
-          <div className="sidebar-avatar">AV</div>
+          <div className="sidebar-avatar">AW</div>
           <div className="sidebar-user-info">
-            <div className="sidebar-user-name">A. Vance</div>
+            <div className="sidebar-user-name">A. Walsangikar</div>
             <div className="sidebar-user-role">Lead Engineer</div>
           </div>
         </div>
         <div className="status-pill">System Online</div>
-        <div style={{ fontSize: 10, color: "var(--muted)" }}>Operator ID: 8821</div>
+        <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--muted)", letterSpacing: "0.08em" }}>
+          OPERATOR_ID: SEM-8821 · DefectNet-v4.2-TRT
+        </div>
       </div>
     </aside>
   );

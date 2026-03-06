@@ -1,6 +1,7 @@
 import { useInspection } from "../context/InspectionContext.jsx";
 import { useNavigate } from "react-router-dom";
 
+// All data logic PRESERVED
 const DEFECT_DESCRIPTIONS = {
   scratch: "Linear mechanical damage on wafer surface.",
   particle: "Foreign material deposition causing contamination.",
@@ -33,117 +34,121 @@ export default function DefectDetection() {
   const severityChip = SEVERITY_CHIP[severity] ?? "warn";
   const confidence = hasData ? Math.round(inspection.confidence * 100) : null;
 
-  // Historical comparison: last 4 entries from history
-  const histBatches = history.length
-    ? [...history].reverse().slice(0, 4)
-    : [];
+  const histBatches = history.length ? [...history].reverse().slice(0, 4) : [];
 
   return (
     <>
-      {/* Header row */}
-      <div className="engine-banner">
-        <div className="engine-banner-left">
-          <div>
-            <div className="engine-title" style={{ fontSize: 13 }}>
-              {hasData
-                ? `Wafer ID: ${inspection.inspection_id}`
-                : "Detection Inference"}
-            </div>
-            <div className="engine-subtitle">
-              {hasData
-                ? `Batch #${inspection.inspection_id?.split("-")[1] ?? "—"} • ${inspection.timestamp}`
-                : "Run an analysis in Image Ingestion to see results"}
-            </div>
+      {/* Section Header */}
+      <div className="section-header">
+        <div>
+          <div className="section-title">Defect Detection Viewer</div>
+          <div className="section-sub">
+            // Real-time inference and batch processing · Target model: DefectNet-v4.2-TRT
           </div>
         </div>
         {hasData && (
-          <div style={{ display: "flex", gap: 10 }}>
+          <div style={{ display: "flex", gap: 8 }}>
             <span className={`chip ${severityChip}`}>{severity}</span>
             <span className="chip info">{inspection.inference_time_ms} ms</span>
           </div>
         )}
       </div>
 
+      {/* Engine Banner */}
+      <div className="engine-banner">
+        <div className="engine-banner-left">
+          <div className="engine-status-dot" style={{ background: hasData ? "var(--accent-success)" : "var(--accent-warn)" }} />
+          <div>
+            <div className="engine-title">
+              {hasData ? `Wafer ID: ${inspection.inspection_id}` : "Detection Inference"}
+            </div>
+            <div className="engine-subtitle">
+              {hasData
+                ? `// Batch #${inspection.inspection_id?.split("-")[1] ?? "—"} · ${inspection.timestamp}`
+                : "// Run an analysis in Image Ingestion to see results"}
+            </div>
+          </div>
+        </div>
+        {!hasData && (
+          <button className="btn" onClick={() => navigate("/ingestion")}>
+            <span className="material-symbols-rounded" style={{ fontSize: 14 }}>upload_file</span>
+            Go to Ingestion
+          </button>
+        )}
+      </div>
+
       {!hasData && (
         <div className="alert info">
           <div className="alert-icon">
-            <span className="material-symbols-rounded" style={{ color: "var(--accent)" }}>
-              info
-            </span>
+            <span className="material-symbols-rounded" style={{ color: "var(--accent-blue)", fontSize: 18 }}>info</span>
           </div>
           <div className="alert-body">
-            <div className="alert-title">No inspection data yet</div>
-            <div className="alert-detail">
-              Upload a wafer image in{" "}
-              <button
-                className="btn sm"
-                style={{ display: "inline-flex", padding: "2px 8px" }}
-                onClick={() => navigate("/ingestion")}
-              >
-                Image Ingestion
-              </button>{" "}
-              to run a defect analysis.
-            </div>
+            <div className="alert-title">// No inspection data yet</div>
+            <div className="alert-detail">Upload a wafer image in Image Ingestion to run a defect analysis.</div>
           </div>
         </div>
       )}
 
       {hasData && (
         <div className="grid-2">
-          {/* Original scan */}
+          {/* Original SEM Scan */}
           <div className="card">
-            <div className="card-title" style={{ marginBottom: 12 }}>
+            <div className="card-title" style={{ marginBottom: 14 }}>
               <span className="material-symbols-rounded">image</span>
-              Original SEM Scan
+              ORIGINAL SEM SCAN · WFR-2023-A4
             </div>
-            <div className="image-frame">
+            <div className="image-frame" style={{ position: "relative" }}>
               <img src={inspection.input_image} alt="Wafer scan" />
+              {/* Scan overlay animation */}
+              <div className="scan-overlay">
+                <div className="scan-line" />
+              </div>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10 }}>
+              <div className="stat-foot">// SEM High-Res Mode · 12nm Node</div>
+              <div className="stat-foot">Source: Optical-B Calibration</div>
             </div>
           </div>
 
-          {/* Inference result */}
+          {/* Inference Result */}
           <div className="card">
-            <div className="card-title" style={{ marginBottom: 12 }}>
+            <div className="card-title" style={{ marginBottom: 14 }}>
               <span className="material-symbols-rounded">analytics</span>
-              Inference Result
+              INFERENCE RESULT
             </div>
 
             <div className="inference-result-panel">
+              {/* Class name — large editorial */}
               <div>
-                <div className="inference-class-name" style={{ textTransform: "capitalize" }}>
+                <div className="inference-class-name">
                   {label}
                 </div>
-                <div className="stat-foot" style={{ marginTop: 4 }}>{description}</div>
+                <div className="stat-foot" style={{ marginTop: 8 }}>{description}</div>
               </div>
 
+              {/* Stats row */}
               <div className="inference-row">
                 <div className="inference-stat">
-                  <div className="inference-stat-label">Severity</div>
+                  <div className="inference-stat-label">SEVERITY</div>
                   <span className={`chip ${severityChip}`}>{severity}</span>
                 </div>
                 <div className="inference-stat">
-                  <div className="inference-stat-label">Inference Time</div>
+                  <div className="inference-stat-label">INFERENCE TIME</div>
                   <div className="inference-stat-value">{inspection.inference_time_ms} ms</div>
                 </div>
                 {inspection.drift_detected && (
                   <div className="inference-stat">
-                    <div className="inference-stat-label">Drift</div>
-                    <span className="chip warn">Detected</span>
+                    <div className="inference-stat-label">DRIFT</div>
+                    <span className="chip warn">DETECTED</span>
                   </div>
                 )}
               </div>
 
               {/* Confidence bar */}
               <div>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    marginBottom: 6,
-                  }}
-                >
-                  <span className="stat-foot">Confidence Score</span>
-                  <span style={{ fontWeight: 700, fontSize: 13 }}>{confidence}%</span>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)", letterSpacing: "0.1em", textTransform: "uppercase" }}>Confidence Score</span>
+                  <span style={{ fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: 14 }}>{confidence}%</span>
                 </div>
                 <div className="progress thick">
                   <span style={{ width: `${confidence}%` }} />
@@ -151,30 +156,27 @@ export default function DefectDetection() {
               </div>
 
               {/* Candidate classes */}
-              <div>
-                <div className="card-title" style={{ marginBottom: 10 }}>
-                  <span className="material-symbols-rounded">format_list_numbered</span>
-                  Candidate Classes
-                </div>
-                <div className="candidate-list">
-                  {(inspection.top_predictions ?? []).map((pred, i) => (
-                    <div className="candidate-item" key={i}>
-                      <span
-                        className="candidate-label"
-                        style={{ textTransform: "capitalize" }}
-                      >
-                        {i + 1}. {pred.label}
-                      </span>
-                      <div className="progress" style={{ flex: 1 }}>
-                        <span style={{ width: `${Math.round(pred.prob * 100)}%` }} />
+              {(inspection.top_predictions ?? []).length > 0 && (
+                <div>
+                  <div className="card-title" style={{ marginBottom: 10 }}>
+                    <span className="material-symbols-rounded">format_list_numbered</span>
+                    CANDIDATE CLASSES
+                  </div>
+                  <div className="candidate-list">
+                    {inspection.top_predictions.map((pred, i) => (
+                      <div className="candidate-item" key={i}>
+                        <span className="candidate-label">
+                          {i + 1}. {pred.label}
+                        </span>
+                        <div className="progress" style={{ flex: 1 }}>
+                          <span style={{ width: `${Math.round(pred.prob * 100)}%` }} />
+                        </div>
+                        <span className="candidate-pct">{Math.round(pred.prob * 100)}%</span>
                       </div>
-                      <span className="candidate-pct">
-                        {Math.round(pred.prob * 100)}%
-                      </span>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -185,79 +187,58 @@ export default function DefectDetection() {
         <div className="card-header">
           <div className="card-title">
             <span className="material-symbols-rounded">compare</span>
-            Historical Comparison
+            HISTORICAL COMPARISON
+          </div>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--muted)" }}>
+            LAST {histBatches.length || 0} BATCHES
           </div>
         </div>
         {histBatches.length > 0 ? (
           <div className="history-comparison">
             {histBatches.map((batch, i) => (
-              <div
-                key={i}
-                className={`history-batch${i === 0 ? " current" : ""}`}
-              >
+              <div key={i} className={`history-batch${i === 0 ? " current" : ""}`}>
                 <div className="history-batch-id">
                   {i === 0 ? "CURRENT" : `BATCH #${i}`}
                 </div>
-                <div
-                  className="history-batch-class"
-                  style={{ textTransform: "capitalize" }}
-                >
-                  {batch.defect_class}
-                </div>
+                <div className="history-batch-class">{batch.defect_class}</div>
                 <div className="history-batch-conf">
                   {Math.round(batch.confidence * 100)}% conf
-                  {batch.drift_detected ? " • drift" : ""}
+                  {batch.drift_detected ? " · drift" : ""}
                 </div>
-                <div className="stat-foot" style={{ marginTop: 4, fontSize: 10 }}>
-                  {batch.timestamp}
-                </div>
+                <div className="stat-foot" style={{ marginTop: 4 }}>{batch.timestamp}</div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="stat-foot" style={{ padding: "8px 0" }}>
-            No batch history available yet.
+          <div className="stat-foot" style={{ padding: "12px 0" }}>
+            // No batch history available yet.
           </div>
         )}
       </div>
 
-      {/* Model Engine panel */}
-      <div className="card" style={{ display: "flex", alignItems: "center", gap: 24, flexWrap: "wrap" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div
-            style={{
-              width: 38, height: 38,
-              borderRadius: "var(--r-sm)",
-              background: "rgba(43,140,238,0.15)",
-              display: "grid", placeItems: "center",
-            }}
-          >
-            <span className="material-symbols-rounded" style={{ color: "var(--accent)" }}>memory</span>
-          </div>
-          <div>
-            <div style={{ fontWeight: 700, fontFamily: "var(--font-head)", fontSize: 14 }}>
-              YieldSense v4.2
-            </div>
-            <div className="stat-foot">Model Engine</div>
+      {/* Model Engine Panel */}
+      <div className="model-status-widget">
+        <span className="material-symbols-rounded" style={{ fontSize: 20, color: "var(--secondary)" }}>memory</span>
+        <div>
+          <div className="model-status-name">YieldSense v4.2 — Model Engine</div>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 10, color: "var(--muted)", marginTop: 2 }}>
+            // 12nm FinFET optimized · TensorRT accelerated
           </div>
         </div>
-        <div className="divider" style={{ width: 1, height: 36, background: "var(--stroke)" }} />
-        <div>
-          <div className="stat-foot">Last Trained</div>
-          <div style={{ fontWeight: 600, fontSize: 12 }}>
-            {/* try to show last retrain from history */}
-            {histBatches.find((b) => b.retrain_result)
-              ? histBatches.find((b) => b.retrain_result).timestamp
-              : "2 days ago"}
+        <div className="model-status-badge">ONLINE</div>
+        <div style={{ marginLeft: "auto" }}>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Last Trained</div>
+          <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 700, color: "var(--text)", marginTop: 2 }}>
+            {histBatches.find((b) => b.retrain_result)?.timestamp ?? "2 days ago"}
           </div>
         </div>
         {hasData && (
           <>
-            <div className="divider" style={{ width: 1, height: 36, background: "var(--stroke)" }} />
+            <div style={{ width: 1, height: 32, background: "var(--stroke-major)" }} />
             <div>
-              <div className="stat-foot">Triage Priority</div>
-              <div className={`chip ${inspection.triage?.priority === "high" ? "warn" : "info"}`}>
-                {inspection.triage?.priority ?? "normal"}
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Triage Priority</div>
+              <div className={`chip ${inspection.triage?.priority === "high" ? "warn" : "info"}`} style={{ marginTop: 3 }}>
+                {inspection.triage?.priority ?? "NORMAL"}
               </div>
             </div>
           </>

@@ -13,7 +13,7 @@ export default function DriftMonitoring() {
       <div className="section-header">
         <div>
           <div className="section-title">Drift Monitoring</div>
-          <div className="section-sub">Confidence drift detection and stability tracking</div>
+          <div className="section-sub">// Confidence drift detection and stability tracking · PSI-based distribution shift analysis</div>
         </div>
         <button className="btn sm" onClick={refreshDashboard}>
           <span className="material-symbols-rounded" style={{ fontSize: 14 }}>refresh</span>
@@ -110,14 +110,16 @@ export default function DriftMonitoring() {
           </div>
           <pre
             style={{
-              background: "rgba(7,14,26,0.8)",
-              borderRadius: "var(--r-md)",
-              padding: "12px",
+              background: "var(--bg-1)",
+              border: "1px solid var(--stroke-major)",
+              borderRadius: 0,
+              padding: "14px",
               fontSize: 11,
-              color: "var(--muted)",
+              fontFamily: "var(--font-mono)",
+              color: "var(--secondary)",
               whiteSpace: "pre-wrap",
               wordBreak: "break-all",
-              maxHeight: 180,
+              maxHeight: 200,
               overflowY: "auto",
             }}
           >

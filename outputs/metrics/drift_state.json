@@ -1,10 +1,10 @@
 {
   "match_count": 1,
-  "total_updates": 6,
-  "drift_events": 3,
+  "total_updates": 8,
+  "drift_events": 4,
   "trigger_armed": false,
   "last_threshold": 0.3,
   "last_trigger_mode": "above",
-  "last_confidence": 0.5825597047805786,
+  "last_confidence": 0.5845337510108948,
   "low_confidence_count": 0
 }

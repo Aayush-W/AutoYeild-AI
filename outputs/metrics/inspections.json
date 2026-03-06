@@ -614,5 +614,70 @@
       "updated_model_path": "C:\\Users\\Aayush Walsangikar\\OneDrive\\Desktop\\AutoYeildAI\\models\\updated_model.pt",
       "metrics_path": "C:\\Users\\Aayush Walsangikar\\OneDrive\\Desktop\\AutoYeildAI\\outputs\\metrics\\retrain_metrics.json"
     }
+  },
+  {
+    "inspection_id": "INS-9A860C8180D3",
+    "timestamp": "2026-03-06 10:16:50",
+    "defect_class": "Local",
+    "confidence": 0.3983,
+    "top_predictions": [
+      {
+        "label": "Local",
+        "prob": 0.39826667308807373
+      },
+      {
+        "label": "center",
+        "prob": 0.3185965418815613
+      },
+      {
+        "label": "scratch",
+        "prob": 0.19938397407531738
+      }
+    ],
+    "inference_time_ms": 3285,
+    "drift_detected": false,
+    "synth_trigger_mode": "above",
+    "triage": {
+      "queued": true,
+      "reason": "low_confidence",
+      "entry_id": "RT-07FA5DEC42"
+    },
+    "severity": "Medium",
+    "cause_summary": "Localized particle contamination or brief chamber instability.",
+    "synthetic_count": 0,
+    "auto_retrain": false,
+    "retrain_result": null
+  },
+  {
+    "inspection_id": "INS-8D5A8533653A",
+    "timestamp": "2026-03-06 10:17:23",
+    "defect_class": "center",
+    "confidence": 0.5845,
+    "top_predictions": [
+      {
+        "label": "center",
+        "prob": 0.5845337510108948
+      },
+      {
+        "label": "Local",
+        "prob": 0.17124733328819275
+      },
+      {
+        "label": "scratch",
+        "prob": 0.09143338352441788
+      }
+    ],
+    "inference_time_ms": 2100,
+    "drift_detected": true,
+    "synth_trigger_mode": "above",
+    "triage": {
+      "queued": false,
+      "reason": "accepted"
+    },
+    "severity": "Medium",
+    "cause_summary": "Instability in center-zone temperature or chamber pressure during deposition or etching steps.",
+    "synthetic_count": 10,
+    "auto_retrain": false,
+    "retrain_result": null
   }
 ]
