@@ -6,10 +6,13 @@ export default function TechnicalAnnotation({
     y,
     direction = "right",
     className = "",
+    lineLength = 60,
+    boxWidth = 140,
+    boxHeight = 48,
+    showBox = true,
 }) {
-    const lineLength = 60;
-    const boxW = 140;
-    const boxH = 48;
+    const boxW = boxWidth;
+    const boxH = boxHeight;
 
     let lineX2, lineY2, boxX, boxY;
 
@@ -120,47 +123,49 @@ export default function TechnicalAnnotation({
             </svg>
 
             {/* Callout box */}
-            <div
-                style={{
-                    position: "absolute",
-                    left: boxX,
-                    top: boxY,
-                    width: boxW,
-                    height: boxH,
-                    border: "1px solid #111111",
-                    background: "#F4F4F2",
-                    borderRadius: 0,
-                    padding: "8px 12px",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                    gap: 2,
-                }}
-            >
+            {showBox && (
                 <div
                     style={{
-                        fontFamily: "'JetBrains Mono', monospace",
-                        fontSize: 9,
-                        fontWeight: 600,
-                        color: "#6E6E6E",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.08em",
+                        position: "absolute",
+                        left: boxX,
+                        top: boxY,
+                        width: boxW,
+                        height: boxH,
+                        border: "1px solid #111111",
+                        background: "#F4F4F2",
+                        borderRadius: 0,
+                        padding: "8px 12px",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        gap: 2,
                     }}
                 >
-                    {label}
+                    <div
+                        style={{
+                            fontFamily: "'JetBrains Mono', monospace",
+                            fontSize: 9,
+                            fontWeight: 600,
+                            color: "#6E6E6E",
+                            textTransform: "uppercase",
+                            letterSpacing: "0.08em",
+                        }}
+                    >
+                        {label}
+                    </div>
+                    <div
+                        style={{
+                            fontFamily: "'JetBrains Mono', monospace",
+                            fontSize: 11,
+                            fontWeight: 700,
+                            color: "#111111",
+                            letterSpacing: "0.02em",
+                        }}
+                    >
+                        {value}
+                    </div>
                 </div>
-                <div
-                    style={{
-                        fontFamily: "'JetBrains Mono', monospace",
-                        fontSize: 11,
-                        fontWeight: 700,
-                        color: "#111111",
-                        letterSpacing: "0.02em",
-                    }}
-                >
-                    {value}
-                </div>
-            </div>
+            )}
         </div>
     );
 }

@@ -13,9 +13,10 @@ const PAGE_TITLES = {
   "/logs": ["ARTIFACT_LOG", "Logs & Artifacts"],
 };
 
-export default function Topbar() {
+export default function Topbar({ overviewMode, setOverviewMode }) {
   const { pathname } = useLocation();
   const { metrics } = useInspection();
+  const isOverviewRoute = pathname === "/overview";
 
   const [moduleId, title] = PAGE_TITLES[pathname] ?? ["MODULE", "AutoYield"];
   const vram = metrics?.model_metrics?.vram_gb;
@@ -26,14 +27,32 @@ export default function Topbar() {
       <div className="topbar-left">
         <div className="topbar-breadcrumb">
           <span>AUTOYIELD.AI</span>
-          <span style={{ opacity: 0.4 }}>›</span>
-          <span style={{ color: "var(--text)", fontWeight: 700 }}>{title.toUpperCase()}</span>
+          <span style={{ opacity: 0.4 }}>{">"}</span>
+          <span style={{ color: "var(--text)", fontWeight: 700 }}>
+            {title.toUpperCase()}
+          </span>
         </div>
-        <div style={{ width: 1, height: 16, background: "var(--stroke-major)" }} />
+        <div
+          style={{ width: 1, height: 16, background: "var(--stroke-major)" }}
+        />
         <div className="topbar-title">// {moduleId}</div>
       </div>
 
       <div className="topbar-right">
+        {isOverviewRoute && (
+          <button
+            type="button"
+            className="topbar-mode-toggle"
+            onClick={() =>
+              setOverviewMode?.(
+                overviewMode === "frontpage" ? "workspace" : "frontpage"
+              )
+            }
+          >
+            {overviewMode === "frontpage" ? "WORKSPACE" : "FRONT PAGE"}
+          </button>
+        )}
+
         <div className="vram-badge">
           <span className="material-symbols-rounded">memory</span>
           vRAM {vramLabel}
