@@ -18,23 +18,21 @@ function TrendBars({ bars }) {
   );
 }
 
-function useReveal() {
-  const ref = useRef(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { el.classList.add("visible"); obs.unobserve(el); } },
-      { threshold: 0.1 }
-    );
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, []);
-  return ref;
+function AnimSection({ delay = 0, children, style = {}, ...props }) {
+  return (
+    <div style={{ animation: `fadeInUp 0.6s ease ${delay}ms both`, ...style }} {...props}>
+      {children}
+    </div>
+  );
 }
 
 export default function SystemOverview() {
   const { inspection, history, metrics, refreshDashboard } = useInspection();
+
+  // Scroll-reveal refs
+  const metricsRef = useRef(null);
+  const trendRef = useRef(null);
+  const tableRef = useRef(null);
 
   // Auto-refresh every 30s — PRESERVED
   useEffect(() => {
@@ -69,16 +67,10 @@ export default function SystemOverview() {
     ? [...history].reverse().slice(0, 5)
     : [];
 
-  // Reveal refs
-  const heroRef = useReveal();
-  const metricsRef = useReveal();
-  const trendRef = useReveal();
-  const tableRef = useReveal();
-
   return (
     <>
       {/* ── HERO SECTION ── */}
-      <div className="hero-section" ref={heroRef} style={{ opacity: 0, transition: "opacity 0.8s ease, transform 0.8s ease" }}>
+      <div className="hero-section" style={{ animation: "fadeIn 0.8s ease both" }}>
         <div className="hero-kicker">AutoYield AI · DefectNet-v4.2-TRT</div>
 
         <h1 className="hero-headline">
