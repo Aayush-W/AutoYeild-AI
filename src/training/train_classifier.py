@@ -15,9 +15,10 @@ from src.evaluation.metrics import compute_classification_metrics
 # =========================
 # CONFIG
 # =========================
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.normpath(os.path.join(SCRIPT_DIR, "..", "..", "data", "processed"))
-MODEL_SAVE_PATH = os.path.normpath(os.path.join(SCRIPT_DIR, "..", "..", "models", "baseline_model.pt"))
+MODELS_DIR = os.path.normpath(os.path.join(SCRIPT_DIR, "..", "..", "models"))
+MODEL_SAVE_PATH = os.path.join(MODELS_DIR, "baseline_model.pt")
+CLASSES_JSON_PATH = os.path.join(MODELS_DIR, "classes.json")
 
 BATCH_SIZE = 32
 NUM_EPOCHS = 25
@@ -67,26 +68,13 @@ class FocalLoss(nn.Module):
         return loss
 
 
-# =========================
-# TRANSFORMS (ImageNet norm, mild augmentation)
-# =========================
-imagenet_norm = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+from src.utils.preprocessing import get_train_transform, get_val_transform
 
-train_transform = transforms.Compose([
-    transforms.Resize(256),
-    transforms.CenterCrop(224),
-    transforms.RandomRotation(3),
-    transforms.ColorJitter(brightness=0.1, contrast=0.1),
-    transforms.ToTensor(),
-    imagenet_norm,
-])
-
-val_transform = transforms.Compose([
-    transforms.Resize(256),
-    transforms.CenterCrop(224),
-    transforms.ToTensor(),
-    imagenet_norm,
-])
+# =========================
+# TRANSFORMS (Centralized)
+# =========================
+train_transform = get_train_transform()
+val_transform = get_val_transform()
 
 # =========================
 # LOAD DATA
@@ -212,7 +200,7 @@ def evaluate(return_all=False):
 # SAVE MODEL
 # =========================
 def save_model(accuracy, metrics_payload=None):
-    os.makedirs(os.path.dirname(MODEL_SAVE_PATH), exist_ok=True)
+    os.makedirs(MODELS_DIR, exist_ok=True)
     os.makedirs("outputs/metrics", exist_ok=True)
 
     torch.save(
@@ -226,6 +214,10 @@ def save_model(accuracy, metrics_payload=None):
     if metrics_payload:
         with open("outputs/metrics/model_metrics.json", "w") as f:
             json.dump(metrics_payload, f, indent=2)
+
+    # Persist class mapping for downstream consumers (API, CLI, etc.)
+    with open(CLASSES_JSON_PATH, "w") as f:
+        json.dump({"classes": class_names}, f, indent=2)
 
     print(f"Model saved to {MODEL_SAVE_PATH}")
 

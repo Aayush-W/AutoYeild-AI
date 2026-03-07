@@ -8,7 +8,7 @@ from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 MODEL_PATH = PROJECT_ROOT / "models" / "baseline_model.pt"
-IMAGE_SIZE = (224, 224)
+from src.utils.preprocessing import get_inference_transform, describe_tensor_stats
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -30,13 +30,7 @@ model.eval()
 # -------------------------
 # Transform (match training: Resize, CenterCrop, ImageNet norm)
 # -------------------------
-imagenet_norm = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-transform = transforms.Compose([
-    transforms.Resize(256),
-    transforms.CenterCrop(IMAGE_SIZE),
-    transforms.ToTensor(),
-    imagenet_norm,
-])
+transform = get_inference_transform()
 
 # -------------------------
 # Inference

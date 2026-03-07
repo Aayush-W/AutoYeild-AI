@@ -15,7 +15,6 @@ from src.inference.gradcam import generate_gradcam
 from src.reasoning.root_cause_agent import analyze_defect
 from src.autonomy.drift_monitor import get_drift_monitor
 from src.autonomy.triage_agent import triage
-from src.self_improvement.auto_retrainer import retrain_with_synthetic
 from src.self_improvement.synthetic_generator import generate_synthetic_images
 
 from config.db import async_db
@@ -160,13 +159,9 @@ async def analyze_image(
 
     retrain_result: Dict[str, Any] | None = None
     if synth_paths and auto_retrain:
-        retrain_result = await asyncio.to_thread(
-            retrain_with_synthetic,
-            synthetic_paths=synth_paths,
-            target_class=defect_class,
-            epochs=max(1, retrain_epochs),
-            min_accuracy_delta=min_accuracy_delta,
-        )
+        # User requested to just schedule the background retrain
+        schedule_status = trigger_retraining(min_drift_events=1)
+        retrain_result = schedule_status
 
     inference_ms = int((time.time() - start_time) * 1000)
     inspection_id = f"INS-{uuid.uuid4().hex[:12].upper()}"
@@ -230,8 +225,23 @@ async def get_metrics():
     }
 
 
+from src.self_improvement.auto_retrainer import trigger_retraining, get_retrain_status
 @app.post("/api/drift/reset")
 def reset_drift():
     # Sync operation wrapper for thread-safe singleton
     get_drift_monitor().reset()
     return {"status": "drift counter reset"}
+
+@app.get("/api/retrain/status")
+def retrain_status():
+    """Return current drift queue size and retraining readiness."""
+    return get_retrain_status()
+
+
+@app.post("/api/retrain")
+def schedule_retrain(min_drift_events: int = 1):
+    """
+    Trigger a background retraining run when enough drift events are queued.
+    Pass min_drift_events as a query param to override the threshold.
+    """
+    return trigger_retraining(min_drift_events=min_drift_events)

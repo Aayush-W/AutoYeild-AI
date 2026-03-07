@@ -12,6 +12,9 @@ model, class_names, device = load_model()
 """
 from __future__ import annotations
 
+import hashlib
+import json
+import os
 import threading
 from pathlib import Path
 from typing import Dict, List, Tuple
@@ -20,72 +23,92 @@ import torch
 import torch.nn as nn
 from torchvision.models import efficientnet_b0
 
-_PROJECT_ROOT = Path(__file__).resolve().parents[2]
-_DEFAULT_MODEL_PATH = _PROJECT_ROOT / "models" / "baseline_model.pt"
+APP_ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_MODEL_PATH = APP_ROOT / "models" / "baseline_model.pt"
+DEFAULT_CLASSES_JSON = APP_ROOT / "models" / "classes.json"
 
-# Module-level cache: path → (model, class_names, device)
-_cache: Dict[str, Tuple[nn.Module, List[str], str]] = {}
+
+def _compute_file_sha256(path: Path, chunk_size: int = 1 << 20) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        while True:
+            chunk = f.read(chunk_size)
+            if not chunk:
+                break
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def load_model_and_classes(
+    model_path: str | os.PathLike = DEFAULT_MODEL_PATH,
+) -> Tuple[nn.Module, List[str], Dict[str, str]]:
+    """
+    Load EfficientNet-B0 model and class mapping used across training and inference.
+
+    - Prefers classes from classes.json (written by the trainer)
+    - Falls back to checkpoint['class_names'] if JSON does not exist
+    """
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    model_path = Path(model_path)
+    if not model_path.is_absolute():
+        model_path = (APP_ROOT / model_path).resolve()
+
+    checkpoint = torch.load(model_path, map_location=device)
+    ckpt_classes: List[str] = checkpoint.get("class_names", [])
+
+    # Prefer classes.json; fall back to checkpoint
+    classes_json = (
+        DEFAULT_CLASSES_JSON
+        if model_path == DEFAULT_MODEL_PATH
+        else model_path.with_name("classes.json")
+    )
+    if classes_json.exists():
+        data = json.loads(classes_json.read_text())
+        json_classes: List[str] = data.get("classes", [])
+        class_names = json_classes or ckpt_classes
+    else:
+        class_names = ckpt_classes
+
+    num_classes = len(class_names)
+
+    model = efficientnet_b0(weights=None)
+    in_features = model.classifier[1].in_features
+    model.classifier[1] = nn.Linear(in_features, num_classes)
+    model.load_state_dict(checkpoint["model_state_dict"])
+    model = model.to(device)
+    model.eval()
+
+    stat = model_path.stat()
+    meta = {
+        "model_path": str(model_path),
+        "model_mtime": str(stat.st_mtime),
+        "model_sha256": _compute_file_sha256(model_path),
+        "classes_source": "classes.json" if classes_json.exists() else "checkpoint",
+    }
+
+    return model, class_names, meta
+
+
+# ---------------------------------------------------------------------------
+# Module-level singleton — loaded once on first import
+# ---------------------------------------------------------------------------
+_singleton: tuple | None = None
 _cache_lock = threading.Lock()
 
-
-def load_model(
-    model_path: str | Path | None = None,
-    device: str | None = None,
-) -> Tuple[nn.Module, List[str], str]:
+def get_default_model():
     """
-    Load (and cache) an EfficientNet-B0 checkpoint.
-
-    Parameters
-    ----------
-    model_path:
-        Path to the .pt checkpoint.  Defaults to models/baseline_model.pt.
-    device:
-        'cuda' or 'cpu'.  Auto-detected if not provided.
-
-    Returns
-    -------
-    (model, class_names, device)
-        model      – nn.Module in eval() mode
-        class_names – ordered list of class label strings
-        device     – the device string the model is on
+    Return (model, class_names, meta) for the default checkpoint.
+    Loaded only on the first call; all subsequent calls return the cached objects.
     """
-    resolved_path = str(Path(model_path) if model_path else _DEFAULT_MODEL_PATH)
-    resolved_device = device or ("cuda" if torch.cuda.is_available() else "cpu")
-
-    cache_key = f"{resolved_path}::{resolved_device}"
-
+    global _singleton
     with _cache_lock:
-        if cache_key in _cache:
-            return _cache[cache_key]
-
-        if not Path(resolved_path).exists():
-            raise FileNotFoundError(
-                f"Model checkpoint not found: {resolved_path}\n"
-                "Run `python src/training/train_classifier.py` first."
-            )
-
-        checkpoint = torch.load(resolved_path, map_location=resolved_device)
-        class_names: List[str] = checkpoint["class_names"]
-        num_classes = len(class_names)
-
-        net = efficientnet_b0(weights=None)
-        in_features = net.classifier[1].in_features
-        net.classifier[1] = nn.Linear(in_features, num_classes)
-        net.load_state_dict(checkpoint["model_state_dict"])
-        net = net.to(resolved_device)
-        net.eval()
-
-        _cache[cache_key] = (net, class_names, resolved_device)
-        return _cache[cache_key]
-
+        if _singleton is None:
+            _singleton = load_model_and_classes(DEFAULT_MODEL_PATH)
+        return _singleton
 
 def invalidate_cache(model_path: str | Path | None = None) -> None:
     """Remove a cached model so the next call reloads from disk (e.g. after retraining)."""
+    global _singleton
     with _cache_lock:
-        if model_path is None:
-            _cache.clear()
-        else:
-            key_prefix = str(Path(model_path))
-            keys_to_remove = [k for k in _cache if k.startswith(key_prefix)]
-            for k in keys_to_remove:
-                del _cache[k]
+        _singleton = None
