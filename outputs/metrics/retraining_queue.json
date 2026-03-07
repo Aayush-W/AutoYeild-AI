@@ -43,5 +43,14 @@
     "confidence": 0.2736,
     "reason": "low_confidence",
     "status": "pending"
+  },
+  {
+    "entry_id": "RT-CCD242E5DA",
+    "timestamp": "2026-03-07T17:24:48.041974+00:00",
+    "image_path": "C:\\Users\\User\\Downloads\\autosheild semiconductor\\AutoYeildAI\\outputs\\uploads\\897f3d6f9f424423aa1a73649085d1bf.jpeg",
+    "predicted_class": "Edge ring",
+    "confidence": 0.343,
+    "reason": "low_confidence",
+    "status": "pending"
   }
 ]

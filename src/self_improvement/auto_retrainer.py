@@ -9,26 +9,15 @@ from typing import Any, Dict, List, Optional
 
 from PIL import Image
 
-_PROJECT_ROOT = Path(__file__).resolve().parents[2]
-_QUEUE_FILE = _PROJECT_ROOT / "outputs" / "metrics" / "retraining_queue.json"
-_RETRAIN_METRICS_FILE = _PROJECT_ROOT / "outputs" / "metrics" / "retrain_metrics.json"
+from config.db import sync_db
 _QUEUE_LOCK = threading.Lock()
 
-
 def _load_queue() -> List[Dict[str, Any]]:
-    if _QUEUE_FILE.exists():
-        try:
-            data = json.loads(_QUEUE_FILE.read_text(encoding="utf-8"))
-            if isinstance(data, list):
-                return data
-        except Exception:
-            pass
-    return []
-
+    return list(sync_db["retraining_queue"].find({}, {"_id": 0}))
 
 def _save_queue(queue: List[Dict[str, Any]]) -> None:
-    _QUEUE_FILE.parent.mkdir(parents=True, exist_ok=True)
-    _QUEUE_FILE.write_text(json.dumps(queue, indent=2), encoding="utf-8")
+    # Not needed since we will insert/update directly
+    pass
 
 
 def queue_for_retraining(
@@ -47,31 +36,25 @@ def queue_for_retraining(
         "status": "pending",
     }
     with _QUEUE_LOCK:
-        queue = _load_queue()
-        queue.append(entry)
-        _save_queue(queue)
+        entry["_id"] = entry["entry_id"]
+        sync_db["retraining_queue"].insert_one(entry)
+        del entry["_id"] # clean for return value
     return entry
 
 
 def check_retraining_threshold(min_queue_size: int = 50) -> bool:
     with _QUEUE_LOCK:
-        queue = _load_queue()
-    pending = [e for e in queue if e.get("status") == "pending"]
-    return len(pending) >= min_queue_size
+        queue_size = sync_db["retraining_queue"].count_documents({"status": "pending"})
+    return queue_size >= min_queue_size
 
 
 def trigger_retraining(model_path: str | None = None) -> Dict[str, Any]:
     with _QUEUE_LOCK:
-        queue = _load_queue()
-        pending = [e for e in queue if e.get("status") == "pending"]
-        queue_size = len(pending)
-
-    with _QUEUE_LOCK:
-        full_queue = _load_queue()
-        for entry in full_queue:
-            if entry.get("status") == "pending":
-                entry["status"] = "triggered"
-        _save_queue(full_queue)
+        queue_size = sync_db["retraining_queue"].count_documents({"status": "pending"})
+        sync_db["retraining_queue"].update_many(
+            {"status": "pending"},
+            {"$set": {"status": "triggered"}}
+        )
 
     return {
         "triggered": True,
@@ -295,9 +278,10 @@ def retrain_with_synthetic(
         "accuracy_after": round(after_acc, 6),
         "promoted": promoted,
     }
-    _RETRAIN_METRICS_FILE.parent.mkdir(parents=True, exist_ok=True)
-    _RETRAIN_METRICS_FILE.write_text(
-        json.dumps(metrics_payload, indent=2), encoding="utf-8"
+    sync_db["retrain_metrics"].update_one(
+        {"_id": "singleton"},
+        {"$set": metrics_payload},
+        upsert=True
     )
 
     if promoted:
@@ -325,5 +309,5 @@ def retrain_with_synthetic(
         "accuracy_before": round(before_acc, 6),
         "accuracy_after": round(after_acc, 6),
         "updated_model_path": str(updated_model),
-        "metrics_path": str(_RETRAIN_METRICS_FILE),
+        "metrics_source": "MongoDB",
     }

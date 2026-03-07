@@ -1,7 +1,5 @@
 import asyncio
 import base64
-import json
-import threading
 import time
 import uuid
 from contextlib import asynccontextmanager
@@ -20,28 +18,20 @@ from src.autonomy.triage_agent import triage
 from src.self_improvement.auto_retrainer import retrain_with_synthetic
 from src.self_improvement.synthetic_generator import generate_synthetic_images
 
+from config.db import async_db
 
 APP_ROOT = Path(__file__).resolve().parents[1]
 UPLOAD_DIR = APP_ROOT / "outputs" / "uploads"
 SYNTH_DIR = APP_ROOT / "outputs" / "synthetic_images"
-METRICS_DIR = APP_ROOT / "outputs" / "metrics"
-HISTORY_FILE = METRICS_DIR / "inspections.json"
-MODEL_METRICS_FILE = METRICS_DIR / "model_metrics.json"
-
-# Thread lock for history file writes (prevents race conditions on burst traffic)
-_history_lock = threading.Lock()
-
 
 # ---------------------------------------------------------------------------
-# Lifespan: warm up the drift monitor singleton on startup
+# Lifespan: warm up drift monitor singleton on startup
 # ---------------------------------------------------------------------------
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Initialise the singleton to load persisted state before any requests arrive
     get_drift_monitor()
     yield
-
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -52,30 +42,6 @@ def _encode_image(path: Path) -> str:
         data = base64.b64encode(f.read()).decode("utf-8")
     ext = path.suffix.lower().replace(".", "") or "png"
     return f"data:image/{ext};base64,{data}"
-
-
-def _load_history() -> List[Dict[str, Any]]:
-    if not HISTORY_FILE.exists():
-        return []
-    try:
-        return json.loads(HISTORY_FILE.read_text(encoding="utf-8"))
-    except Exception:
-        return []
-
-
-def _save_history(history: List[Dict[str, Any]]) -> None:
-    METRICS_DIR.mkdir(parents=True, exist_ok=True)
-    HISTORY_FILE.write_text(json.dumps(history, indent=2), encoding="utf-8")
-
-
-def _append_history(entry: Dict[str, Any]) -> None:
-    """Thread-safe read-modify-write for the inspection history file."""
-    with _history_lock:
-        history = _load_history()
-        history.append(entry)
-        history = history[-200:]  # Keep rolling window
-        _save_history(history)
-
 
 def _compute_summary_metrics(history: List[Dict[str, Any]]) -> Dict[str, Any]:
     total = len(history)
@@ -103,15 +69,26 @@ def _compute_summary_metrics(history: List[Dict[str, Any]]) -> Dict[str, Any]:
         "last_inspection": history[-1] if history else None,
     }
 
+async def _load_history():
+    return await async_db.inspections.find({}, {"_id": 0}).sort("timestamp", 1).to_list(200)
 
-def _load_model_metrics() -> Dict[str, Any]:
-    if not MODEL_METRICS_FILE.exists():
-        return {}
-    try:
-        return json.loads(MODEL_METRICS_FILE.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
+async def _append_history(entry):
+    entry["_id"] = entry["inspection_id"]
+    await async_db.inspections.insert_one(entry)
+    
+    # Keep rolling window: drop oldest docs beyond 200
+    total_docs = await async_db.inspections.count_documents({})
+    if total_docs > 200:
+        oldest = await async_db.inspections.find().sort("timestamp", 1).limit(total_docs - 200).to_list(None)
+        oldest_ids = [doc["_id"] for doc in oldest]
+        if oldest_ids:
+            await async_db.inspections.delete_many({"_id": {"$in": oldest_ids}})
 
+async def _load_model_metrics():
+    doc = await async_db.model_metrics.find_one({"_id": "singleton"})
+    if doc:
+        return {k: v for k, v in doc.items() if k != "_id"}
+    return {}
 
 # ---------------------------------------------------------------------------
 # App
@@ -127,7 +104,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 @app.post("/api/analyze")
 async def analyze_image(
     file: UploadFile = File(...),
@@ -142,7 +118,6 @@ async def analyze_image(
 ):
     UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-    # --- Safe filename: UUID + original extension only (no path traversal) ---
     original_suffix = Path(file.filename).suffix.lower() if file.filename else ".png"
     safe_filename = f"{uuid.uuid4().hex}{original_suffix}"
     file_path = UPLOAD_DIR / safe_filename
@@ -152,14 +127,12 @@ async def analyze_image(
 
     start_time = time.time()
 
-    # Run CPU-bound inference in thread pool to avoid blocking the event loop
     defect_class, confidence, top_predictions = await asyncio.to_thread(
         predict_with_probs, str(file_path)
     )
     cam_class, cam_path = await asyncio.to_thread(generate_gradcam, str(file_path))
     reasoning = await asyncio.to_thread(analyze_defect, defect_class, confidence)
 
-    # --- Persistent singleton drift monitor (state accumulates across requests) ---
     drift_mon = get_drift_monitor(
         confidence_threshold=confidence_threshold,
         max_low_confidence=max_low_confidence,
@@ -167,7 +140,6 @@ async def analyze_image(
     )
     drift_detected = await asyncio.to_thread(drift_mon.update, confidence)
 
-    # --- Active-learning triage (runs concurrently with drift check) ---
     triage_result = await asyncio.to_thread(
         triage,
         str(file_path),
@@ -197,8 +169,6 @@ async def analyze_image(
         )
 
     inference_ms = int((time.time() - start_time) * 1000)
-
-    # --- Collision-free inspection ID via UUID ---
     inspection_id = f"INS-{uuid.uuid4().hex[:12].upper()}"
 
     history_entry = {
@@ -217,7 +187,8 @@ async def analyze_image(
         "auto_retrain": auto_retrain,
         "retrain_result": retrain_result,
     }
-    _append_history(history_entry)
+
+    await _append_history(history_entry)
 
     response = {
         "inspection_id": inspection_id,
@@ -241,15 +212,16 @@ async def analyze_image(
 
 
 @app.get("/api/history")
-def get_history():
-    return _load_history()
+async def get_history():
+    return await _load_history()
 
 
 @app.get("/api/metrics")
-def get_metrics():
-    history = _load_history()
-    summary = _compute_summary_metrics(history)
-    model_metrics = _load_model_metrics()
+async def get_metrics():
+    docs = await _load_history()
+    summary = _compute_summary_metrics(docs)
+    model_metrics = await _load_model_metrics()
+
     drift_mon = get_drift_monitor()
     return {
         "summary": summary,
@@ -260,6 +232,6 @@ def get_metrics():
 
 @app.post("/api/drift/reset")
 def reset_drift():
-    """Manually reset the drift counter (e.g. after retraining)."""
+    # Sync operation wrapper for thread-safe singleton
     get_drift_monitor().reset()
     return {"status": "drift counter reset"}
