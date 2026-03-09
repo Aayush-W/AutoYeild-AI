@@ -15,11 +15,11 @@ Given a user query string:
   ─────────────────────────────────────────────────────────────────────────
 
 Usage (command-line):
-    python search_faiss_index.py
-    python search_faiss_index.py --query "wafer edge defect" --top_k 5
+    python scripts/rag/search_faiss_index.py
+    python scripts/rag/search_faiss_index.py --query "wafer edge defect" --top_k 5
 
 Usage (import into FastAPI / another module):
-    from search_faiss_index import load_index_and_metadata, embed_query, search_index
+    from scripts.rag.search_faiss_index import load_index_and_metadata, embed_query, search_index
 """
 
 import argparse
@@ -49,8 +49,8 @@ DEFAULT_TOP_K    = 5
 PREVIEW_CHARS    = 300                  # characters to show in the text preview
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-BASE_DIR       = Path(__file__).resolve().parent
-PROCESSED_DIR  = BASE_DIR / "rag_data" / "processed"
+PROJECT_ROOT   = Path(__file__).resolve().parents[2]
+PROCESSED_DIR  = PROJECT_ROOT / "rag_data" / "processed"
 FAISS_PATH     = PROCESSED_DIR / "faiss_index.bin"
 METADATA_PATH  = PROCESSED_DIR / "chunk_metadata.json"
 
@@ -74,12 +74,12 @@ def load_index_and_metadata(
     if not faiss_path.exists():
         raise FileNotFoundError(
             f"FAISS index not found: {faiss_path}\n"
-            "Please run build_faiss_index.py (Step 3) first."
+            "Please run scripts/rag/build_faiss_index.py (Step 3) first."
         )
     if not metadata_path.exists():
         raise FileNotFoundError(
             f"Metadata file not found: {metadata_path}\n"
-            "Please run build_faiss_index.py (Step 3) first."
+            "Please run scripts/rag/build_faiss_index.py (Step 3) first."
         )
 
     index    = faiss.read_index(str(faiss_path))
@@ -89,7 +89,7 @@ def load_index_and_metadata(
         raise ValueError(
             f"Mismatch: FAISS index has {index.ntotal} vectors "
             f"but metadata has {len(metadata)} entries.\n"
-            "Re-run build_faiss_index.py to rebuild both together."
+            "Re-run scripts/rag/build_faiss_index.py to rebuild both together."
         )
 
     return index, metadata

@@ -1,10 +1,25 @@
+import os
+from pathlib import Path
+
+from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import MongoClient
 
-MONGO_URI = "mongodb+srv://diyawani2006_db_user:Xino2SRe9j8PjrMv@cluster0.0dwbwfe.mongodb.net/?appName=Cluster0"
+APP_ROOT = Path(__file__).resolve().parents[1]
+load_dotenv(APP_ROOT / ".env")
 
-async_client = AsyncIOMotorClient(MONGO_URI, serverSelectionTimeoutMS=5000)
-async_db = async_client["autoyield"]
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://127.0.0.1:27017")
+MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "autoyield")
+MONGO_TIMEOUT_MS = int(os.getenv("MONGO_SERVER_SELECTION_TIMEOUT_MS", "5000"))
 
-sync_client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
-sync_db = sync_client["autoyield"]
+if "<" in MONGO_URI or ">" in MONGO_URI:
+    raise RuntimeError(
+        "Invalid MONGO_URI: it still contains placeholder tokens. "
+        "Replace <username> and <password> in your .env file."
+    )
+
+async_client = AsyncIOMotorClient(MONGO_URI, serverSelectionTimeoutMS=MONGO_TIMEOUT_MS)
+async_db = async_client[MONGO_DB_NAME]
+
+sync_client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=MONGO_TIMEOUT_MS)
+sync_db = sync_client[MONGO_DB_NAME]

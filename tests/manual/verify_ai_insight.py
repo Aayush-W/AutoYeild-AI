@@ -4,9 +4,11 @@ and print the ai_insight field from the response.
 """
 import json
 import sys
+from pathlib import Path
 import requests
 
-IMAGE_PATH = r"outputs\uploads\641447.jpg"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+IMAGE_PATH = str(PROJECT_ROOT / "outputs" / "uploads" / "641447.jpg")
 URL        = "http://localhost:8000/api/analyze"
 
 print(f"POSTing {IMAGE_PATH} to {URL} ...\n")

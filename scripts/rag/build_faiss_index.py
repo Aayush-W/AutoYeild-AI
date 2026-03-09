@@ -40,8 +40,8 @@ MIN_TEXT_LENGTH  = 100                   # skip chunks shorter than this
 MIN_ALPHA_RATIO  = 0.40                  # skip if <40 % of chars are letters
 
 # ── Paths ─────────────────────────────────────────────────────────────────────
-BASE_DIR       = Path(__file__).resolve().parent
-PROCESSED_DIR  = BASE_DIR / "rag_data" / "processed"
+PROJECT_ROOT   = Path(__file__).resolve().parents[2]
+PROCESSED_DIR  = PROJECT_ROOT / "rag_data" / "processed"
 CHUNKS_FILE    = PROCESSED_DIR / "chunks.json"
 FAISS_FILE     = PROCESSED_DIR / "faiss_index.bin"
 METADATA_FILE  = PROCESSED_DIR / "chunk_metadata.json"

@@ -3,10 +3,11 @@ import json
 from pathlib import Path
 
 # Ensure project root is in path
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(PROJECT_ROOT / ".env")
 
 from api.services.insight_reasoner import generate_ai_insight
 

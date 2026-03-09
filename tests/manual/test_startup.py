@@ -1,7 +1,11 @@
 import sys
 import traceback
 import asyncio
+from pathlib import Path
 from fastapi import FastAPI
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))
 
 print("Starting import test...")
 try:

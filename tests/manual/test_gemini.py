@@ -1,5 +1,7 @@
 from dotenv import load_dotenv
-load_dotenv()
+from pathlib import Path
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+load_dotenv(PROJECT_ROOT / ".env")
 import os, traceback
 
 key = os.getenv("GEMINI_API_KEY", "")

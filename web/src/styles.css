@@ -2128,8 +2128,8 @@ body {
 }
 
 .ov-hero.ov-mode-workspace .ov-headline {
-  font-size: clamp(34px, 4.1vw, 62px);
-  max-width: 7.6ch;
+  font-size: clamp(34px, 3.6vw, 62px);
+  max-width: 10.4ch;
 }
 
 .ov-hero::before {
@@ -2264,8 +2264,9 @@ body {
   letter-spacing: -0.05em;
   font-weight: 800;
   text-transform: uppercase;
-  max-width: 7.8ch;
-  overflow-wrap: anywhere;
+  max-width: 10.8ch;
+  overflow-wrap: normal;
+  word-break: keep-all;
 }
 
 .ov-headline em {
@@ -2353,7 +2354,7 @@ body {
   min-height: clamp(420px, 56vh, 620px);
   padding: 2px 8px 14px;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   isolation: isolate;
 }
 

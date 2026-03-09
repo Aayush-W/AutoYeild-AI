@@ -23,6 +23,7 @@ AutoYield-AI is an autonomous wafer quality pipeline that combines computer visi
 pip install -r requirements.txt
 pip install torch torchvision opencv-python pillow
 
+# create .env from .env.example and set MONGO_URI first
 uvicorn api.app:app --reload --port 8000
 ```
 
@@ -36,6 +37,7 @@ The API exposes:
 ```bash
 cd web
 npm install
+# create web/.env from web/.env.example if needed
 npm run dev
 ```
 
@@ -50,7 +52,23 @@ streamlit run ui/dashboard.py
 
 ## Environment Variables
 
-GenAI root-cause analysis is optional. If you want Gemini-powered reasoning, set:
+Backend (`.env` at project root):
+
+```bash
+MONGO_URI=mongodb+srv://YOUR_DB_USER:YOUR_DB_PASSWORD@cluster0.0dwbwfe.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+MONGO_DB_NAME=autoyield
+MONGO_SERVER_SELECTION_TIMEOUT_MS=5000
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+```
+If your MongoDB password contains special characters (`@`, `:`, `/`, `?`, `#`, `%`), URL-encode it in `MONGO_URI`.
+
+Frontend (`web/.env`):
+
+```bash
+VITE_API_BASE_URL=http://localhost:8000
+```
+
+Optional Gemini root-cause analysis:
 
 ```bash
 GEMINI_API_KEY=your_key_here
@@ -64,11 +82,14 @@ Without these, the system uses deterministic fallback rules.
 ```
 api/                    FastAPI service
 src/                    Core ML pipeline (inference, explainability, drift, reasoning)
+scripts/rag/            RAG ingestion/indexing scripts (extract, chunk, embed, search)
+tests/manual/           One-off manual verification scripts
 ui/                     Streamlit demo
 web/                    React/Vite dashboard
 models/                 Model checkpoints (baseline and updated)
 data/                   Raw and processed wafer image datasets
 outputs/                Heatmaps, synthetic images, metrics, uploads
+outputs/debug/          Local debug/log output from manual runs
 config/                 YAML configs and prompt templates
 ```
 

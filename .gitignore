@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+web/node_modules/
 
 # Production
 build/
@@ -31,3 +32,13 @@ yarn-error.log*
 Thumbs.db
 # Python virtual environment
 .venv/
+venv/
+
+# Python caches
+__pycache__/
+.pytest_cache/
+
+# Local build/runtime artifacts
+.dist/
+*.log
+outputs/debug/

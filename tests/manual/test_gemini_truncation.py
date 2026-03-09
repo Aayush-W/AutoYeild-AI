@@ -1,6 +1,8 @@
 import os, sys, json
-sys.path.insert(0, '.')
-from dotenv import load_dotenv; load_dotenv()
+from pathlib import Path
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))
+from dotenv import load_dotenv; load_dotenv(PROJECT_ROOT / ".env")
 import google.generativeai as genai
 
 key = os.getenv("GEMINI_API_KEY", "")
@@ -30,7 +32,9 @@ response = model.generate_content(
     generation_config={"temperature": 0.15, "max_output_tokens": 700}
 )
 
-with open("truncation_result.txt", "w", encoding="utf-8") as f:
+out_path = PROJECT_ROOT / "outputs" / "debug" / "truncation_result.txt"
+out_path.parent.mkdir(parents=True, exist_ok=True)
+with open(out_path, "w", encoding="utf-8") as f:
     if response.candidates:
         cand = response.candidates[0]
         f.write("FINISH_REASON: " + str(cand.finish_reason) + "\n")

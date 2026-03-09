@@ -2,13 +2,15 @@
 Direct pipeline test - bypasses FastAPI and runs inference + insight directly.
 """
 import sys, traceback, json
+from pathlib import Path
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parents[2] / ".env")
 
 # Add project root
-sys.path.insert(0, '.')
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(PROJECT_ROOT))
 
-img = r"outputs\uploads\641447.jpg"
+img = str(PROJECT_ROOT / "outputs" / "uploads" / "641447.jpg")
 
 print("Step 1: Running inference...")
 try:

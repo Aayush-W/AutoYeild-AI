@@ -4,6 +4,7 @@ load_dotenv()
 
 import asyncio
 import base64
+import os
 import time
 import uuid
 from contextlib import asynccontextmanager
@@ -28,12 +29,18 @@ APP_ROOT = Path(__file__).resolve().parents[1]
 UPLOAD_DIR = APP_ROOT / "outputs" / "uploads"
 SYNTH_DIR = APP_ROOT / "outputs" / "synthetic_images"
 
+
+def _get_cors_origins() -> List[str]:
+    raw = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
 # ---------------------------------------------------------------------------
 # Lifespan: warm up drift monitor singleton on startup
 # ---------------------------------------------------------------------------
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await async_db.command("ping")
     get_drift_monitor()
     yield
 
@@ -102,7 +109,7 @@ app = FastAPI(title="AutoYield AI API", version="1.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=_get_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

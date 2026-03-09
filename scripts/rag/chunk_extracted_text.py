@@ -20,9 +20,9 @@ CHUNK_OVERLAP = 200    # overlap characters between consecutive chunks
 MIN_CHUNK_LEN = 100    # skip any chunk shorter than this (avoids tiny fragments)
 
 # ── Folder paths ──────────────────────────────────────────────────────────────
-BASE_DIR    = Path(__file__).resolve().parent
-INPUT_DIR   = BASE_DIR / "rag_data" / "extracted_text"
-OUTPUT_DIR  = BASE_DIR / "rag_data" / "processed"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+INPUT_DIR   = PROJECT_ROOT / "rag_data" / "extracted_text"
+OUTPUT_DIR  = PROJECT_ROOT / "rag_data" / "processed"
 OUTPUT_FILE = OUTPUT_DIR / "chunks.json"
 
 # ── Verify input folder ───────────────────────────────────────────────────────

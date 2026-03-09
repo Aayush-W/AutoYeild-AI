@@ -21,9 +21,9 @@ except ImportError:
     sys.exit(1)
 
 # ── Folder paths (relative to this script's location) ────────────────────────
-BASE_DIR   = Path(__file__).resolve().parent
-SOURCE_DIR = BASE_DIR / "rag_data" / "source_docs"
-OUTPUT_DIR = BASE_DIR / "rag_data" / "extracted_text"
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+SOURCE_DIR = PROJECT_ROOT / "rag_data" / "source_docs"
+OUTPUT_DIR = PROJECT_ROOT / "rag_data" / "extracted_text"
 
 # ── Sanity-check the source folder exists ────────────────────────────────────
 if not SOURCE_DIR.exists():
