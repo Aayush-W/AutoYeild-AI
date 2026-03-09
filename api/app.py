@@ -1,3 +1,7 @@
+# Load .env variables FIRST — before any module reads os.getenv()
+from dotenv import load_dotenv
+load_dotenv()
+
 import asyncio
 import base64
 import time
@@ -18,6 +22,7 @@ from src.autonomy.triage_agent import triage
 from src.self_improvement.synthetic_generator import generate_synthetic_images
 
 from config.db import async_db
+from api.services.insight_reasoner import generate_ai_insight
 
 APP_ROOT = Path(__file__).resolve().parents[1]
 UPLOAD_DIR = APP_ROOT / "outputs" / "uploads"
@@ -185,6 +190,38 @@ async def analyze_image(
 
     await _append_history(history_entry)
 
+    # ── RAG-powered AI Insight (Step 5) ───────────────────────────────────────
+    drift_state = drift_mon.state
+    observation = {
+        "prediction_label": defect_class,
+        "confidence": round(confidence, 4),
+        "heatmap_analysis": {
+            "dominant_region": triage_result.get("dominant_region", "unknown")
+                if isinstance(triage_result, dict) else "unknown",
+            "spread_score":    triage_result.get("spread_score", 0.0)
+                if isinstance(triage_result, dict) else 0.0,
+            "num_hotspots":    triage_result.get("num_hotspots", 0)
+                if isinstance(triage_result, dict) else 0,
+            "max_activation":  triage_result.get("max_activation", 0.0)
+                if isinstance(triage_result, dict) else 0.0,
+        },
+        "drift": {
+            "current_score": drift_state.get("drift_events", 0),
+            "trend":         "rising" if drift_detected else "stable",
+            "tool":          "inspection-tool",
+        },
+        "metadata": {
+            "lot_id":        inspection_id,
+            "process_stage": "wafer-inspection",
+        },
+    }
+
+    ai_insight: Dict[str, Any] = {}
+    try:
+        ai_insight = await asyncio.to_thread(generate_ai_insight, observation, 5)
+    except Exception as _e:
+        ai_insight = {"error": str(_e), "fallback_used": True}
+
     response = {
         "inspection_id": inspection_id,
         "timestamp": history_entry["timestamp"],
@@ -196,6 +233,7 @@ async def analyze_image(
         "synth_trigger_mode": synth_trigger_mode,
         "triage": triage_result,
         "reasoning": reasoning,
+        "ai_insight": ai_insight,
         "input_image": _encode_image(file_path),
         "heatmap_image": _encode_image(Path(cam_path)),
         "synthetic_images": [_encode_image(Path(p)) for p in synth_paths[:8]],
