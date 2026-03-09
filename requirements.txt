@@ -7,3 +7,5 @@ numpy
 motor
 pymongo
 python-dotenv
+faiss-cpu
+sentence-transformers

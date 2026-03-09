@@ -6,14 +6,14 @@ AutoYield-AI is an autonomous wafer quality pipeline that combines computer visi
 **What it does**
 - Runs defect classification on wafer images using an EfficientNet-B0 model.
 - Generates Grad-CAM heatmaps for visual explainability.
-- Produces root-cause summaries using deterministic rules or Gemini (optional).
-- Tracks drift based on confidence and triggers synthetic data generation.
+- Produces root-cause summaries using deterministic rules or **Retrieval-Augmented Generation (RAG) + Gemini AI**.
+- Tracks drift based on confidence and triggers synthetic data generation and retraining pipelines.
 - Serves a React dashboard and a Streamlit demo app.
 
 **Tech stack**
 - Backend: FastAPI, PyTorch, torchvision, OpenCV, NumPy, scikit-learn
 - Frontend: React, Vite, React Router
-- Optional GenAI: Google Gemini via `google-generativeai`
+- GenAI & RAG: Google Gemini via `google-generativeai`, FAISS, Sentence-Transformers
 
 ## Quick Start
 
@@ -50,14 +50,16 @@ streamlit run ui/dashboard.py
 
 ## Environment Variables
 
-GenAI root-cause analysis is optional. If you want Gemini-powered reasoning, set:
+The AI Insight Engine leverages a RAG (Retrieval-Augmented Generation) pipeline backed by Google Gemini. If you want the system to ground its reasoning in semiconductor knowledge bases, you must configure a Gemini API Key.
+
+Create a `.env` file in the root directory:
 
 ```bash
-GEMINI_API_KEY=your_key_here
-GEMINI_MODEL=gemini-1.5-flash
+GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-2.5-flash
 ```
 
-Without these, the system uses deterministic fallback rules.
+Without a valid key, the system seamlessly falls back to using deterministic logical rules for explainability.
 
 ## Project Structure
 
