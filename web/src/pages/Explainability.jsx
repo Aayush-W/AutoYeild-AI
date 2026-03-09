@@ -13,6 +13,7 @@ export default function Explainability() {
 
   const confidence = hasData ? Math.round(inspection.confidence * 100) : null;
   const reasoning = inspection?.reasoning ?? {};
+  const aiInsight = inspection?.ai_insight;
 
   const Toggle = ({ checked, onChange, label }) => (
     <div className="param-row" style={{ paddingBottom: 0, borderBottom: "none" }}>
@@ -201,38 +202,69 @@ export default function Explainability() {
           <span className="material-symbols-rounded">psychology</span>
           AI INSIGHT ENGINE
         </div>
-        <div style={{ fontSize: 14, color: "var(--secondary)", lineHeight: 1.7, marginBottom: 16, fontStyle: "italic" }}>
-          {reasoning.cause_summary ??
-            "The GradCAM attention map strongly highlights the space between two adjacent metal lines. The high-intensity activation (red) correlates with visual evidence of incomplete etching or photoresist residue. Based on historical patterns for Layer M2_Cu in Lot L-9921, this bridging defect is highly likely associated with Process Tool Litho-04 experiencing focus drift during the exposure step."}
-        </div>
 
-        <div className="card-title" style={{ marginBottom: 10, marginTop: 8 }}>
-          <span className="material-symbols-rounded">build</span>
-          RECOMMENDED ACTIONS
-        </div>
-
-        {[
-          { icon: "build", text: "Initiate CD-SEM measurement on adjacent wafers in Lot L-9921 to confirm line-space dimensions." },
-          { icon: "stop_circle", text: "Place Process Tool Litho-04 on HOLD pending focus calibration check." },
-          { icon: "history", text: "Review optical emission spectroscopy (OES) logs for the Etch chamber during this run." },
-        ].map((action, i) => (
-          <div className="insight-action" key={i}>
-            <span className="material-symbols-rounded">{action.icon}</span>
-            <div className="insight-action-text">{action.text}</div>
+        {!aiInsight ? (
+          <div style={{ fontSize: 13, color: "var(--muted)", fontStyle: "italic", padding: "12px 0" }}>
+            // No automated reasoning available for this inspection yet.
           </div>
-        ))}
+        ) : (
+          <>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+              <div style={{ fontSize: 14, color: "var(--secondary)", lineHeight: 1.7, fontStyle: "italic", flex: 1, paddingRight: 16 }}>
+                {aiInsight.summary}
+              </div>
+              {aiInsight.certainty && (
+                <span className={`chip ${aiInsight.certainty === 'high' ? 'success' : aiInsight.certainty === 'low' ? 'warn' : 'info'}`} style={{ textTransform: "capitalize", flexShrink: 0 }}>
+                  {aiInsight.certainty} Confidence
+                </span>
+              )}
+            </div>
 
-        {/* Additional reasoning data if available */}
-        {reasoning.reasoning_steps && (
-          <div style={{ marginTop: 16, padding: "12px 14px", background: "var(--bg-1)", border: "1px solid var(--stroke)" }}>
-            <div className="card-title" style={{ marginBottom: 8 }}>
-              <span className="material-symbols-rounded">list</span>
-              NEURAL RATIONALE
+            {aiInsight.reasoning_basis?.length > 0 && (
+              <div style={{ marginTop: 16, padding: "12px 14px", background: "var(--bg-1)", border: "1px solid var(--stroke)" }}>
+                <div className="card-title" style={{ marginBottom: 8 }}>
+                  <span className="material-symbols-rounded">list</span>
+                  NEURAL RATIONALE
+                </div>
+                <ul style={{ fontSize: 12, color: "var(--secondary)", lineHeight: 1.6, paddingLeft: 20, margin: 0 }}>
+                  {aiInsight.reasoning_basis.map((basis, i) => (
+                    <li key={i}>{basis}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="card-title" style={{ marginBottom: 10, marginTop: 16 }}>
+              <span className="material-symbols-rounded">build</span>
+              RECOMMENDED ACTIONS
             </div>
-            <div style={{ fontSize: 12, color: "var(--secondary)", lineHeight: 1.7, fontFamily: "var(--font-mono)" }}>
-              {reasoning.reasoning_steps.join(" ")}
-            </div>
-          </div>
+
+            {aiInsight.recommended_checks?.map((action, i) => (
+              <div className="insight-action" key={i}>
+                <span className="material-symbols-rounded">select_check_box</span>
+                <div className="insight-action-text">{action}</div>
+              </div>
+            ))}
+
+            {aiInsight.rag_sources?.length > 0 && (
+               <div style={{ marginTop: 16, borderTop: "1px solid var(--stroke)", paddingTop: 12, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                 <span className="material-symbols-rounded" style={{ fontSize: 14, color: "var(--muted)" }}>library_books</span>
+                 <span style={{ fontSize: 11, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Sources:</span>
+                 {aiInsight.rag_sources.map((src, i) => (
+                   <span key={i} style={{ fontSize: 11, color: "var(--secondary)", background: "var(--bg-1)", padding: "2px 6px", borderRadius: 4, border: "1px solid var(--stroke)" }}>
+                     {src.replace('.txt', '')}
+                   </span>
+                 ))}
+               </div>
+            )}
+            
+            {/* Optional debug flag if fallback was used */}
+            {aiInsight.fallback_used && (
+              <div style={{ marginTop: 12, fontSize: 10, color: "var(--accent-warn)", textAlign: "right" }}>
+                * Deterministic fallback active
+              </div>
+            )}
+          </>
         )}
       </div>
 

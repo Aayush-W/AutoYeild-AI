@@ -679,5 +679,38 @@
     "synthetic_count": 10,
     "auto_retrain": false,
     "retrain_result": null
+  },
+  {
+    "inspection_id": "INS-9869FD10D395",
+    "timestamp": "2026-03-07 22:54:48",
+    "defect_class": "Edge ring",
+    "confidence": 0.343,
+    "top_predictions": [
+      {
+        "label": "Edge ring",
+        "prob": 0.3430118262767792
+      },
+      {
+        "label": "Local",
+        "prob": 0.19907453656196594
+      },
+      {
+        "label": "random",
+        "prob": 0.1815679520368576
+      }
+    ],
+    "inference_time_ms": 1009,
+    "drift_detected": false,
+    "synth_trigger_mode": "above",
+    "triage": {
+      "queued": true,
+      "reason": "low_confidence",
+      "entry_id": "RT-CCD242E5DA"
+    },
+    "severity": "High",
+    "cause_summary": "Wafer misalignment, edge over-polishing, or uneven edge pressure application.",
+    "synthetic_count": 0,
+    "auto_retrain": false,
+    "retrain_result": null
   }
 ]

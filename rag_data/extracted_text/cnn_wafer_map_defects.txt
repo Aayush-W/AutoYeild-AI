@@ -1,0 +1,383 @@
+--- Page 1 ---
+Intro
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 1
+• Wang et al, IEEE Transactions on Semiconductor Manufacturing, 2020
+• Silicon wafers that comprise an array of chips are susceptible to
+defects.
+• While some defects are expected (yield < 100%), systematic
+patterns of defective chips in a wafer are indicative of problems
+in the process line.
+• The ‘pattern’ of defective chips in a wafer is indicative of the
+nature/location of the problem.
+• Typically wafer maps are reviewed manually and dispositioned
+into error types.
+• This project looks at training a conv-net to identify and classify
+defects in semiconductor wafers
+Defective die
+Functional die
+Off-wafer
+
+
+--- Page 2 ---
+Dataset – Defect Types
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 2
+• Public dataset from fab in China
+• Each wafer map is a 54x54 array of values identifying each location as a functional die, defective die or off-
+wafer. Each label is a one-hot encoded vector indicating the presence (or absence) of 8 different defect types.
+• There are wafers with 0, 1, 2, 3 and 4 defect types. 
+
+
+--- Page 3 ---
+Dataset – 2 Defects Types in a Wafer
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 3
+• Public dataset from fab in China
+• Each wafer map is a 54x54 array of values identifying each location as a functional die, defective die or off-
+wafer. Each label is a one-hot encoded vector indicating the presence (or absence) of 8 different defect types.
+• There are wafers with 0, 1, 2, 3 and 4 defect types. 
+
+
+--- Page 4 ---
+Dataset – 3 Defects Types in a Wafer
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 4
+• Public dataset from fab in China
+• Each wafer map is a 54x54 array of values identifying each location as a functional die, defective die or off-
+wafer. Each label is a one-hot encoded vector indicating the presence (or absence) of 8 different defect types.
+• There are wafers with 0, 1, 2, 3 and 4 defect types. 
+
+
+--- Page 5 ---
+Dataset – 4 Defects Types in a Wafer
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 5
+• Public dataset from fab in China
+• Each wafer map is a 54x54 array of values identifying each location as a functional die, defective die or off-
+wafer. Each label is a one-hot encoded vector indicating the presence (or absence) of 8 different defect types.
+• There are wafers with 0, 1, 2, 3 and 4 defect types. 
+
+
+--- Page 6 ---
+Dataset – Counts and Splits
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 6
+
+
+--- Page 7 ---
+Model Architecture
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 7
+• Ioffe & Szegedy (2015) arXiv: 1502.03167v3     • Li et al (2018) arXiv: 1801.05134v1
+Conv2D
+BatchNorm
+ReLu
+MaxPool2D
+
+
+--- Page 8 ---
+Model Architecture
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 8
+• Ioffe & Szegedy (2015) arXiv: 1502.03167v3     • Li et al (2018) arXiv: 1801.05134v1
+Conv2D
+BatchNorm
+ReLu
+MaxPool2D
+Conv2D
+BatchNorm
+ReLu
+MaxPool2D
+
+
+--- Page 9 ---
+Model Architecture
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 9
+• Ioffe & Szegedy (2015) arXiv: 1502.03167v3     • Li et al (2018) arXiv: 1801.05134v1
+Conv2D
+BatchNorm
+ReLu
+MaxPool2D
+Conv2D
+BatchNorm
+ReLu
+MaxPool2D
+GlobalAveragePooling2D
+FC + ReLu
+FC (8 units) + Sigmoid
+
+
+--- Page 10 ---
+Model Architecture
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 10
+• Ioffe & Szegedy (2015) arXiv: 1502.03167v3     • Li et al (2018) arXiv: 1801.05134v1
+Conv2D
+BatchNorm
+ReLu
+MaxPool2D
+Conv2D
+BatchNorm
+ReLu
+MaxPool2D
+GlobalAveragePooling2D
+FC + ReLu
+FC (8 units) + Sigmoid
+LOSS
+Binary Crossentropy
+
+
+--- Page 11 ---
+Model Architecture
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 11
+• Ioffe & Szegedy (2015) arXiv: 1502.03167v3     • Li et al (2018) arXiv: 1801.05134v1
+Random Flip
+Conv2D
+BatchNorm
+ReLu
+MaxPool2D
+Conv2D
+BatchNorm
+ReLu
+MaxPool2D
+GlobalAveragePooling2D
+FC + ReLu
+FC (8 units) + Sigmoid
+LOSS
+Binary Crossentropy
+
+
+--- Page 12 ---
+Hyperparameter Exploration
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 12
+C1_filterSize
+3, 5, 7
+C1_numFilters
+16, 32, 64
+C1_stride
+1, 2
+P1_filterSize
+2
+P1_stride
+2
+C2_filterSize
+3, 5
+C2_numFilters
+64, 128
+C2_stride
+1, 2
+P2_filterSize
+2
+P2_stride
+2
+FC1_numUnits
+32, 64
+FC2_numUnits
+8
+Total Combinations
+288
+Optimizer
+Adam (parm vals)
+Batch Size
+512
+Learning Rate
+0.01
+Epochs
+10
+Hyperparameter Values Explored
+Training Parameters
+
+
+--- Page 13 ---
+Hyperparameter Exploration: Selected Training Curves
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 13
+
+
+--- Page 14 ---
+Hyperparameter Exploration: Loss v.s. HP values
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 14
+
+
+--- Page 15 ---
+Hyperparameter Exploration: Selected HP Values
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 15
+Loss
+0.0541
+0.0561
+C1_filterSize
+7
+7
+C1_numFilters
+64
+32
+C1_stride
+2
+2
+P1_filterSize
+2
+2
+P1_stride
+2
+2
+C2_filterSize
+5
+5
+C2_numFilters
+64
+64
+C2_stride
+2
+2
+P2_filterSize
+2
+2
+P2_stride
+2
+2
+FC1_numUnits
+64
+64
+FC2_numUnits
+8
+8
+Total Parameters
+110,472
+57,460
+Selected 
+This One
+The 2 Lowest Loss Hyperparameter Combinations
+
+
+--- Page 16 ---
+Final Model Shapes
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 16
+
+
+--- Page 17 ---
+Full Training
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 17
+𝑙𝑟= 0.01𝑒−0.05(𝑒𝑝𝑜𝑐ℎ−1)
+
+
+--- Page 18 ---
+Performance
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 18
+
+
+--- Page 19 ---
+Examples of Mis-labeled Wafers
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 19
+
+
+--- Page 20 ---
+Feature Maps from the 1st Conv Layer: DONUT
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 20
+
+
+--- Page 21 ---
+Feature Maps from the 1st Con Layer: EDGE-LOCAL
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 21
+
+
+--- Page 22 ---
+Feature Maps from the 1st Con Layer: EDGE-RING
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 22
+
+
+--- Page 23 ---
+Feature Maps from the 1st Con Layer: LOCAL
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 23
+
+
+--- Page 24 ---
+Feature Maps from the 1st Con Layer: CENTER
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 24
+
+
+--- Page 25 ---
+Feature Maps from the 1st Con Layer: SCRATCH
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 25
+
+
+--- Page 26 ---
+Feature Maps from the 1st Con Layer: RANDOM
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 26
+
+
+--- Page 27 ---
+Feature Maps from the 1st Con Layer: NEAR-FULL
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 27
+
+
+--- Page 28 ---
+Weighted Cost + Ensemble Model
+Talha Arshad
+Semiconductor Wafer Defect Classification
+Slide 28
+• Train a second model in which wafers the first
+model mis-predicts are weighted higher in the
+loss.
+• This weighting is applied such that:
+• 𝑇𝑜𝑡𝑎𝑙𝑤𝑒𝑖𝑔ℎ𝑡𝑜𝑓𝑖𝑛𝑎𝑐𝑐𝑢𝑟𝑎𝑡𝑒𝑙𝑦𝑝𝑟𝑒𝑑𝑖𝑐𝑡𝑒𝑑𝑤𝑎𝑓𝑒𝑟𝑠=
+𝛼×
+𝑇𝑜𝑡𝑎𝑙𝑤𝑒𝑖𝑔ℎ𝑡𝑜𝑓𝑎𝑐𝑐𝑢𝑟𝑎𝑐𝑡𝑒𝑙𝑦𝑝𝑟𝑒𝑑𝑖𝑐𝑡𝑒𝑑𝑤𝑎𝑓𝑒𝑟𝑠
+𝑤𝑒𝑖𝑔ℎ𝑡=
+𝟙𝑝𝑟𝑒𝑑=𝑡𝑟𝑢𝑒+ 𝟙𝑝𝑟𝑒𝑑≠𝑡𝑟𝑢𝑒
+𝛼σ 𝟙𝑝𝑟𝑒𝑑=𝑡𝑟𝑢𝑒
+σ 𝟙𝑝𝑟𝑒𝑑≠𝑡𝑟𝑢𝑒
+1 + 𝛼σ 𝟙𝑝𝑟𝑒𝑑=𝑡𝑟𝑢𝑒
+σ 𝟙𝑝𝑟𝑒𝑑=𝑡𝑟𝑢𝑒+ σ 𝟙𝑝𝑟𝑒𝑑≠𝑡𝑟𝑢𝑒
+Original Convnet
+Convnet trained with 
+Weighted Cost-Function
+Linear Regression
+Wafer-map
+Prediction 1
+Prediction 2
+Output Prediction

@@ -32,7 +32,7 @@ DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 MODEL_PATH = PROJECT_ROOT / "models" / "baseline_model.pt"
-IMAGE_SIZE = (224, 224)
+from src.utils.preprocessing import get_inference_transform, IMAGE_SIZE
 OUTPUT_DIR = PROJECT_ROOT / "outputs" / "heatmaps"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -59,17 +59,7 @@ _gradcam_lock = threading.Lock()
 # ---------------------------------------------------------------------------
 # Transform  (must match training normalisation exactly)
 # ---------------------------------------------------------------------------
-_imagenet_norm = transforms.Normalize(
-    mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]
-)
-_transform = transforms.Compose(
-    [
-        transforms.Resize(256),
-        transforms.CenterCrop(IMAGE_SIZE),
-        transforms.ToTensor(),
-        _imagenet_norm,
-    ]
-)
+_transform = get_inference_transform()
 
 
 # ---------------------------------------------------------------------------

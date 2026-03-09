@@ -1,0 +1,818 @@
+[
+  {
+    "chunk_id": "chunk_0001",
+    "source_file": "cnn_wafer_map_defects.txt",
+    "chunk_index": 0,
+    "text": "Intro\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 1\n• Wang et al, IEEE Transactions on Semiconductor Manufacturing, 2020\n• Silicon wafers that comprise an array of chips are susceptible to\ndefects.\n• While some defects are expected (yield < 100%), systematic\npatterns of defective chips in a wafer are indicative of problems\nin the process line.\n• The ‘pattern’ of defective chips in a wafer is indicative of the\nnature/location of the problem.\n• Typically wafer maps are reviewed manually and dispositioned\ninto error types.\n• This project looks at training a conv-net to identify and classify\ndefects in semiconductor wafers\nDefective die\nFunctional die\nOff-wafer\n\nDataset – Defect Types\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 2\n• Public dataset from fab in China\n• Each wafer map is a 54x54 array of values identifying each location as a functional die, defective die or off-\nwafer."
+  },
+  {
+    "chunk_id": "chunk_0002",
+    "source_file": "cnn_wafer_map_defects.txt",
+    "chunk_index": 1,
+    "text": "n China\n• Each wafer map is a 54x54 array of values identifying each location as a functional die, defective die or off-\nwafer. Each label is a one-hot encoded vector indicating the presence (or absence) of 8 different defect types.\n• There are wafers with 0, 1, 2, 3 and 4 defect types. \n\nDataset – 2 Defects Types in a Wafer\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 3\n• Public dataset from fab in China\n• Each wafer map is a 54x54 array of values identifying each location as a functional die, defective die or off-\nwafer. Each label is a one-hot encoded vector indicating the presence (or absence) of 8 different defect types.\n• There are wafers with 0, 1, 2, 3 and 4 defect types. \n\nDataset – 3 Defects Types in a Wafer\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 4\n• Public dataset from fab in China\n• Each wafer map is a 54x54 array of values identifying each location as a functional die, defective die or off-\nwafer."
+  },
+  {
+    "chunk_id": "chunk_0003",
+    "source_file": "cnn_wafer_map_defects.txt",
+    "chunk_index": 2,
+    "text": "lide 4\n• Public dataset from fab in China\n• Each wafer map is a 54x54 array of values identifying each location as a functional die, defective die or off-\nwafer. Each label is a one-hot encoded vector indicating the presence (or absence) of 8 different defect types.\n• There are wafers with 0, 1, 2, 3 and 4 defect types. \n\nDataset – 4 Defects Types in a Wafer\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 5\n• Public dataset from fab in China\n• Each wafer map is a 54x54 array of values identifying each location as a functional die, defective die or off-\nwafer. Each label is a one-hot encoded vector indicating the presence (or absence) of 8 different defect types.\n• There are wafers with 0, 1, 2, 3 and 4 defect types."
+  },
+  {
+    "chunk_id": "chunk_0004",
+    "source_file": "cnn_wafer_map_defects.txt",
+    "chunk_index": 3,
+    "text": "r Defect Classification\nSlide 6\n\nModel Architecture\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 7\n• Ioffe & Szegedy (2015) arXiv: 1502.03167v3 • Li et al (2018) arXiv: 1801.05134v1\nConv2D\nBatchNorm\nReLu\nMaxPool2D\n\nModel Architecture\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 8\n• Ioffe & Szegedy (2015) arXiv: 1502.03167v3 • Li et al (2018) arXiv: 1801.05134v1\nConv2D\nBatchNorm\nReLu\nMaxPool2D\nConv2D\nBatchNorm\nReLu\nMaxPool2D\n\nModel Architecture\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 9\n• Ioffe & Szegedy (2015) arXiv: 1502.03167v3 • Li et al (2018) arXiv: 1801.05134v1\nConv2D\nBatchNorm\nReLu\nMaxPool2D\nConv2D\nBatchNorm\nReLu\nMaxPool2D\nGlobalAveragePooling2D\nFC + ReLu\nFC (8 units) + Sigmoid"
+  },
+  {
+    "chunk_id": "chunk_0005",
+    "source_file": "cnn_wafer_map_defects.txt",
+    "chunk_index": 4,
+    "text": "efect Classification\nSlide 10\n• Ioffe & Szegedy (2015) arXiv: 1502.03167v3 • Li et al (2018) arXiv: 1801.05134v1\nConv2D\nBatchNorm\nReLu\nMaxPool2D\nConv2D\nBatchNorm\nReLu\nMaxPool2D\nGlobalAveragePooling2D\nFC + ReLu\nFC (8 units) + Sigmoid\nLOSS\nBinary Crossentropy\n\nModel Architecture\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 11\n• Ioffe & Szegedy (2015) arXiv: 1502.03167v3 • Li et al (2018) arXiv: 1801.05134v1\nRandom Flip\nConv2D\nBatchNorm\nReLu\nMaxPool2D\nConv2D\nBatchNorm\nReLu\nMaxPool2D\nGlobalAveragePooling2D\nFC + ReLu\nFC (8 units) + Sigmoid\nLOSS\nBinary Crossentropy"
+  },
+  {
+    "chunk_id": "chunk_0006",
+    "source_file": "cnn_wafer_map_defects.txt",
+    "chunk_index": 5,
+    "text": "128\nC2_stride\n1, 2\nP2_filterSize\n2\nP2_stride\n2\nFC1_numUnits\n32, 64\nFC2_numUnits\n8\nTotal Combinations\n288\nOptimizer\nAdam (parm vals)\nBatch Size\n512\nLearning Rate\n0.01\nEpochs\n10\nHyperparameter Values Explored\nTraining Parameters\n\nHyperparameter Exploration: Selected Training Curves\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 13\n\nHyperparameter Exploration: Loss v.s."
+  },
+  {
+    "chunk_id": "chunk_0007",
+    "source_file": "cnn_wafer_map_defects.txt",
+    "chunk_index": 6,
+    "text": "Parameters\n110,472\n57,460\nSelected \nThis One\nThe 2 Lowest Loss Hyperparameter Combinations\n\nFinal Model Shapes\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 16\n\nFull Training\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 17\n𝑙𝑟= 0.01𝑒−0.05(𝑒𝑝𝑜𝑐ℎ−1)\n\nPerformance\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 18\n\nExamples of Mis-labeled Wafers\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 19\n\nFeature Maps from the 1st Conv Layer: DONUT\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 20\n\nFeature Maps from the 1st Con Layer: EDGE-LOCAL\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 21\n\nFeature Maps from the 1st Con Layer: EDGE-RING\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 22\n\nFeature Maps from the 1st Con Layer: LOCAL\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 23"
+  },
+  {
+    "chunk_id": "chunk_0008",
+    "source_file": "cnn_wafer_map_defects.txt",
+    "chunk_index": 7,
+    "text": "rom the 1st Con Layer: LOCAL\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 23\n\nFeature Maps from the 1st Con Layer: CENTER\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 24\n\nFeature Maps from the 1st Con Layer: SCRATCH\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 25\n\nFeature Maps from the 1st Con Layer: RANDOM\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 26\n\nFeature Maps from the 1st Con Layer: NEAR-FULL\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 27\n\nWeighted Cost + Ensemble Model\nTalha Arshad\nSemiconductor Wafer Defect Classification\nSlide 28\n• Train a second model in which wafers the first\nmodel mis-predicts are weighted higher in the\nloss."
+  },
+  {
+    "chunk_id": "chunk_0009",
+    "source_file": "cnn_wafer_map_defects.txt",
+    "chunk_index": 8,
+    "text": "𝑖𝑐𝑡𝑒𝑑𝑤𝑎𝑓𝑒𝑟𝑠=\n𝛼×\n𝑇𝑜𝑡𝑎𝑙𝑤𝑒𝑖𝑔ℎ𝑡𝑜𝑓𝑎𝑐𝑐𝑢𝑟𝑎𝑐𝑡𝑒𝑙𝑦𝑝𝑟𝑒𝑑𝑖𝑐𝑡𝑒𝑑𝑤𝑎𝑓𝑒𝑟𝑠\n𝑤𝑒𝑖𝑔ℎ𝑡=\n𝟙𝑝𝑟𝑒𝑑=𝑡𝑟𝑢𝑒+ 𝟙𝑝𝑟𝑒𝑑≠𝑡𝑟𝑢𝑒\n𝛼σ 𝟙𝑝𝑟𝑒𝑑=𝑡𝑟𝑢𝑒\nσ 𝟙𝑝𝑟𝑒𝑑≠𝑡𝑟𝑢𝑒\n1 + 𝛼σ 𝟙𝑝𝑟𝑒𝑑=𝑡𝑟𝑢𝑒\nσ 𝟙𝑝𝑟𝑒𝑑=𝑡𝑟𝑢𝑒+ σ 𝟙𝑝𝑟𝑒𝑑≠𝑡𝑟𝑢𝑒\nOriginal Convnet\nConvnet trained with \nWeighted Cost-Function\nLinear Regression\nWafer-map\nPrediction 1\nPrediction 2\nOutput Prediction"
+  },
+  {
+    "chunk_id": "chunk_0010",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 0,
+    "text": "Abstract—In recent years, the semiconductor industry has \nbeen a high-growth business. Yield improvement becomes \nmore and more important for semiconductor manufacturing \nprocess and it’s the important element to ensure the \nprofitability. Defect spatial patterns impede yield and it reveal \nthe root causes of the occurred defects. This research \ndeveloped a defect spatial pattern recognition methodology. In \nthis research, defect spatial patterns are classified into seven \ncategories, Curve Type, Line Type, Local Type, Ring Type, \nRadial Type, and Repeat Type and Die Edge Type. Original \ndefects are filtered to eliminate random defects. With random \ndefect removed, a clustering method is designed to cluster \nsystematic defects. Clustered defects are then analyzed with \nminimum rectangle. A feature extraction procedure based on \nwavelet transform is developed to extract features that \nrepresent different defect patterns."
+  },
+  {
+    "chunk_id": "chunk_0011",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 1,
+    "text": "feature extraction procedure based on \nwavelet transform is developed to extract features that \nrepresent different defect patterns. By setting feature vectors \ninto feature space and applying hierarchical agglomerative \nalgorithm to clustering, it is expected to reach the goal of \ndescription and classification. The presented methodology is \nverified with real industrial data from a famous semiconductor \ncompany. The experimental results show the presented \nmethodology is able to recognize defect patterns with \nrecognition accuracy of 95%. \n \nIndex Terms— Semiconductor, defect pattern,, feature \nextraction, wavelet transforms. \n \nI. INTRODUCTION \n Semiconductor manufacturing has become as one of \nimportant world industries. As a result of technology and \ninformation advancement, the integrated circuit (IC) chips \nare becoming more and smaller and its functions are more \nthan before."
+  },
+  {
+    "chunk_id": "chunk_0012",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 2,
+    "text": "grated circuit (IC) chips \nare becoming more and smaller and its functions are more \nthan before. The IC is the main components of electronic \nproducts and human being depends on it to be steadily on \nthe increase. Therefore, the semiconductor manufacturing \n \nDr. S. F. Liu is with Department of Information Management, Yuanpei \nUniversity of Technology, Hsichu County, 300, Taiwan(R.O.C) (phone: \n886-3-538-1183; fax: 886-3-538-5353; e-mail: sfliu@mail.ypu.edu.tw ). \nDr. F. L. Chen is with Department of Industrial Engineering and \nEngineering Management, National Tsing Hua University, Hsichu \nCounty, \n300, \nTaiwan(R.O.C) \n(phone: \n886-3-571-7654; \nfax: \n886-3-572-2685; e-mail: flchen@ie.nthu.edu.tw). \nY. Y. Shi is with Department of Industrial Engineering and Engineering \nManagement, National Tsing Hua University, Hsichu County, 300, \nTaiwan(R.O.C) (phone: 886-3-571-7654; fax: 886-3-572-2685; e-mail: \nsiyoin@hotmail.com ). \nS. M."
+  },
+  {
+    "chunk_id": "chunk_0013",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 3,
+    "text": "l Tsing Hua University, Hsichu County, 300, \nTaiwan(R.O.C) (phone: 886-3-571-7654; fax: 886-3-572-2685; e-mail: \nsiyoin@hotmail.com ). \nS. M. Yu is with Department of Industrial Engineering and Engineering \nManagement, National Tsing Hua University, Hsichu County, 300, \nTaiwan(R.O.C) (phone: 886-3-571-7654; fax: 886-3-572-2685; e-mail: \nflhl1341@hotmail.com ). \nC. S. Chang is with Department of Industrial Engineering and \nEngineering Management, National Tsing Hua University, Hsichu \nCounty, \n300, \nTaiwan(R.O.C) \n(phone: \n886-3-571-7654; \nfax: \n886-3-572-2685; e-mail: chang.shingo@hotmail.com ). \n \n \nindustries expect more and more advancement. \nHowever, yield improvement is the issue that always been \ndiscussed and is also the important element to ensure the \nprofitability in semiconductor industry. The procedure of \nsemiconductor manufacturing has become more and more \nsophisticated. There are over 300 steps in the semiconductor \nmanufacturing processes."
+  },
+  {
+    "chunk_id": "chunk_0014",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 4,
+    "text": "r industry. The procedure of \nsemiconductor manufacturing has become more and more \nsophisticated. There are over 300 steps in the semiconductor \nmanufacturing processes. The collected data among these \nprocess steps are thus becoming high-dimensional and huge. \nTherefore, it is hard to discover root cause of low-yield \nsituations. In order to meet the expectation on a high yield \ntarget, quick identification of the root cause becomes a vital \nissue. \nThe existence of defects on the wafer brings IC yield loss. \nDefects can be classified into random defects and systematic \ndefects [1]. Random defects are scattered randomly on the \nwafer surface. Systematic defects are concentrated in a \nparticular area of the wafer or defects that appear \nrepetitively within a specific region. Systematic defects are \nusually induced by parametric problems that are associated \nwith product design or wafer-processing accuracy [2]."
+  },
+  {
+    "chunk_id": "chunk_0015",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 5,
+    "text": "fects are \nusually induced by parametric problems that are associated \nwith product design or wafer-processing accuracy [2]. \nAnalysis of defects that are zonal provides clues to identify \nthe equipment or process abnormality. \nIn practice, engineers usually spend much time checking \nthe entire defect maps and choose the maps having spatial \ndefect patterns. The engineers then use these results to \nadjust the process parameters to eliminate these defects or to \nperform further experiments to find out the source of the \ndefects. Because the patterns are not well defined, the \nsimilarities between these patterns are difficult to determine. \nThe process of defect classification is time-consuming, \nmonotonous and costly and causes fatigue and eyestrain that \nin turn cause errors in classifications."
+  },
+  {
+    "chunk_id": "chunk_0016",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 6,
+    "text": "ions. In view of \nabove-mentioned reasons, the objective of this research is to \ndevelop a defect spatial pattern recognition methodology to \naccurately recognize defect spatial patterns and assist \nengineers to quickly track process variations. \nPrior researches had proposed their approaches to deal \nwith defect classification. Kaempf uses statistic analysis \nmethod to classify defect into two types [3]. Chen and Liu \nuse neural-network architecture named adaptive resonance \ntheory network 1 (ART1) to classify defect into three types \n[4]. However, their works limited to the types of defect \npatterns to be recognized and were unable to represent \ndefect patterns with feature spaces. This research presented \na defect map recognition methodology that covers much \nmore defect patterns and increase recognition accuracy with \nwavelet transforms approach. In Section II, the problem of \nthis paper is briefly described."
+  },
+  {
+    "chunk_id": "chunk_0017",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 7,
+    "text": "crease recognition accuracy with \nwavelet transforms approach. In Section II, the problem of \nthis paper is briefly described. The methodology we \npresented is illustrated in Section III while experiments \nresults are given in Section IV. Section V is some \nconclusions of the experimental results. \nWavelet Transform Based Wafer Defect Map Pattern \nRecognition System in Semiconductor Manufacturing \nShu Fan Liu*, Fei Long Chen, You Yin Shi, Shu Min Yu and Chi Sheng Chang \nProceedings of the International MultiConference of Engineers and Computer Scientists 2008 Vol II\nIMECS 2008, 19-21 March, 2008, Hong Kong\nISBN: 978-988-17012-1-3\nIMECS 2008\n\n \n \n \nII. THE DEFINITION OF PROBLEM \nIn semiconductor manufacturing processes, the main \ncause of low yield is defect on the wafer. The defect \ndistribution on the wafer depends on different factors \nincluding environmental changes, parametric control, \ncondition of machines and human error."
+  },
+  {
+    "chunk_id": "chunk_0018",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 8,
+    "text": "bution on the wafer depends on different factors \nincluding environmental changes, parametric control, \ncondition of machines and human error. The engineers are \nable to track the root causes through defect analysis. In this \nresearch, \nwe \ndeveloped \na \ndefect \nmap \nrecognition \nmethodology to classify seven defect patterns as shown in \nTable I. These defect pattern types are Line type, Curve type, \nRing type, Local type, Radial type, Repeat type and Die \nEdge. \n \n \nTABLE I \nTHE PATTERN-RELATED DEFECTS CATEGORIS \n \n \n \nIII. METHODOLOGY \nThis section describes the architecture of the presented \nmethodology. The first step is to transform the defect \ncoordinates data into image format. Each black pixel in the \nimage corresponds to a defect on the wafer. In order to \nachieve the high accuracy of pattern recognition, noise \nelimination procedure is necessary to remove the isolated \ndefects and thus enhances the quality of defect maps in \nimage format."
+  },
+  {
+    "chunk_id": "chunk_0019",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 9,
+    "text": "y of pattern recognition, noise \nelimination procedure is necessary to remove the isolated \ndefects and thus enhances the quality of defect maps in \nimage format. Clustering algorithm is developed to \nsubdivide defect map images into several regions. This \nresearch applies CURE for the clustering. In order to extract \nmore precise features on defect map images, minimum \nrectangle is used to cover each clustered defects. Once all \npossible clustered features are extracted, Daubechies \nwavelet transformation is adopted to analyze each minimum \nrectangle that covers each clustered defects and wavelet \nenergy signatures are calculated of each subbed. In \nclassification stage, applying hierarchical agglomerative \nalgorithm to group feature vectors into seven clusters. For \neach observation in the vector space will be assigned one \ncluster index. Each cluster will represent a defect pattern. \nFig. 1 illustrates the entire architecture of the proposed \nmethodology."
+  },
+  {
+    "chunk_id": "chunk_0020",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 10,
+    "text": "he vector space will be assigned one \ncluster index. Each cluster will represent a defect pattern. \nFig. 1 illustrates the entire architecture of the proposed \nmethodology. Details for each steps are given below. \n \n \nFig. 1. The architecture of the proposed methodology \n \nA. Defects Denoising \nThis research uses mask processing for noises reduction. \nMask processing is denoted by the expression \n \n(\n)\n[\n]\ny\nx\nf\nT\ny\nx\ng\n,\n)\n,\n(\n=\n \n(1) \n \nwhere \n(\n)\ny\nx\nf\n,\nis the input image, \n(\n)\ny\nx\ng\n,\nis the \nprocessed image, and T is an operator on f , defined \nover some neighborhood of (\n)\ny\nx,\n."
+  },
+  {
+    "chunk_id": "chunk_0021",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 11,
+    "text": "and Computer Scientists 2008 Vol II\nIMECS 2008, 19-21 March, 2008, Hong Kong\nISBN: 978-988-17012-1-3\nIMECS 2008\n\n \n \n \ncoefficient are one), and \nijz is assigned a value of 1 if the \ndefect falls in the location (\n)j\ni,\n, and otherwise it is \nassigned a value of 0. This research uses \n(\n)\ny\nx\ng\n,\n to \ndetermine whether the defect located in (\n)\ny\nx,\n is a random \ndefect or not [2]. \n \nThis research uses two masks to check whether the defect \nis a random defect or not. After determining the thresholds \nof two masks, big and small, the next step is to sweep the \nentire image pixel by pixel. The big max mask used to check \nlarge areas and mainly aimed at screen out the isolated \ndefects. If there were not enough defects in a bigger mask, \ndefects would be considered as random defects and are \nstripped off. However, parts of random defects still exit due \nto dense defects close to them. Therefore, the small mask is \nused to remove the defects that do not have enough neighbor \ndefects."
+  },
+  {
+    "chunk_id": "chunk_0022",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 12,
+    "text": "stripped off. However, parts of random defects still exit due \nto dense defects close to them. Therefore, the small mask is \nused to remove the defects that do not have enough neighbor \ndefects. \n \nB. Defect Region Extraction \nAfter removing the isolated defects, the next step is defect \nregion extracting by subdividing images into several \nregions. Each region will be covered by minimum rectangles. \nIn comparison with other clustering methods, this research \nwould use CURE method. CURE utilizes multiple \nrepresentative points to evaluate the distance between \nclusters, thereby adjusting well to arbitrary shaped clusters \nand avoiding the single-link effect. Furthermore, the \nrepresentative points provide information about the shape of \nclusters to facilitate the further analysis. \n \n \nGuha and colleagues [5] stated that the input \nparameters of CURE algorithm are the input data set S \ncontaining n points in d -dimensional space and the \ndesired number of clusters k ."
+  },
+  {
+    "chunk_id": "chunk_0023",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 13,
+    "text": "uha and colleagues [5] stated that the input \nparameters of CURE algorithm are the input data set S \ncontaining n points in d -dimensional space and the \ndesired number of clusters k . Starting with the individual \npoints as individual clusters, the closest pair of clusters is \nmerged at each step to form a new cluster. The process is \nrepeated until there are only k remaining clusters. This \nresearch modifies the stopping condition to be that the \nprocess is repeated until the smallest distance of the closest \npair of clusters among all clusters is greater than the \npre-determined threshold. After CURE algorithm, use \nrectangular \narea \nof \nvariable \nsize \nof \ncoordinates (\n)\nmax\nmin\nmax\nmin\n,\n,\n,\nY\nY\nX\nX\nto \ncover \neach \nclustering defect. Table II illustrates the results of test \nsamples after noise elimination and defect region extracting. \n \nTABLE II \nTHE RESULTS OF TEST SAMPLES AFTER DENOISING AND \nDEFECT REGION EXTRACTING \n \n \n \nC."
+  },
+  {
+    "chunk_id": "chunk_0024",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 14,
+    "text": "s after noise elimination and defect region extracting. \n \nTABLE II \nTHE RESULTS OF TEST SAMPLES AFTER DENOISING AND \nDEFECT REGION EXTRACTING \n \n \n \nC. Feature Extraction \nFeature extraction can reduce the dimensionality of \npattern representation and help engineers to decide the \ndefect patterns. This research adopts wavelet transformation \nto extract features. \n \nWavelet \ntransformation \nhas \na \ncharacteristic \nof \nmulti-resolution that makes features of the image more \nobvious. Each transformation can decompose original image \ninto four sub-images, a low frequency sub-image and three \nhigh frequency sub images. Daubechies wavelet function is \nselected for the transformation."
+  },
+  {
+    "chunk_id": "chunk_0025",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 15,
+    "text": "two-dimensional wavelets are \ndefined \nas \nthe \nwavelet \nfunction \nof \nhorizontal \nas\n)\n(\n)\n(\n)\n,\n(\ny\nx\ny\nx\nH\nϕ\nψ\nψ\n=\n, the wavelet function of vertical \nas\n)\n(\n)\n(\n)\n,\n(\ny\nx\ny\nx\nV\nψ\nϕ\nψ\n=\n, and the wavelet function of \ndiagonal \nas \n)\n(\n)\n(\n)\n,\n(\ny\nx\ny\nx\nD\nψ\nψ\nψ\n=\n[6]. \nThis \ndecomposition provides sub-images corresponding to \ndifferent resolution levels and orientations. After two-level \nwavelet transformation wavelet energy signatures of each \nsub-image is calculated as equation (3). \n \n∑\n=\n=\nN\nk\nk\ni\nC\nN\nE\n1\n2\n2\n1\n \n(3) \n \nwhere i \nis the sub-image index, N is the size of \nsub-image, and C is the coefficient of wavelet \ntransformation. \n \nProceedings of the International MultiConference of Engineers and Computer Scientists 2008 Vol II\nIMECS 2008, 19-21 March, 2008, Hong Kong\nISBN: 978-988-17012-1-3\nIMECS 2008\n\n \n \n \nD."
+  },
+  {
+    "chunk_id": "chunk_0026",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 16,
+    "text": "988-17012-1-3\nIMECS 2008\n\n \n \n \nD. Pattern Classification \nA set of features are extracted from previous step, and \nthese features are commonly called feature vectors that \nconstitutes a representation of the data. The features vectors \nconstitute the feature vector space are shown in Fig. 2. \n \n \nFig. 2. The feature vector space \n \nIV. EXPERIMENTAL RESULT \nRecognition accuracy is an important factor to measure \nthe ability of system. The experimental results are \nsummarized in Table III there are 65 defect pattern samples \ntested in this experiment. The average accuracy of \nrecognition is 95%. \n \nTABLE III \nTHE EXPERIMENTAL RESULTS \n \nDefect pattern \nSample \nquantity \nAccuracy \nCurve \n5 \n60% \nLine \n9 \n100% \nRing \n12 \n100% \nLocal \n12 \n92% \nRadial \n7 \n100% \nRepeat \n11 \n100% \nDie edge \n9 \n100% \nTotal \n65 \n95% \n \nNote that the presented system failed to recognize two \ncurve types and one local type. These 3 samples are depicted \nin Table IV."
+  },
+  {
+    "chunk_id": "chunk_0027",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 17,
+    "text": "0% \nTotal \n65 \n95% \n \nNote that the presented system failed to recognize two \ncurve types and one local type. These 3 samples are depicted \nin Table IV. Failed diction of two curve types is due to the \ndiscontinuous boundaries. The system just divides the curve \ntype into three small clusters. The curvatures of these three \nsmall clusters are so small that they are considered as either \nline type or curve type. The system failed to recognize local \ntype is due to the large region of clustering defects and small \ndensity. \n \nTABLE IV \nFAILED TO RECOGNITION DEFECT PATTERNS \n \n \n \n \nUsually \nstatis1tical \nmethods \nand \nneural-network \napproaches are applied to recognize defect patterns. Table V \nillustrates the comparisons between presented methodology, \nstatistical and neural network approaches. \n \nV. CONCLUSIONS \nIn the semiconductor industry, the primary cause of IC \nyield loss can be attributed to defects on the wafer."
+  },
+  {
+    "chunk_id": "chunk_0028",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 18,
+    "text": "hes. \n \nV. CONCLUSIONS \nIn the semiconductor industry, the primary cause of IC \nyield loss can be attributed to defects on the wafer. In \npractice, engineers usually spend much time checking entire \ndefect maps in lots and choose the maps having defect \nspatial signatures. When these defects are clustered, the size \nand shape of the spatial patterns indicate specific process \nproblems. Because the patterns are not well defined, \nsimilarities between these patterns are difficult to measure. \nIn view of this, this research developed a system, which \nrecognizes the spatial patterns of clustered defects to help in \nthe diagnosis of possible failure causes. The developed \nmethodology is verified with industrial data from famous \nsemiconductor company. Through the help of experienced \nengineers, defects types of defect maps are checked and \ndefined by their expertise. Defect pattern types includes \nLine type, Curve type, Local type, Ring type, Radial type, \nRepeat type and Die Edge type."
+  },
+  {
+    "chunk_id": "chunk_0029",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 19,
+    "text": "defects types of defect maps are checked and \ndefined by their expertise. Defect pattern types includes \nLine type, Curve type, Local type, Ring type, Radial type, \nRepeat type and Die Edge type. The experimental results \nshow that recognition rate of the developed methodology is \n95%. The experiments demonstrate that the proposed \nmethodology has high recognition accuracy."
+  },
+  {
+    "chunk_id": "chunk_0030",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 20,
+    "text": "d to \ndeal with \ncomplex \ndefect \npatterns \n1.Need \nlead-time to \nconstruct the \nentire \nnetwork \n2.Hard to \ndecide the \nparameter \n1.Incapable \nof dealing \nwith the \ndefects with a \ndiscontinuous \ndistribution \nDetectabl\ne defect \npatterns \nScratch type \nZone type \nScratch type \nZone type \nRing type \nCurve type \nLine type \nLocal type \nRing type \nRadial type \nRepeat type \nDie Edge \ntype \nAccuracy \nMedium \nHigh \nHigh \n \nREFERENCES \n[1] \nMirza, A. I. , Donoghue, G., O’ ,Drake, A. W.,”Spatial Yield \nModeling for Semiconductor Wafers” , IEEE/SEMI Advanced \nSemiconductor Manufacturing Conference, 1995, pp.276-281. \n[2] \nFriedman, D. J., Hansen, M. H., Nair, V. N., and James, D. A., \n“Model-free estimation of defect clustering in integrated circuit \nfabrication” IEEE Transactions on Semiconductor Manufacturing, \n1997, pp.344-359. \n[3] \nKaempf, U., “The Binomial Test: A Simple Tool to Identify Process \nProblems,” IEEE Transactions on Semiconductor Manufacturing, \n1995, pp.160-165."
+  },
+  {
+    "chunk_id": "chunk_0031",
+    "source_file": "lithography_edge_defects.txt",
+    "chunk_index": 21,
+    "text": "r Manufacturing, \n1997, pp.344-359. \n[3] \nKaempf, U., “The Binomial Test: A Simple Tool to Identify Process \nProblems,” IEEE Transactions on Semiconductor Manufacturing, \n1995, pp.160-165. \n[4] \nChen, F. L., Liu, S. F., “A Neural-Network Approach To Recognize \nDefect Spatial Pattern In Semiconductor Fabrication” IEEE \nTRANSACTIONS ON SEMICONDUCTOR MANUFACTURING, \nVOL.13, NO.3, 2000, pp.366-373. \n[5] \nGuha, Sudipto, Rastogi, Rajeev, and Shim, Kyuseok, “CURE: An \nEfficient Clustering Algorithm for Large Databases,” ACM-SIGMOD \nInternational Conference on Management of Data, 2001, pp.73-84. \n[6] \nGonzalez, R. C., Woods, R. E., Rafael C. G., and Richard, E.W., \n“Digital image processing,” Prentice Hall, 2004. \n \n \nProceedings of the International MultiConference of Engineers and Computer Scientists 2008 Vol II\nIMECS 2008, 19-21 March, 2008, Hong Kong\nISBN: 978-988-17012-1-3\nIMECS 2008"
+  },
+  {
+    "chunk_id": "chunk_0032",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 0,
+    "text": "TSM-21-0182 \n1\n \nAbstract—Semiconductor manufacturing is on the cusp of a \nrevolution – the Internet of Things (IoT). With IoT we can connect \nall the equipment and feed information back to the factory so that \nquality issues can be detected. In this situation, more and more \nedge devices are used in wafer inspection equipment. This edge \ndevice must have the ability to quickly detect defects. Therefore, \nhow to develop a high-efficiency architecture for automatic defect \nclassification to be suitable for edge devices is the primary task. In \nthis paper, we present a novel architecture that can perform defect \nclassification in a more efficient way. The first function is self-\nproliferation, using a series of linear transformations to generate \nmore feature maps at a cheaper cost. The second function is self-\nattention, capturing the long-range dependencies of feature map \nby the channel-wise and spatial-wise attention mechanism."
+  },
+  {
+    "chunk_id": "chunk_0033",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 1,
+    "text": "ond function is self-\nattention, capturing the long-range dependencies of feature map \nby the channel-wise and spatial-wise attention mechanism. We \nnamed this method as self-proliferation-and-attention neural \nnetwork (SP&A-Net). This method has been successfully applied \nto various defect pattern classification tasks. Compared with other \nlatest methods, SP&A-Net has higher accuracy and lower \ncomputation cost in many defect inspection tasks. \nKeywords—Convolutional Neural Network, Defect Inspection \nI. INTRODUCTION \nSemiconductor manufacturing is a complex and time-\nconsuming process involving hundreds of process steps. When \nthe variation occurs in these steps, they can cause defects on the \nwafer surface. Automatic defect classification (ADC) is used to \nidentify and classify the defect pattern using scanning electron \nmicroscope and provide yield engineers with important \ninformation to help them identify the root cause of die failure. \nFor example (as shown in Fig."
+  },
+  {
+    "chunk_id": "chunk_0034",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 2,
+    "text": "ct pattern using scanning electron \nmicroscope and provide yield engineers with important \ninformation to help them identify the root cause of die failure. \nFor example (as shown in Fig. 1), the defect of “Oval” mainly \noccurs in the crystals of the clean chamber pipeline. Once such \na defect is found, we must inspect all the machine pipelines to \navoid this defect from happening again. Another example is \n“Ball” that often occurs on the Coater. When the photoresist \nstops dripping, the wafer is be rotated at high speed for coating. \nAt this time, if a small amount of photoresist continues to drip \nout, it will be resulting in a wafer surface with a ball shape \ndefect. \nNo matter what kind of defect, we must track down the cause \nof the occurrence and avoid the recurrence of defect. However, \nin semiconductor factories, more and more edge devices are \nused for wafer inspection to achieve intelligent manufacturing. \n \nPaper submitted date: July 21, 2021."
+  },
+  {
+    "chunk_id": "chunk_0035",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 3,
+    "text": "r, \nin semiconductor factories, more and more edge devices are \nused for wafer inspection to achieve intelligent manufacturing. \n \nPaper submitted date: July 21, 2021. \nYuanFu Yang is with the International Intercollegiate Ph.D. Program, \nNational Tsing Hua University, Hsinchu, Taiwan 300044 ROC (email: \nyfyangd@gmail.com). \nThis edge device allows factory managers to automatically \ncollect and analyze data to make better-informed decisions and \noptimize production. It dramatically improves outcomes of \nmanufacturing, reducing waste, speeding production, and \nimproving yield and the quality of goods produced. Therefore, \nhow to develop a high-efficiency architecture for ADC to be \nsuitable for edge devices is the primary task. \nMany previous studies applied convolutional neural network \n(CNN) to ADC systems and became the standard approach for \ndefect pattern classification tasks."
+  },
+  {
+    "chunk_id": "chunk_0036",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 4,
+    "text": "NN) to ADC systems and became the standard approach for \ndefect pattern classification tasks. Borisov and Scheible [1] \nproposed a fast and accurate solution based on novel artificial \nneural network (ANN) architecture for precise lithography \nhotspot detection using a convolutional neural network \nadopting a state-of-the-art technique. Nakazawa and Kulkarni \n[2] employed CNN for the defect pattern classification and \nwafer map retrieval tasks. They demonstrated that by using only \nsynthetic data for network training, real wafer maps can be \nclassified with high accuracy. Yang and Sun [3] propose double \nfeature extraction method based on convolutional neural \nnetwork. This model uses the Radon transform for the first \nfeature extraction, and then input this feature into the \nconvolutional layer for the second feature extraction for wafer \nmap classification. \nThe general trend of CNNs has been to build network much \ndeeper in order to achieve higher accuracy [4][5][6]."
+  },
+  {
+    "chunk_id": "chunk_0037",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 5,
+    "text": "layer for the second feature extraction for wafer \nmap classification. \nThe general trend of CNNs has been to build network much \ndeeper in order to achieve higher accuracy [4][5][6]. However, \nincreasing the depth and complexity of the model will increase \nthe size and computational cost, thereby making it less efficient \nMin Sun is with the Electrical Engineering Department, National Tsing Hua \nUniversity, Hsinchu, Taiwan, 300044 ROC (email: sunmin@ee.nthu.edu.tw). \nSemiconductor Defect Pattern Classification by \nSelf-Proliferation-and-Attention Neural \nNetwork \nYuanFu Yang, Min Sun, National Tsing Hua University \n \nFig. 1. Defect pattern cases and prevention procedures. \n\nTSM-21-0182 \n2\nfor hardware deployment, especially in resource-constrained \nembedded systems. Another problem is that the feature map \nobtained during the convolution process is not always \nrepresentative of results."
+  },
+  {
+    "chunk_id": "chunk_0038",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 6,
+    "text": "at the feature map \nobtained during the convolution process is not always \nrepresentative of results. This is because the spatial-wise \nrelationship in the network has not been learned in each training \n(as shown in Fig. 2). \nIn addition, the limitation of the local receptive field is also \nan important issue in the feature extraction [7][8]. For each \nconvolutional layer, a set of filters are learned to express local \nspatial connectivity patterns along input channels. In other \nwords, by fusing spatial and channel-wise information together, \nthe informational combination of the convolution filter is \nrestricted in local receptive field. Thus, CNNs can only capture \nthe long-range dependencies with the global receptive fields by \nrepeating a series of convolutional layers interleaved with local \noperation of non-linearities and down-sampling. But repeated \nlocal operations will encounter several problems. First, it is \ncomputationally inefficient."
+  },
+  {
+    "chunk_id": "chunk_0039",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 7,
+    "text": "local \noperation of non-linearities and down-sampling. But repeated \nlocal operations will encounter several problems. First, it is \ncomputationally inefficient. Second, it causes optimization \ndifficulties and needs to be addressed carefully. Finally, these \nchallenges make it difficult to model multi-hop dependencies \nwhen messages need to be delivered back and forth between \ndistant positions [18]. \nIn this study, we present a new network architecture that can \nperform feature engineering in a more efficient way. The first \nfunction is the self-proliferation, using a series of linear \ntransformations to generate more feature maps at a cheaper \ncost. The second function is self-attention, learning the long-\nrange dependencies of feature map by the channel-wise and \nspatial-wise attention mechanism. Compared with the latest \nmethods, we demonstrate the success of our model (SP&A-Net) \nfor the defect patterns classification in semiconductor wafers. \nII."
+  },
+  {
+    "chunk_id": "chunk_0040",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 8,
+    "text": "n mechanism. Compared with the latest \nmethods, we demonstrate the success of our model (SP&A-Net) \nfor the defect patterns classification in semiconductor wafers. \nII. RELATED WORK \nIn this paper, we mainly discuss the network architecture \nfrom two directions: efficiency network and self-attention. An \nefficient network can make full use of the computer's \ncalculations to improve the accuracy of predictions. Self-\nattention mechanism can capture long-range dependencies and \nchannel-wise dependencies to achieve gain on number of vision \ntasks. \nA. Efficiency Network \nSince Howard et al. proposed MobileNet [9] in 2017, after \ngenerations of updates (Version-1 to Version-3), it has become \nan important way to learn lightweight neural networks."
+  },
+  {
+    "chunk_id": "chunk_0041",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 9,
+    "text": "th-wise separable \nconvolution to reduce the model size (fewer parameters) and \ncomplexity (fewer multiple additions), which requires only \none-eighth of the computation cost of standard convolutional \nneural networks. \nIn the MobileNetV2[10], it refers to the architecture of \nResNet to add new function of expansion layer and residuals \noperation, which is called inverted residuals. The difference \nfrom ResNet is that MobileNetV2 first increases the dimension \nby pointwise convolution and then reduces the dimension after \ndepth-wise convolution. “Extract features at high dimension \nand transfer information at low dimension” is the spirit of \nMobileNetV2. In the subsequent MobileNetV3 [11], AutoML \nhad been applied for network architecture design. They also \nused linear bottleneck for inverted residuals and applied \nsqueeze and excitation block [12] in the convolution process for \nfeature importance learning."
+  },
+  {
+    "chunk_id": "chunk_0042",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 10,
+    "text": "ted residuals and applied \nsqueeze and excitation block [12] in the convolution process for \nfeature importance learning. \nGhostNet [13] first study the redundancy in feature maps and \nconsider the redundancy in feature maps in the design of the \nmodel structure. They propose a structure, named Ghost \nModule, which can generate large number of feature maps with \nonly a few calculations through a series of linear \ntransformations. The computation cost is reduced by 10% as \ncompared to MobileNetV3. \nIn this research, we refer to the architecture of MobileV3 and \nGhostNet to design the self-proliferation block (SP-Block). \nWith SP-Block, we can use a cheaper operation to generate \nfeature maps to improve the accuracy of the network. \nB. Self-Attention \nThe attention mechanism has been successfully applied to \nneural language processing in recent years [14][15]. Wang et al."
+  },
+  {
+    "chunk_id": "chunk_0043",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 11,
+    "text": "fully applied to \nneural language processing in recent years [14][15]. Wang et al. \n[7] bridge attention mechanism and non-local operator in order \nto model long-range relationships in computer vision \napplications. Attention mechanisms can be applied along two \northogonal directions: channel-wise attention and spatial-wise \nattention. These two types of attention mechanisms will be \nintroduced in the following section. \nChannel-wise Attention \nChannel-wise attention aims to model the relationships \nbetween different channels with different semantic concepts. \nBy focusing on a part of the channels of the input feature and \ndeactivating non-related concepts, the models can focus on the \nconcepts of interest. Squeeze-and-Excitation Network (SENet) \n[12], the winner of ImageNet Large Scale Visual Recognition \nChallenge (ILSVRC) 2017, adaptively recalibrates channel-\nwise \nfeature \nresponses \nby \nexplicitly \nmodelling \ninterdependencies between channels."
+  },
+  {
+    "chunk_id": "chunk_0044",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 12,
+    "text": "sual Recognition \nChallenge (ILSVRC) 2017, adaptively recalibrates channel-\nwise \nfeature \nresponses \nby \nexplicitly \nmodelling \ninterdependencies between channels. Squeeze-and-Excitation \nblocks produce significant performance improvements for \nexisting \nstate-of-the-art \ndeep \narchitectures \nat \nslight \ncomputational cost. It can improve the representational capacity \nof a network by enabling it to perform dynamic channel-wise \nfeature recalibration. \nSpatial-wise Attention \nAs the convolutional layer builds the pixel relationship in the \nlocal neighborhood, the long-range dependences are mainly \nmodeled by the deeply stacked convolutional layer. However, \ndirectly repeating convolutional layers is computationally \n \nFig. 2. A non-local operation on many defects. A position 𝑥𝑖′𝑠 response is \ncomputed by the weighted average of the features of all positions 𝑥𝑗. \n\nTSM-21-0182 \n3\ninefficient and hard to optimize."
+  },
+  {
+    "chunk_id": "chunk_0045",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 13,
+    "text": "is \ncomputed by the weighted average of the features of all positions 𝑥𝑗. \n\nTSM-21-0182 \n3\ninefficient and hard to optimize. This would lead to ineffective \nmodeling of long-range dependency, due to the fact that it is \ndifficult to deliver messages between distant positions. As the \nabove reasons, Non-local network (NLNet) [7] proposed a \npioneering method of capturing long-range dependencies, \nwhich can extract a global understanding of the visual scene. \nFor each query location, NLNet first calculates the pairwise \nrelationship between the query location and all locations to \nform an attention map, and then aggregates the features of all \npositions through the weighted sum with the weights defined by \nthe attention map. Finally, the aggregated features are added to \nthe features of each query position to form the output."
+  },
+  {
+    "chunk_id": "chunk_0046",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 14,
+    "text": "h query position to form the output. \nAlthough Non-Local (NL) blocks have been widely used in \nvarious vision tasks [16][17], the general utilization of non-\nlocal modules has not been developed under resource-\nconstrained scenarios such as mobile devices. This may be due \nto the challenge of heavy computation cost. The NL block \ncomputes the response at each position by attending on all other \npositions and computing the weighted average of the features \nin all positions, which will generate a larger computational \nburden. Expensive computational cost makes it difficult to \napply the NL block to applications with limited computing \nresources. \nCao et al. [18] create a simplified network based on a query-\nindependent formulation, which is lightweight and can \neffectively model the global context. This better instantiation, \ncalled the global context network (GCNet), has been shown to \nbe superior to NLNet on major benchmarks for various \nrecognition tasks. Li et al."
+  },
+  {
+    "chunk_id": "chunk_0047",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 15,
+    "text": "ontext. This better instantiation, \ncalled the global context network (GCNet), has been shown to \nbe superior to NLNet on major benchmarks for various \nrecognition tasks. Li et al. [19] used neural architecture search \n(NAS) to design a Lightweight Non-Local (LightNL) block by \nsqueezing the transformation operations and incorporating \ncompact features. LightNL focus on seeking an optimal \nconfiguration of NL blocks in low-cost neural networks, which \nbrought significant performance gains. As a result, the proposed \nLightNL block is usually 400 times cheaper than the \nconventional NL block in terms of calculation, which is \nfavorable to be applied to mobile deep learning systems. \nIII. PROPOSED APPROACH \nOur network architecture is mainly composed of two parts: \nself-proliferation block and self-attention block. Self-\nproliferation block used a series of linear transformations to \ngenerate more feature maps at a cheaper cost."
+  },
+  {
+    "chunk_id": "chunk_0048",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 16,
+    "text": "d self-attention block. Self-\nproliferation block used a series of linear transformations to \ngenerate more feature maps at a cheaper cost. Then, self-\nattention block learned a wealth of information about long-\nrange dependencies from this generated feature. Finally, we \ndevelop a new SP&A-Net constructed on an efficient \narchitecture with high performance. \nA. Self-Proliferation Block \nThe idea of self-proliferation operation comes from DNA \nreplication. Proliferating cell nuclear antigen (PCNA) is an \nelement necessary for DNA replication. PCNA achieves its \nprocessivity by encircling the DNA, where it acts as a scaffold \nto recruit proteins involved in DNA replication and DNA repair. \nThe concept proposed in this paper is to increase the accuracy \nof the classifier by self-proliferation sufficient feature maps. \nTraditional convolution is a series of convolution operations \nto increase the feature depth (Eq. 1.)."
+  },
+  {
+    "chunk_id": "chunk_0049",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 17,
+    "text": "n sufficient feature maps. \nTraditional convolution is a series of convolution operations \nto increase the feature depth (Eq. 1.). Self-proliferation \noperation generates the same number of features through linear \ntransform (Eq. 2.). The process is similar to DNA unzipping and \nreplication, which can effectively increase the number of \nfeatures (as shown in Fig. 3). \nThe first step of self-proliferation is a convolution operation \nwhich can be built upon a transformation 𝒇∈ℝ𝑐×𝑘×𝑘×𝑛 \nmapping an input 𝑴∈ℝ𝑐×ℎ×𝑤 to feature maps 𝑴′ ∈\nℝℎ′×𝑤′×𝑛: \n𝑴′ = 𝑴⨂𝒇, 𝑴∈ℝ𝑐×ℎ×𝑤, 𝒇∈ℝ𝑐×𝑘×𝑘×𝑛,𝑴′ ∈ℝℎ′×𝑤′×𝑛 (1) \nwhere 𝑐 is the number of input channels, ℎ and 𝑤 is the height \nand width of the input data. Here ⨂ denotes convolution. \nThe second step is a cheap operation, represented by ρ in the \nEq. 2."
+  },
+  {
+    "chunk_id": "chunk_0050",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 18,
+    "text": "near transformation that uses depth-wise \noperations to generate the other half of the feature map: \n𝑢𝑖,𝑗= 𝜌𝑖,𝑗(𝑚𝑖\n′), ∀ i = 1, … , s, j = 1, … , n \n \n \n \n \n \n (2) \nwhere i and j represents the position (i,j) on the feature map, 𝑚𝑖\n′ \nis the unit of feature map 𝑴′ generated by Eq. 1., 𝑠 and 𝑛 is the \nheight and width of new feature map 𝑢𝑖,𝑗. If 2n convolution \nFig. 3. Self-Proliferation Workflow. \n\nTSM-21-0182 \n4\nkernels are used normally, n convolution kernels are used for \nself-proliferation. Therefore, the computation cost can be \nreduced by half (as shown in Fig. 3). \nB. Self-Attention \nThe self-attention block aims at strengthening the features of \nthe query position via aggregating information from other \npositions."
+  },
+  {
+    "chunk_id": "chunk_0051",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 19,
+    "text": "𝑤1 ∑\n𝑒𝑤𝑔𝑥𝑗\n∑\n𝑒𝑤𝑔𝑥𝑚\nℎ×𝑤\n𝑚=1\nℎ×𝑤\n𝑗=1\n)) \n \n \n (3) \nwhere 𝑥𝑖 denotes the feature map of one input instance, e.g., \ndefect pattern, ℎ and 𝑤 is the height and width of input 𝑥, 𝑤1 \nand 𝑤2 denote linear transform matrices (1×1 convolution) \nwhich is used to bottleneck transform, 𝑤𝑔 is the weight for \nglobal attention pooling, 𝐿𝑁 denotes the layer normalization, \nwhich is utilized to filter the redundant information and refine \nthe obtained contextual information. Specifically, our self-\nattention block consists of 3 parts (as show in Fig. 4): (a) global \nattention pooling for context modeling; (b) bottleneck \ntransform to capture channel-wise dependencies; and (c) \ndenotes the fusion function to broadcast element-wise addition \nfor feature fusion. This function can aggregate the global \ncontext features to the features of each position [18]. \nC. Self-Proliferation-and-Attention Block \nOur self-proliferation-and-attention block consists of 4 parts \n(as shown in Fig."
+  },
+  {
+    "chunk_id": "chunk_0052",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 20,
+    "text": "features to the features of each position [18]. \nC. Self-Proliferation-and-Attention Block \nOur self-proliferation-and-attention block consists of 4 parts \n(as shown in Fig. 5): (a) expansion layer used self-proliferation \nblock to increase input dimension to generate more feature \nmaps at a cheaper cost. (b) depth-wise convolution is used for \nfeature extraction and self-attention are used to capture long-\nrange dependencies. (c) compression layer used to reduce \nfeature dimension to be the same as input feature. Then, we can \ntransform spatial information with low computational effort. In \naddition, we also remove the activation of ReLU in the \ncompression layer to avoid the tensor collapse problem [10]. \nFinally, in (d) we refer to MobileNetV2 [10] to build inverted \nresiduals. The residuals architecture was first proposed by He \net al. in ResNet [20]. Its design concept is to learn residuals on \nthe network to avoid the problems of gradient vanishing."
+  },
+  {
+    "chunk_id": "chunk_0053",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 21,
+    "text": "duals architecture was first proposed by He \net al. in ResNet [20]. Its design concept is to learn residuals on \nthe network to avoid the problems of gradient vanishing. \nResNet's architecture is to compress first then expand. \nMobileNet's architecture is the opposite of ResNet that expand \nfirst then compress. The idea of MobileNet is to \"capture \nfeatures in high dimensions and transfer information in low \ndimensions\". \nD. Self-Proliferation-and-Attention Neural Network \nIn the overall network design of SP&A-Net, we use the \nnetwork architecture designed by Auto ML [11] due to its \nsuperior performance. As Table I, we set a total of 16 layers of \nSP&A block. Self-Attention block is applied to all self-\nproliferation layer. At the end, Conv2D 1×1 is used to increase \ndimension to 1280. In the flattening layer, 1000 features are \noutput to connect the classes of defect labels. \n \nFig. 4. Self-Attention Architecture."
+  },
+  {
+    "chunk_id": "chunk_0054",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 22,
+    "text": "the flattening layer, 1000 features are \noutput to connect the classes of defect labels. \n \nFig. 4. Self-Attention Architecture. \nConv (1X1)\nSoftmax\nX\n+\nLayerNorm\nReLU\n(b) Bottleneck \nTransform\n(a) Global \nAttention \nPooling\n(c) Fusion\nConv (1X1)\nConv (1X1)\nWg\nW1\nW2\n \nFig. 5. Self-Proliferation-and-Attention Architecture."
+  },
+  {
+    "chunk_id": "chunk_0055",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 23,
+    "text": "1 \n \n32X32X144 \nSP&A Block \n144 \n672 \n1 \n \n32X32X144 \nSP&A Block \n192 \n672 \n1 \n \n16X16X192 \nSP&A Block \n192 \n960 \n1 \n \n16X16X192 \nSP&A Block \n192 \n960 \n1 \n \n16X16X192 \nSP&A Block \n192 \n960 \n1 \n \n16X16X192 \nSP&A Block \n192 \n960 \n1 \n \n16X16X192 \nConv2D 1X1 \n960 \n- \n- \n \n16X16X960 \nAvgPool 16X16 \n- \n- \n- \n \n16X16X960 \nConv2D 1X1 \n1280 \n- \n- \n \n1X1X1280 \nFC \n1000 \n- \n- \n \n\nTSM-21-0182 \n5\nE. Algorithm for Model Training \nOur SP&A-Net used minibatch Nesterov Accelerated \nGradient (NAG) descent for training. In each iteration, we \nrandomly sample n images to calculate the gradient, then update \nthe network parameters. It stops after k passes through the \ndataset. All functions and hyperparameters in our algorithm can \nbe implemented in different neural networks introduced before. \nThe formal algorithm can be formalized as follows. \nThe weights of all layers are initialized with the Xavier \nalgorithm [21]. In addition, we use cycle loss proposed by Sun \net al."
+  },
+  {
+    "chunk_id": "chunk_0056",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 24,
+    "text": "gorithm can be formalized as follows. \nThe weights of all layers are initialized with the Xavier \nalgorithm [21]. In addition, we use cycle loss proposed by Sun \net al. [22] to estimate the loss rate during model training. The \ncircle loss has a unified formula for two elemental deep feature \nlearning approaches, i.e. learning with class-level labels and \npair-wise labels. Its goal is to maximize the within-class \nsimilarity (𝑠𝑝) and minimize the between-class similarity (𝑠𝑛), \nas shown in formula (4): \n𝐿𝑐𝑖𝑟𝑐𝑙𝑒= log[1 + ∑\n∑\nexp (𝛾(𝛼𝑛\n𝑗𝑠𝑛\n𝑗−𝛼𝑝\n𝑖𝑠𝑝\n𝑖))\n𝐿\n𝑗=1\n𝐾\n𝑖=1\n] (4) \nwhere 𝛼𝑛\n𝑗 and 𝛼𝑝\n𝑖 are non-negative weighting factors, K is the \nwithin-class scores, and L is between-class similarity scores \nwith a single sample in the feature space. The scale factor γ \ndetermines the largest scale of each similarity score. Circle loss \non γ is the automatic attenuation of gradients. As the similarity \nscores approach the optimum during training, the weighting \nfactors gradually decrease."
+  },
+  {
+    "chunk_id": "chunk_0057",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 25,
+    "text": "each similarity score. Circle loss \non γ is the automatic attenuation of gradients. As the similarity \nscores approach the optimum during training, the weighting \nfactors gradually decrease. Consequentially, the gradients \nautomatically decay, leading to a moderated optimization. \nCycle Loss generalizes (𝑠𝑛-𝑠𝑝) to ( 𝛼𝑛𝑠𝑛− 𝛼𝑝𝑠𝑝), allowing 𝑠𝑛 \nand 𝑠𝑝 to learn at different paces. \nIV. EXPERIMENT RESULTS \nTo evaluate the proposed method, we carry out experiments \non defect pattern datasets on 3 types of defect inspection, \nincluding \nAEI \n(After \nEtch \nInspection), \nADI \n(After \nDevelopment Inspection), and API (After Polish Inspection). In \naddition, we also verify our models in public databases, \nincluding of CIFAR-10 and ImageNet ILSVRC 2012 dataset. \nA."
+  },
+  {
+    "chunk_id": "chunk_0058",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 26,
+    "text": "ern dataset, there are total of 11 defect types, \ninclude of Remain, Silk, Multi-dots, Scratch, Small-particle, \nTABLE II \nALGORITHM OF SP&A-NET \nAlgorithm: Train a Self-Proliferation with mini-batch NAG descent \nInputs: defect pattern image (h x w) \nRequire: convolution mapping M, out channel O, dimension reduce R = \n50%, Conv1X1 kernel size convkernel = 1X1, strides S = (1,1), \nLinear operation LO, Linear operation kernel LK =3X3 \nInitialize(SP&A-Net) \nfor epoch = 1, 2, …., k do \n for batch = 1, 2, …., #images/b do \n images ← uniformly random sample b images \n X, y ← preprocess(images) \n O = M * R \n 1\nst_conv = conv(O, convkernel, S) \n LO = depthwise(1\nst_conv, LK) \n Output = concatenate(1\nst_conv, LO) \n f ← forward(SP&A-Net, X) \n L ← Cycleloss(f, y) \n grad ← backward(L) \n update(SP&A-Net, grad) \n end for \nend for \nReturn Loss, Accuracy \nTABLE III \nDATA EXPLORATION IN DEFECT PATTERN \nDefect \nType \nImage1 \nImage2 \nImage3 \nFeature Description \nDefect \nType \nImage1 \nImage2 \nImage3 \nFeat"
+  },
+  {
+    "chunk_id": "chunk_0059",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 27,
+    "text": "t, grad) \n end for \nend for \nReturn Loss, Accuracy \nTABLE III \nDATA EXPLORATION IN DEFECT PATTERN \nDefect \nType \nImage1 \nImage2 \nImage3 \nFeature Description \nDefect \nType \nImage1 \nImage2 \nImage3 \nFeature Description \nRemain \n \n \n \nFlat irregular shape, \nusually on the edge \nof the wafer \nHump \n \n \n \nIrregular bumps, \nedges fused to \nsurface \nSilk \n \n \n \nDiscontinuous linear \nprotrusion \nFlask \n \n \n \nFlaky, undulated \ntop surface \nMulti-\ndots \n \n \n \nRandom dots raised \n(more than three \npoints) \nFallon \n \n \n \nLarge irregular \nparticles \nScratch \n \n \n \nLinear depression \nOval \n \n \n \nLarge particles \nmade of spheres \nSmall- \nParticle \n \n \n \nSmall irregular \nparticles \nColor \nMark \n \n \n \nNo obvious \nundulations on the \nsurface \nBall \n \n \n \nRound particles \n \n \n \n \n \n\nTSM-21-0182 \n6\nBall, Hump, Flask, Fallon, Oval, and Color mark (as shown in \nTable III). Each defect has different characteristics and \nelements."
+  },
+  {
+    "chunk_id": "chunk_0060",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 28,
+    "text": "Flask, Fallon, Oval, and Color mark (as shown in \nTable III). Each defect has different characteristics and \nelements. For example, the defect type of \" Flask \" is composed \nof Aluminum (Al) and Oxygen (O), the defect type of \" Falon \" \nis composed of Ferrum (Fe) and Nickel (Ni), and the defect type \nof \" Oval \" is composed of Fluorine (F). \nAging of different machine parts will cause different defects. \nFor example, the defect of \" Flask \", which contains the \nelements of Aluminum (Al) and Oxygen (O), mainly comes \nfrom the electrostatic chuck (ESC) in the chamber of the \nChemical Vapor Deposition (CVD) process (as shown in Fig. \n6). The electrostatic chuck is a device for generating an \nattracting force between an electrode and an object at a voltage \napplied to the electrode. Under the high temperature and high-\npressure environment of the CVD process, particles will fall on \nthe wafer surface as the electrostatic chuck get aged."
+  },
+  {
+    "chunk_id": "chunk_0061",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 29,
+    "text": "high temperature and high-\npressure environment of the CVD process, particles will fall on \nthe wafer surface as the electrostatic chuck get aged. When we \ndetect this kind of defect, meaning that the chamber should be \nmaintained and aging parts placed by new ones. Similarly, \nwhen other types of defect have been detected, they must have \ntheir own out of control action plan (OCAP) to ensure the \nquality of semiconductor manufacturing. \nB. Ablation Study \nWe first randomly selected 10,000 images from 3 kinds of \ndefect pattern datasets (AEI, ADI, and API) for ablation study. \nThen, we select 6,000 images for training, 2,000 images for \nvalidation, and 2,000 images for testing. Table IV shows the \nablation study of the SP&A-Net compared with the ResNet-50 \nin different blocks. GC block performs slightly better than SE, \nNL and SNL blocks. SP&A-Net performs better than ResNet-\n50 with GC blocks."
+  },
+  {
+    "chunk_id": "chunk_0062",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 30,
+    "text": "rforms slightly better than SE, \nNL and SNL blocks. SP&A-Net performs better than ResNet-\n50 with GC blocks. According to the ablation study results, we \nchoose Layer Normalization as the regularization strategy, \nConv1×1 as the flattening method, Nesterov Accelerated \nGradient as the optimizer strategy, and finally Cosine \nAnnealing as the learning rate function. \nAblation Study on the Composition Ratio \nTable V presents the accuracy, precision, recall, F1-score, \nand model parameters in 7 composition ratio (r) of self-\nproliferation in defect pattern classification. We do experiments \nunder the same number of SP&A layers (16 layers). In order to \nprevent the classifier from not detecting defective wafers (false \nnegative), the internal rule is that the recall rate should be \ngreater than 99%. Therefore, we exclude parameter settings \nwith r greater than 0.5. In addition, the accuracy of r = 0.06 / \n0.13 / 0.25 is slightly higher than the accuracy of r = 0.05."
+  },
+  {
+    "chunk_id": "chunk_0063",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 31,
+    "text": "99%. Therefore, we exclude parameter settings \nwith r greater than 0.5. In addition, the accuracy of r = 0.06 / \n0.13 / 0.25 is slightly higher than the accuracy of r = 0.05. \nHowever, the number of parameters used in its model has \nincreased significantly, so we take r = 0.5 as the best parameter \nsetting. \nC. Experimental Results on Defect Pattern Datasets \nTo objectively verify our proposed model, we conduct \nexperiments on 3 defect pattern datasets, including AEI (After \nEtch Inspection), ADI (After Development Inspection), and \n \nFig. 6. The structure of electrostatic chuck (ESC) \nTABLE IV \nABLATION STUDY WITH SELF-ATTENTION, SELF-PROLIFERATION, AND SELF-PROLIFERATION-AND-ATTENTION NEURAL NETWORKS \nModel \n#Params \n(K) \nRefinement \nRegularization \nFlatten \nOptimizer \nLearning Rate \nBatch \nNormalization \nLayer \nNormalization \nGroup \nNormalization \nGlobal Avg."
+  },
+  {
+    "chunk_id": "chunk_0064",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 32,
+    "text": "ttention models: SE-ResNet (ResNet with SE Block), Non-Local-ResNet (ResNet with NL Block), Simplified-Non-Local-ResNet (ResNet with SNL \nBlock), Global-Context-ResNet (ResNet with GCBlock), and SP&A-Net (Self-Proliferation-and-Attention Network). SPNet: Self-Proliferation-Network, without \nSelf-Attention. \nTABLE V \nABLATION STUDY ON THE COMPOSITION RATIO OF SP&A-NET \nr \nAccuracy Precision Recall \nF1-Score #Params (M) \n0.06 \n98.45% \n97.45% \n99.16% \n98.30% \n5.10 \n0.13 \n98.44% \n97.43% \n99.15% \n98.28% \n3.40 \n0.25 \n98.40% \n97.37% \n99.05% \n98.20% \n2.98 \n0.50 \n98.38% \n97.32% \n99.03% \n98.17% \n2.60 \n0.63 \n97.81% \n96.75% \n98.44% \n97.58% \n2.47 \n0.83 \n97.21% \n96.38% \n97.48% \n96.93% \n2.35 \n1.00 \n95.83% \n94.24% \n96.62% \n95.42% \n2.29 \n\nTSM-21-0182 \n7\nAPI (After Polish Inspection). During the experiment, we \ncompared the accuracy of the models with the number of \nparameters."
+  },
+  {
+    "chunk_id": "chunk_0065",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 33,
+    "text": "we \ncompared the accuracy of the models with the number of \nparameters. \nAEI Datasets \nThe AEI defect pattern dataset is provided by a scanning \nelectron microscope (SEM) inspection applied after the etch \nprocess. In Fig. 7., we have designed 3 scenarios for accuracy \nand parameters to evaluate the performance of the following \nfive models. From the results, we can see that generally larger \nparameters lead to higher accuracy in these 5 networks which \nshows the effectiveness of them. In addition, SP&A-Net has a \nhigher accuracy than other model under the same number of \nparameters. \nADI Datasets \nADI complements the lithography defect reduction program \nby capturing topography-related process-integration defects, \nand it can check reticle integrity through defect identification. \nIn ADI, we have also designed 3 scenarios for accuracy and \nparameters to evaluate the performance of five models. We can \nsee that SP&A-Net outperform the baseline across all \nparameters (as shown in Fig."
+  },
+  {
+    "chunk_id": "chunk_0066",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 34,
+    "text": ", we have also designed 3 scenarios for accuracy and \nparameters to evaluate the performance of five models. We can \nsee that SP&A-Net outperform the baseline across all \nparameters (as shown in Fig. 8). \nAPI Datasets \nWe further assess the generalization of SP&A-Net on the task \nof defect detection using the API dataset. The experiment \nshowed the same results as before in Fig. 9. SP&A-Net has a \nhigher accuracy than other models under the same number of \nparameters. \nD. Experiment Results of Each Defect Type \nTable VI shows the performance of SP&A-Net for 11 defect \ntypes. We use F1-Score as an evaluation metric instead of \naccuracy to avoid the data unbalance issue. F1-Score of each \ndefect types are high than 97%, except for defect type of “Silk” \nand “Multi-dots”. It may be due to the uncertain structure, \nwhich is easy to be confused with other defect shapes. \nE."
+  },
+  {
+    "chunk_id": "chunk_0067",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 35,
+    "text": "uncertain structure, \nwhich is easy to be confused with other defect shapes. \nE. Experiment on the Public Datasets \nThis paper is mainly for model verification on the defect \npattern dataset of the semiconductor factory. In addition, we are \nvery curious about the proposed model on the real environment \nimage. To objectively verify our proposed model, we conduct \nexperiments on 2 public visual datasets, including CIFAR-10 \nand ImageNet ILSVRC 2012 dataset. \nCIFAR-10 \nCIFAR-10 consists of 60,000 32×32 color images in 10 \nclasses, with 50,000 training images and 10,000 test images. \nWe compare SP-Net and SP&A-Net with several representative \nmodels on ResNet-50 architectures (as Table VII). Our self-\nproliferation model outperforms the competitors with the \nhighest performance (92.92%/92.93) but with significantly \nfewer parameters. But from the results, we can see that there is \nno significant difference between the accuracy of SPNet and \nSP&A-Net."
+  },
+  {
+    "chunk_id": "chunk_0068",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 36,
+    "text": ") but with significantly \nfewer parameters. But from the results, we can see that there is \nno significant difference between the accuracy of SPNet and \nSP&A-Net. This is because the image size is too small (32×32) \nthat the attention mechanism has no chance to show its \nFig. 8. Experimental result of ADI defect pattern \n0.94\n0.95\n0.96\n0.97\n0.98\n0.99\n0\n5000\n10000\n15000\nAccuracy\nParamters(K)\nSP&A-Net\nMobileNetV2\nMobileNetV3\nGhostNet\nGCNet\nFig. 7."
+  },
+  {
+    "chunk_id": "chunk_0069",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 37,
+    "text": "97.7% \nSmall- \n99.0% \n98.4% \n98.1% \nParticle \n98.2% \n98.8% \n98.9% \nBall \n98.8% \n98.9% \n98.8% \nHump \n97.3% \n97.8% \n97.6% \nFlask \n98.7% \n98.3% \n98.7% \nFallon \n98.4% \n98.6% \n98.2% \nOval \n98.4% \n98.3% \n98.7% \nColor \n98.3% \n98.5% \n98.7% \nMark \n98.1% \n98.8% \n98.2% \nFig. 9. Experimental result of API defect pattern \n0.94\n0.95\n0.96\n0.97\n0.98\n0.99\n0\n5000\n10000\n15000\nAccuracy\nParamters(K)\nSP&A-Net\nMobileNetV2\nMobileNetV3\nGhostNet\nGCNet\n\nTSM-21-0182 \n8\nadvantages. \nImageNet ILSVRC 2012 dataset \nImageNet is a large image dataset containing more than 1.2 \nmillion images. In this paper, we directly perform our model on \nthe ImageNet training set. Usually, we keep 50K images \nrandomly selected from the training set as a fixed validation set. \nDuring training, we apply common data preprocessing \nstrategies of random cropping and flipping."
+  },
+  {
+    "chunk_id": "chunk_0070",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 38,
+    "text": "ies of random cropping and flipping. The results in Table \nVIII illustrate the significant performance improvement \ninduced by self-attention blocks when introduced into self-\nproliferation architectures. SP&A-Net has a top-5 error of \n6.25% which is superior to both its direct counterpart ResNet \nwith attention block. In terms of model efficiency, SP&A-Net \nalso have 8% fewer floating-point operations (FLOPS) and \n20% fewer parameters. \nV. CONCLUSION \nIn this paper, we explored the effectiveness of image \nclassification models that are based on self-attention and self-\nproliferation. Our framework achieves competitive predictive \nperformance on defect pattern classification tasks while \nrequiring fewer parameters and floating-point operations than \nthe corresponding convolution baselines. Experimental results \nyielded many significant findings."
+  },
+  {
+    "chunk_id": "chunk_0071",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 39,
+    "text": "Experimental results \nyielded many significant findings. First, the major finding is \nthat self-proliferation mechanism is particularly powerful and \nsubstantially outperforms traditional convolutional neural \nnetworks. Secondly, our networks based on self-attention match \nor outperform convolutional baselines. This indicates that the \nsuccess of convolution in computer vision is not inextricably \ntied to the long-range dependencies. By attention mechanism, \nwe can develop better methods for capturing geometries. \nFinally, additional work on proposing new attention forms that \ncan capture low level features can make attention effective in \nthe early layers of networks. This suggests that self-attention, \nwhich generalizes convolution, may yield strong accuracy gains \nacross applications in defect pattern classification. \nREFERENCES \n[1] V. Borisov and J."
+  },
+  {
+    "chunk_id": "chunk_0072",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 40,
+    "text": "n defect pattern classification. \nREFERENCES \n[1] V. Borisov and J. Scheible, “Lithography Hotspots Detection Using Deep \nLearning,” 2018 15th International Conference on Synthesis Modeling \nAnalysis and Simulation Methods and Applications to Circuit Design \n(SMACD), Aug. 2018. \n[2] T. Nakazawa and D. V. Kulkarni, “Wafer Map Defect Pattern \nClassification and Image Retrieval Using Convolutional Neural \nNetwork,” IEEE Trans. Semicond. Manuf., vol. 31, no. 2, pp. 309-314, \nJan. 2018. \n[3] Y. F. Yang and M. Sun, “Double Feature Extraction Method for Wafer \nMap Classification Based on Convolution Neural Network,” 2020 31st \nAnnual SEMI Advanced Semiconductor Manufacturing Conference \n(ASMC), pp. 1-6, Aug. 2020. \n[4] K. Simonyan and A. Zisserman, “Very deep convolutional networks for \nlarge-scale image recognition,” arXiv preprint arXiv:1409.1556, 2014."
+  },
+  {
+    "chunk_id": "chunk_0073",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 41,
+    "text": "le image recognition,” arXiv preprint arXiv:1409.1556, 2014. \n[5] S Ioffe, C Szegedy, et al, “Batch Normalization: Accelerating Deep \nNetwork Training by Reducing Internal Covariate Shift,” Proceedings of \nthe 32nd International Conference on International Conference on \nMachine Learning, Vol.37, pp. 448–456, 2015. \n[6] K. He, X. Zhang, S. Ren and J. Sun, “Deep Residual Learning for Image \nRecognition,” 2016 IEEE Conference on Computer Vision and Pattern \nRecognition (CVPR), pp. 770-778, 2016. \n[7] X. Wang, R. Girshick, A. Gupta and K. He, “Non-local Neural \nNetworks,” 2018 IEEE/CVF Conference on Computer Vision and Pattern \nRecognition, pp. 7794-7803, 2018. \n[8] H. Hu, Z. Zhang, Z. Xie and S. Lin, “Local Relation Networks for Image \nRecognition,” 2019 IEEE/CVF International Conference on Computer \nVision (ICCV), pp. 3463-3472, 2019. \n[9] A. G. Howard, M. Zhu, B. Chen, D. Kalenichenko, W. Wang, T."
+  },
+  {
+    "chunk_id": "chunk_0074",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 42,
+    "text": "Computer \nVision (ICCV), pp. 3463-3472, 2019. \n[9] A. G. Howard, M. Zhu, B. Chen, D. Kalenichenko, W. Wang, T. Weyand, \net al., “MobileNets: Efficient Convolutional Neural Networks for Mobile \nVision Applications,” arXiv preprint arXiv:1704.04861, 2017. \n[10] M. Sandler, A. Howard, M. Zhu, A. Zhmoginov and L. Chen, \n“MobileNetV2: Inverted Residuals and Linear Bottlenecks,” 2018 \nIEEE/CVF Computer Vision and Pattern Recognition Conference \n(CVPR), pp. 4510-4520, Jun. 2018. \n[11] A. Howard et al., “Searching for MobileNetV3,” 2019 IEEE/CVF \nInternational Conference on Computer Vision (ICCV), pp. 1314-1324, \nNov. 2019. \n[12] J. Hu, L. Shen and G. Sun, “Squeeze-and-Excitation Networks,” 2018 \nIEEE/CVF Conference on Computer Vision and Pattern Recognition \n(CVPR), pp. 7132-7141, Jun. 2018. \n[13] K. Han, Y. Wang, Q. Tian, J. Guo, C. Xu and C. Xu, “GhostNet: More \nFeatures From Cheap Operations,” 2020 IEEE/CVF Conference on \nComputer Vision and Pattern Recognition (CVPR), pp."
+  },
+  {
+    "chunk_id": "chunk_0075",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 43,
+    "text": "] K. Han, Y. Wang, Q. Tian, J. Guo, C. Xu and C. Xu, “GhostNet: More \nFeatures From Cheap Operations,” 2020 IEEE/CVF Conference on \nComputer Vision and Pattern Recognition (CVPR), pp. 1577-1586, 2020. \n[14] A. Vaswani, N. Shazeer, N. Parmar, J. Uszkoreit, L. Jones, A. N. Gomez, \nŁ. Kaiser, and I. Polosukhin, “Attention is all you need,” Neural \nInformation Processing Systems (NeurIPS), pp. 5998–6008, 2017. \n[15] J. Devlin, M. Chang, K. Lee, and K. Toutanova, “BERT: pre-training of \ndeep bidirectional transformers for language understanding,” North \nAmerican Chapter of the Association for Computational Linguistics \n(NAACL), pp. 4171–4186, 2019. \n[16] L. Chen et al., “SCA-CNN: Spatial and Channel-Wise Attention in \nConvolutional Networks for Image Captioning,” 2017 IEEE Conference \non Computer Vision and Pattern Recognition (CVPR), pp. 6298-6306, \n2017. \n[17] J.-J. Liu, Q. Hou, M.-M. Cheng, C. Wang, J."
+  },
+  {
+    "chunk_id": "chunk_0076",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 44,
+    "text": "er Vision and Pattern Recognition (CVPR), pp. 6298-6306, \n2017. \n[17] J.-J. Liu, Q. Hou, M.-M. Cheng, C. Wang, J. Feng, “Improving \nConvolutional Networks With Self-Calibrated Convolutions,” 2020 \nIEEE/CVF Conference on Computer Vision and Pattern Recognition \n(CVPR), pp. 10093-10102, 2020. \n[18] Y. Cao, J. Xu, S. Lin, F. Wei and H. Hu, “GCNet: Non-Local Networks \nMeet Squeeze-Excitation Networks and Beyond,” 2019 IEEE/CVF \nInternational Conference on Computer Vision Workshop (ICCVW), pp. \n1971-1980, 2019. \n[19] Y. Li, X. Jin, J. Mei, X. Lian, L. Yang, C. Xie, Q. Yu, Y. Zhou, S. Bai, L. \nYuille, “Neural Architecture Search for Lightweight Non-Local \nTABLE VIII \nCOMPARISON OF STATE-OF-THE-ART METHODS ON IMAGENET \nModel \nTop-1 \nerr. \nTop-5 \nerr."
+  },
+  {
+    "chunk_id": "chunk_0077",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 45,
+    "text": "23.31% \n6.63% \n25.82 \n38.69 \nResNet50+NL Block \n24.17% \n7.71% \n39.84 \n59.61 \nResNet50+SNL Block \n24.33% \n7.56% \n36.15 \n39.32 \nResNet50+GC Block \n24.28% \n7.75% \n34.32 \n39.31 \nSPNet \n(without attention) \n23.12% \n6.32% \n20.48 \n34.79 \nSP&A-Net \n(with self-attention) \n23.06% \n6.25% \n20.62 \n35.59 \nTABLE VII \nCOMPARISON OF STATE-OF-THE-ART METHODS ON CIFAR-10 \nModel \nAccuracy \n#Params \n(M) \nFLOPs \n(M) \nResNet50+SE Block \n92.10% \n0.83 \n127.0 \nResNet50+NL Block \n92.04% \n0.92 \n142.2 \nResNet50+SNL Block \n91.91% \n0.78 \n120.4 \nResNet50+GC Block \n92.66% \n0.82 \n126.3 \nSPNet \n(without attention) \n92.92% \n0.41 \n94.8 \nSP&A-Net \n(with self-attention) \n92.93% \n0.42 \n95.1 \n\nTSM-21-0182 \n9\nNetworks,” 2020 IEEE/CVF Conference on Computer Vision and Pattern \nRecognition (CVPR), pp. 10294-10303, 2020. \n[20] K. He, X. Zhang, S. Ren and J. Sun, “Deep Residual Learning for Image \nRecognition,” 2016 IEEE Conference on Computer Vision and Pattern \nRecognition (CVPR), pp. 770-778, Jun. 2016. \n[21] X. Glorot and Y."
+  },
+  {
+    "chunk_id": "chunk_0078",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 46,
+    "text": "X. Zhang, S. Ren and J. Sun, “Deep Residual Learning for Image \nRecognition,” 2016 IEEE Conference on Computer Vision and Pattern \nRecognition (CVPR), pp. 770-778, Jun. 2016. \n[21] X. Glorot and Y. Bengio, “Understanding the difficulty of training deep \nfeedforward neural networks,” In Proceedings of the thirteenth \ninternational conference on artificial intelligence and statistics, pages 249-\n-256, 2010. \n[22] Y. Sun et al., “Circle Loss: A Unified Perspective of Pair Similarity \nOptimization,” 2020 IEEE/CVF Conference on Computer Vision and \nPattern Recognition (CVPR), pp. 6397-6406, Jun. 2020. \nGITHUB REPOSITORY \nIn this Repository (https://github.com/Yfyangd/SPA), the code \nrelated to this paper is placed. Due to the principle of data \nconfidentiality protection, we did not include the defect pattern \nimage dataset. Instead, we used the public data material \nCIFAR-10 as a model demonstration. \n Self_Proliferate.py is used to generate more feature maps (as \nsection 3-A)."
+  },
+  {
+    "chunk_id": "chunk_0079",
+    "source_file": "wafer_defect_classification.txt",
+    "chunk_index": 47,
+    "text": "e defect pattern \nimage dataset. Instead, we used the public data material \nCIFAR-10 as a model demonstration. \n Self_Proliferate.py is used to generate more feature maps (as \nsection 3-A). \n Self_Attention.py is used to capturing the long-range \ndependencies of the feature map (as section 3-B). \n Self_Proliferate_and_Attention.py follow the spirit of \nMobileNetV2, \"capture features in high dimensions and \ntransfer information in low dimensions\", to make the network \nmore efficient. (as section 3-C). \n SPA_Net.py is the overall network architecture of SP&A-Net \n(as section 3-D). \n CircleLoss.py is used to estimate the loss rate during model \ntraining with two elemental deep feature learning approaches: \nclass-level labels and pair-wise labels (as section 3-E). \n SP&A-Net-Test-Run.ipynb is in the form of a Jupyter \nNotebook as a simple display with CIFAR-10 as the training \nobject."
+  },
+  {
+    "chunk_id": "chunk_0080",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 0,
+    "text": "A novel approach for wafer defect pattern classiﬁcation based on\ntopological data analysis\nSeungchan Ko∗, Dowan Koo†\nAbstract\nIn semiconductor manufacturing, wafer map defect pattern provides critical information for facility\nmaintenance and yield management, so the classiﬁcation of defect patterns is one of the most important\ntasks in the manufacturing process. In this paper, we propose a novel way to represent the shape of\nthe defect pattern as a ﬁnite-dimensional vector, which will be used as an input for a neural network\nalgorithm for classiﬁcation. The main idea is to extract the topological features of each pattern by using\nthe theory of persistent homology from topological data analysis (TDA)."
+  },
+  {
+    "chunk_id": "chunk_0081",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 1,
+    "text": "ter and much more eﬃcient in\ntraining with higher accuracy, compared with the method using convolutional neural networks (CNN)\nwhich is the most common approach for wafer map defect pattern classiﬁcation. Moreover, our method\noutperforms the CNN-based method when the number of training data is not enough and is imbalanced.\nKeywords: Topological data analysis, persistent homology, machine learning, convolutional neural net-\nwork, wafer map classiﬁcation, semiconductor manufacturing\n1\nIntroduction\nA Wafer map provides a graphical representation of defect distribution and the defect pattern contains\nimportant information to identify the root causes of process failures and any potential problems. After\ncertain steps of the manufacturing process in lines, metrology facilities inspect to detect abnormalities\nof dies and create a wafer map based on the detected abnormalities."
+  },
+  {
+    "chunk_id": "chunk_0082",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 2,
+    "text": "abnormalities\nof dies and create a wafer map based on the detected abnormalities. This wafer map visualization help\nengineers monitor any unusual defect distribution and take appropriate action for the corresponding\nproblems. For example, once a wafer map is produced with some corresponding root causes, similar\ndefect distributions of wafers may indicate the common problem of a certain step, and this would be\nuseful to tackle the problems.\nIn modern semiconductor manufacturing, advances in manufacturing technology have brought a lot\nof positive aspects such as high product performance, cost reduction, and yield improvement. This high-\nfrequency operation has caused more complicated problems and quality variation and it increases the\nimportance of the wafer map defect classiﬁcation task. It has been done manually by engineers (see,\nfor example, [17])."
+  },
+  {
+    "chunk_id": "chunk_0083",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 3,
+    "text": "has been done manually by engineers (see,\nfor example, [17]). This manual approach not only takes a long time and needs high labor costs, but\nalso suﬀers from a lack of consistency because it heavily depends on the engineer’s proﬁciency. In recent\nyears, the automatic classiﬁer of wafer map defect patterns has gained more attention due to various\nadvantages such as better performance, lower cost, and better consistency. A wide range of machine\nlearning algorithms has been studied to solve this problem. See [2, 27, 13, 21, 23], where the applications\nof regression analysis, decision tree, support vector machine, and artiﬁcial neural network are addressed.\nIn particular, a convolutional neural network (CNN) has gained more popularity and becomes one\nof the most common methods for this task. CNN is an end-to-end model which does not require any\ndomain-speciﬁc feature engineering and has achieved tremendous success in image classiﬁcation."
+  },
+  {
+    "chunk_id": "chunk_0084",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 4,
+    "text": "CNN is an end-to-end model which does not require any\ndomain-speciﬁc feature engineering and has achieved tremendous success in image classiﬁcation. Since\n∗Department of Mathematics, Sungkyunkwan University, Suwon, Republic of Korea. Email: ksm0385@gmail.com\n†Department of Mathematics, Yonsei University, Seoul, Republic of Korea. Email: dowan.koo@yonsei.ac.kr\n1\narXiv:2209.08945v1 [cs.LG] 19 Sep 2022\n\na defect pattern on a wafer map can be represented as an image, CNN-based methods have exhibited\nreasonably good performance in defect map classiﬁcation tasks. In this direction, see [19, 16, 28] and\n[22]. However, the automatic classiﬁers including CNN have some drawbacks in several aspects.\nFirstly, the CNN-based models contain a large number of parameters and are computationally ex-\npensive. It takes a long time to train the model and to predict the defect patterns for a large number of\nwafers."
+  },
+  {
+    "chunk_id": "chunk_0085",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 5,
+    "text": "e. It takes a long time to train the model and to predict the defect patterns for a large number of\nwafers. In the real manufacturing process, however, it is expected to make prompt predictions for a huge\nnumber of wafers in a limited time. Furthermore, it is also necessary to retrain the model regularly in\naccordance with the changes in a manufacturing process or new data accumulation. Hence, it is important\nto develop a fast and computationally eﬃcient model with a small number of parameters.\nSecondly, the performance of the aforementioned classiﬁers highly depends on the amount and quality\nof the training data because they are based on the supervised learning algorithm. To train CNN-based\nmodels, for example, a large amount of training data is needed. Since the training data of wafer maps can\nonly be obtained through manual inspection, it usually requires high labor costs and takes a long time\nto prepare the training data."
+  },
+  {
+    "chunk_id": "chunk_0086",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 6,
+    "text": "ps can\nonly be obtained through manual inspection, it usually requires high labor costs and takes a long time\nto prepare the training data. In addition, this labeling task depends on the proﬁciency of the engineers\nso the labeling may not be coherent and the quality of the training data may deteriorate. Hence, from\na practical point of view, it is desirable to develop a wafer map classiﬁer that can be eﬀectively trained\nwith relatively few training data.\nThirdly, the training data might not be balanced. In the actual manufacturing process, some defective\npatterns appear frequently while some defective patterns are rarely found. This problem is worse in the\ncase of well-established processes. It is ideal for the number of wafers for each pattern to be similar, but\nit is diﬃcult to be satisﬁed in practice since there are various patterns and each defective pattern stems\nfrom diﬀerent causes in the manufacturing process."
+  },
+  {
+    "chunk_id": "chunk_0087",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 7,
+    "text": "ed in practice since there are various patterns and each defective pattern stems\nfrom diﬀerent causes in the manufacturing process. To handle this problem, some image augmentation\ntechniques were used for the CNN-based model, but we cannot expect that these augmented data properly\nreﬂect the nature of the original defect distributions.\nRecently, the area of computational topology has grown rapidly and provides plenty of computa-\ntional tools for data analysis ([12]). One of the common tools is persistent homology from topological\ndata analysis, which observes the dynamics of topological features in a sequence of nested topological\nspaces ([11]). This information can be visualized as a persistence diagram (PD), a set of points in the\ntwo-dimensional plane where a new topological feature appears at x-coordinate and disappears at y-\ncoordinate."
+  },
+  {
+    "chunk_id": "chunk_0088",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 8,
+    "text": "ears at x-coordinate and disappears at y-\ncoordinate. This compact description of topological features is more useful for the analysis of complex\nand high-dimensional data because many important topological features are invariant under dimension-\nality reduction in some sense. It is noteworthy that the spaces of PDs can be equipped with a metric\nfunction and it is known that these functions are stable with respect to small perturbations of given data.\nSee, for example [18, 26, 7, 8, 6] where bottleneck and Wasserstein metrics were adopted and the stability\nissue was addressed.\nHowever, computing the bottleneck or Wasserstein distance between PDs is computationally expensive\nwhen the number of oﬀ-diagonal points is large. Furthermore, to utilize many useful machine learning\ntechniques with PDs, some extra structure other than a metric function is needed."
+  },
+  {
+    "chunk_id": "chunk_0089",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 9,
+    "text": "PDs, some extra structure other than a metric function is needed. To overcome this\nproblem, there has been plenty of eﬀorts to transform PDs into suitable forms for various machine\nlearning algorithms. One of the most common approaches is a persistence landscape (PL). In [5], the\nauthor developed a concept of PL, a functional representation λ : N × R →[−∞, ∞] of a PD in a Banach\nspace. For 1 ≤p ≤∞, we deﬁne the p-landscape distance as ∥λ1 −λ2∥p for two PLs λ1 and λ2. Then the\np and ∞-landscape metrics are stable with respect to the p-Wasserstein distance and to the bottleneck\ndistance respectively on PDs.\nOn the other hand, in [1], the notion of persistence image (PI) was introduced. PI is a representation\nof a PD as a ﬁnite-dimensional vector and it is proved that this transformation equips the stability as\nwell. PL is sometimes more useful because the mapping from a PD to a PL is invertible."
+  },
+  {
+    "chunk_id": "chunk_0090",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 10,
+    "text": "ps the stability as\nwell. PL is sometimes more useful because the mapping from a PD to a PL is invertible. However, PI is\nmore advantageous in many applications because it can be applied with a wide range of machine learning\ntechniques. It was shown in [1] that PI is computationally more eﬃcient to compute and PIs outperform\nPLs in various classiﬁcation and clustering tasks.\n2\n\nTherefore, in this paper, we adopt the PI approach for the representation of PD. Once we extract\na topological feature from the given defect pattern on a wafer and represent it as a PI, then we shall\nuse these PIs as inputs of neural networks for classiﬁcation. As it will be shown later, this approach is\ncomputationally eﬃcient, and robust against the small-data and imbalanced-data problems mentioned\nabove, compared with the CNN-based approach.\nTo the best of our knowledge, this is the ﬁrst study that applies the techniques from topological data\nanalysis to the wafer map classiﬁcation problem."
+  },
+  {
+    "chunk_id": "chunk_0091",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 11,
+    "text": "with the CNN-based approach.\nTo the best of our knowledge, this is the ﬁrst study that applies the techniques from topological data\nanalysis to the wafer map classiﬁcation problem. Although some shortcomings need to be addressed\nand further research should be followed-up, this new method has shown better performance in various\naspects compared to the existing methods. We expect this TDA-based method to be utilized as a new\nalternative for the defect pattern classiﬁcation problem, especially when the training data is insuﬃcient\nand imbalanced.\nThe rest of the article is organized as follows.\nIn Section 2, we review the theory of persistent\nhomology. We describe how to extract topological structure from the given point-set data and how to\nrepresent it as a PD. Moreover, the converting procedure from PD into PI is introduced and the stability\nof the transformation is discussed."
+  },
+  {
+    "chunk_id": "chunk_0092",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 12,
+    "text": "dure from PD into PI is introduced and the stability\nof the transformation is discussed. In Section 3, we shall present in detail our method of expressing wafer\ndefect pattern as a ﬁnite-dimensional vector, based on the theory discussed in Section 2. In Section 4,\nsome experiments on the classiﬁcation of wafer map defect patterns will be performed with simulated data\nand conﬁrm the advantages of the proposed method over the previous methods. Finally, some concluding\nremarks will be provided in Section 5.\n2\nPersistent homology and vector representation\nWe brieﬂy review some essential mathematical theory of homology for completeness. Homology can be\nused to distinguish diﬀerent (non-homeomorphic) topological spaces. In particular, simplicial homology\ncan be computed by considering simplicial complex. A simplicial complex S consists of k-simplicies,\nwhere k ∈N. A 0-(dimensional) simplex is a vertex, 1-simplex is an edge, 2-simplex is a triangle, and\n3-simplex is a tetrahedron."
+  },
+  {
+    "chunk_id": "chunk_0093",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 13,
+    "text": "complex. A simplicial complex S consists of k-simplicies,\nwhere k ∈N. A 0-(dimensional) simplex is a vertex, 1-simplex is an edge, 2-simplex is a triangle, and\n3-simplex is a tetrahedron. In general, k-simplex contains k + 1 vertices and is denoted by [v0, v1, ..., vk].\nThe bracket notation implies that the orientation is under consideration. We call a family of simplices S\na Simplicial complex if it satisﬁes the following properties:\n• for any simplex σ in S, all lower-dimensional simplices of σ are contained in S, and\n• the non-empty intersection of any two simplices in S is again a simplex in S.\nFor instance, the intersection of two adjacent triangles sharing two vertices (2-simplex) is an edge (1-\nsimplex).\nNow we consider the vector space Ck which consists of all R-combinations of k-simplices of S."
+  },
+  {
+    "chunk_id": "chunk_0094",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 14,
+    "text": "simplices of S. The\nboundary map ∂k acts on a k-simplex to its boundary as a sum of its (k −1)-dimensional faces, formally\ndeﬁned as\n∂k[v0, v1, ..., vk] :=\nk\nX\ni=0\n(−1)i[v0, ..., ˆvi, ..., vk]\nwhere [v0, ..., ˆvi, ..., vk] is a (k −1)-simplex obtained from [v0, ..., vk] with vi removed. It is noteworthy\nthat the boundary of a boundary is always zero, i.e ∂k−1 ◦∂k = 0.\nWe denote Bk by the image of ∂k+1, whose elements are called k-boundaries and Zk by the kernel\nof ∂k, i.e elements of Ck whose image under ∂k is zero in Ck−1. The elements of Zk are called k-cycles.\nClearly, Zk contains Bk because ∂k ◦∂k+1 = 0.\nAnd then we deﬁne the k-homology group of S by\nHk(S) := Zk/Bk and the rank of this group is called the Betti number. Typical elements of the homology\ngroup are connected components, loops, and spheres. For more details and concrete examples, see [14].\nIn topological data analysis, the idea of homology is often employed to classify point-cloud data."
+  },
+  {
+    "chunk_id": "chunk_0095",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 15,
+    "text": "ops, and spheres. For more details and concrete examples, see [14].\nIn topological data analysis, the idea of homology is often employed to classify point-cloud data. In\nthis paper, we shall use Vietories-Rips simplicial complexes [11, 12, 4]. Let Y be a given point-set data\n3\n\nequipped with a metric structure so that the distance between any two points in Y is assigned. For a\nﬁxed scale ϵ > 0, we shall say k + 1 points in Y form a k-simplex if their mutual distance is at most ϵ.\nWe denote Sϵ by the simplicial complex obtained by this procedure. Though Y is a set of vertices, Sϵ\nmay contain loops or some interesting homological objects for certain ϵ > 0. However, it is not possible\nto choose such a ‘nice’ ϵ > 0 a priori. For example, for small ϵ > 0, the Vietories-Rips complexes would\nappear as islands of many connected components whereas, for large ϵ > 0, the complex would be realized\nas a single connected component."
+  },
+  {
+    "chunk_id": "chunk_0096",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 16,
+    "text": "ar as islands of many connected components whereas, for large ϵ > 0, the complex would be realized\nas a single connected component.\nTo circumvent this diﬃculty, the idea of persistent homology was introduced [14, 12, 11]. The core\nidea of persistent homology is to observe the ‘birth’ and ‘death’ of each homological feature along with\ngradually increasing scales.\nWe denote Sϵ1, Sϵ2, · · · , Sϵn by Vietories-Rips complexes with increasing\nscales ϵ1 ≤ϵ2 ≤· · · ≤ϵn. To extract the overall topological feature of a point-set Y , we will track the\nelements of Hk(Sϵi) as the scale ϵi augments.\nA persistent diagram (PD) is often used as a standard way to represent the persistent homology as a\nmulti-set of points in R2. For a ﬁxed dimension k, each point (b, d) ∈R2 is encoded as birth and death,\nwhere a topological homology appears at scale b and disappears at scale d. It is obvious that every point\nin PD is above the graph y = x since every ‘death’ happens after ‘birth’."
+  },
+  {
+    "chunk_id": "chunk_0097",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 17,
+    "text": "re a topological homology appears at scale b and disappears at scale d. It is obvious that every point\nin PD is above the graph y = x since every ‘death’ happens after ‘birth’. Usually, the points far from the\ndiagonal line are considered to be a robust topological property as the length d−b denotes its persistence.\nIt is noteworthy that the space of persistence diagrams can be equipped with some metrics. One of the\nmost common metrics used for PDs is the p-Wasserstein distance between two PDs B and B′, which is\ndeﬁned by\nWp(B, B′) =\ninf\nγ:B→B′(\nX\nu∈B\n∥u −γ(u)∥p\n∞)1/p\nwhere 1 ≤p < +∞. When p = ∞, then W∞metric is called bottleneck distance and the P\nu∈B is replaced\nby supu∈B. These metrics can be used to compare the (dis-)similarity of two PDs and will be utilized to\nrepresent the stability of the vector transformation later. See, for example, [9, 10] where a general study\nof the space of persistence diagrams endowed with Wp metrics was studied."
+  },
+  {
+    "chunk_id": "chunk_0098",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 18,
+    "text": "y of the vector transformation later. See, for example, [9, 10] where a general study\nof the space of persistence diagrams endowed with Wp metrics was studied.\nAs mentioned earlier, we shall use Persistence Image (PI) as a converting method from a PD into\na ﬁnite-dimensional vector as proposed in [1]. Let B be a given PD in birth-death coordinates. We\ntransform B via a map T deﬁned by T(x, y) := (x, y −x). Hence, the image T(B) can be interpreted\nas a birth-persistence diagram. Next, let φu be a probability distribution with mean u = (ux, uy) ∈R2.\nIn this paper, we will choose φu to be the Gaussian distribution with mean u ∈T(B) and variance σ2.\nSimilarly, as before, the points near the horizontal axis are considered to be noise whereas the points away\nfrom the horizontal axis are rather robust. This motivates us to consider the use of weighting function\nf : R2 →R, which is zero along the horizontal line, continuous and piecewise diﬀerentiable."
+  },
+  {
+    "chunk_id": "chunk_0099",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 19,
+    "text": "obust. This motivates us to consider the use of weighting function\nf : R2 →R, which is zero along the horizontal line, continuous and piecewise diﬀerentiable. For instance,\none common option is to take f as\nf(ux, uy) :=\n\n\n\n\n\n1\nfor\nuy > c\nuy\nc\nfor\n0 ≤uy ≤c\n0\nfor\nuy < 0\n(1)\nFor the converted PD by the mapping T together with the weighting function f, we now deﬁne the\npersistent surface by\nρB(z) :=\nX\nu∈B\nf(u)φu(z)\n(2)\nHere the choice of the weighting function is crucial in proving the stability from PDs to PIs.\nNow, as a ﬁnal step, we discretize the persistent surface ρB by taking averages over the boxes. We\nﬁrst ﬁx any grid with n boxes, where each box(or pixel) is denoted by p. We then deﬁne the persistent\nimage by I(ρB)p =\n´\np ρB dxdy. For a given PD B, we deﬁne its persistent image by the collection of\npixels I(ρB)p, and therefore we have obtained the ﬁnite-dimensional vector representation of the given\nPD.\n4\n\nLastly, we discuss the stability of the mapping described above."
+  },
+  {
+    "chunk_id": "chunk_0100",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 20,
+    "text": "y the collection of\npixels I(ρB)p, and therefore we have obtained the ﬁnite-dimensional vector representation of the given\nPD.\n4\n\nLastly, we discuss the stability of the mapping described above.\nHere, stability means that the\ndistance between two output vectors can be controlled by the perturbation of corresponding input data.\nIn practice, a lack of stability might lead to a tragic situation when a small change in input can make\nviolent behavior for the output, which signiﬁcantly lowers the validity of the given transformation.\nFortunately, the stability estimate is available for the mapping from PDs to PIs where the input data\nPDs are equipped with 1-Wasserstein distance. Since PIs are vectors, it is natural to assign the Euclidean\ndistance."
+  },
+  {
+    "chunk_id": "chunk_0101",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 21,
+    "text": "tion in (2), we can deduce the following stability\nestimate which is quoted from [1]:\n∥I(ρB)p −I(ρB′)p∥1 ≤(\n√\n5∥∇f∥∞+\nr\n10\nπ\n∥f∥∞\nσ\n)W1(B, B′),\n(3)\nwhere f is the weight function and σ is the standard deviation of the Gaussian distribution. In the next\nsubsequent section, we will describe the way in detail to transform a given wafer map into the PI.\n3\nMethodology\nIn this section, we present our main methodology to obtain a ﬁnite-dimensional vector from a given wafer\nmap based on the theory described in Section 2. This vector encodes the overall topological features of the\nwafer map. Our data preprocessing method consists of the following three steps; from the wafer map, the\nzero and one-dimensional persistence diagrams (PDs) are obtained. Secondly, these PDs are converted\ninto persistence images (PIs) for each dimension. Lastly, after ﬂattening those two PIs to vectors, we\nshall concatenate them into a single vector of ﬁnite length. The entire process is depicted in Figure 1."
+  },
+  {
+    "chunk_id": "chunk_0102",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 22,
+    "text": "images (PIs) for each dimension. Lastly, after ﬂattening those two PIs to vectors, we\nshall concatenate them into a single vector of ﬁnite length. The entire process is depicted in Figure 1.\nFigure 1: The entire process of our data preprocessing method based on topological data analysis. The\n‘Step’ in the ﬁgure corresponds to the ‘Step’ listed in Section 3.\nStep 1 - Obtaining Persistence Diagrams\n5\n\nFirstly, we shall convert the given wafer map into a PD. Since every wafer map itself is two-\ndimensional, we only need to collect the zero and one-dimensional PDs because higher-dimensional\nPDs are trivial. Note that a wafer map can be interpreted as a collection of dots on a disk and by\nendowing radii to these dots, they can be connected to the neighbors and gradually conglomerate,\nas the scale increases. Each point in PD represents the scale at which the corresponding topolog-\nical feature (e.g., connected component, loop) appears and disappears."
+  },
+  {
+    "chunk_id": "chunk_0103",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 23,
+    "text": "le increases. Each point in PD represents the scale at which the corresponding topolog-\nical feature (e.g., connected component, loop) appears and disappears. The PD can exhibit the\ntopological properties of wafer map defect patterns. The zero-dimensional PD can shed light on\nthe local/global closeness of the dots, while one-dimensional PD can eﬀectively capture the loop\npatterns formed by the dots. For this process, we use the Python package Ripser [25, 3, 24].\nIn 0-dim PD in Figure 1, all the points align vertically with birth scale 0. This is because, in the\nbeginning, every dot in the wafer forms a connected component and some dots converge into the\nsame component as the radius increases, which results in the disappearance of the zero-dimensional\ntopological feature (connected component). The point (0, 3.0) designates that every dot in the wafer\nhas at least one another dot within the distance at most 3."
+  },
+  {
+    "chunk_id": "chunk_0104",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 24,
+    "text": "t). The point (0, 3.0) designates that every dot in the wafer\nhas at least one another dot within the distance at most 3. More importantly, the density of points\nin 0-dim PD from Figure 1 is relatively high in the lower part of the diagram; it means that most\nof the dots have other dots nearby.\nIn 1-dim PD from Figure 1, a point around (2, 9) in the north-western corner stands out while\nother points are clustered near the origin. The points near the y = x would be considered less\nrelevant but the points far away from this diagonal line are more crucial in unveiling the essential\nstructure of the wafer map. The point near (2, 9) indicates that some collection of points start to\nform a loop at around radius 2 and lose that shape at around radius 9. The far oﬀ-diagonal points\nin 1-dim PD are often related to loops or curvy lines of wafer maps.\nStep 2 - Transforming Persistence Diagrams into Persistence Images\nIn this stage, PDs are converted into PIs."
+  },
+  {
+    "chunk_id": "chunk_0105",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 25,
+    "text": "often related to loops or curvy lines of wafer maps.\nStep 2 - Transforming Persistence Diagrams into Persistence Images\nIn this stage, PDs are converted into PIs. Although this procedure was mentioned in Section\n2, we brieﬂy discuss again this process with precise parameters used in the experiments which will\nbe conducted in Section 4.\nFirst, PD is transformed into a persistent surface.\nMore precisely,\neach point (ux, uy) in the PD is shifted to the birth-persistence coordinate by T(ux, uy), where\nT(x, y) = (x, y −x). Here, y −x can be interpreted as the persistence of its topological feature.\nThen, we consider the Gaussian probability distribution of mean T(ux, uy) and variance σ2. The\nvariance is taken as σ2 = 0.01 in this paper. Summing all the Gaussian functions corresponding to\neach shifted point of PD multiplied by the linear weighting function, we get the persistent surface.\nAs the persistent surface is continuous, and hence the resolution is very high."
+  },
+  {
+    "chunk_id": "chunk_0106",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 26,
+    "text": "hifted point of PD multiplied by the linear weighting function, we get the persistent surface.\nAs the persistent surface is continuous, and hence the resolution is very high. Therefore we need\nto discretize the surface to generate the ﬁnite-dimensional vector from it. The entire domain of the\npersistent surface is partitioned into many pixels of the same size. The number of pixels is taken to\nbe 20 ×20 in the experiments in Section 4. By taking an average of the persistent surface over each\npixel, we get the persistent image (PI). In the PI depicted in Figure 1, the bright yellow and reddish\npart designates high values while the dark blue part indicates lower values. For this transformation\nof PD into PI, we will use the Python library Persim [24].\nStep 3 Vector representation of PIs\nAt the ﬁnal preprocessing step, we shall rearrange the components of PI to make a ﬁnite-\ndimensional vector."
+  },
+  {
+    "chunk_id": "chunk_0107",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 27,
+    "text": "e ﬁnal preprocessing step, we shall rearrange the components of PI to make a ﬁnite-\ndimensional vector. Each zero and one-dimensional PI encoded in matrix forms (as each PI consists\nof 20 × 20 pixels) are ﬂattened as two 400-dimensional vectors. And then these two vectors are\nconcatenated into a single 800-dimensional vector. This ﬁnal output vector will be used as the input\ndata of the neural network for the classiﬁcation task.\nWe have described our method to transform a given wafer map into a ﬁnite-dimensional vector.\nOne striking diﬀerence between this representation methodology and the CNN-based feature extraction\n6\n\nis the dimension of resulting vectors. As mentioned earlier, our TDA-based method generates an 800-\ndimensional vector, while the CNN-based method using ResNet50 generates a vector of 51200 components."
+  },
+  {
+    "chunk_id": "chunk_0108",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 28,
+    "text": "a vector of 51200 components.\nSurprisingly, as we will see in Section 4, this lower-dimensional vector generated by the proposed method\nencapsulates the information of the defect distribution very well, and the classiﬁcation model with these\nvectors performs much better than the model with vectors generated by CNN.\n4\nExperiments\nIn this section, we will conduct several experiments to demonstrate the performance of our proposed\nmethod. For the experiments, we shall use simulated datasets. More precisely, we artiﬁcially generate\nthe defect patterns to train the classiﬁer and evaluate the performance of the proposed method. We have\nselected ﬁve types of most common defect patterns by referring to the experiments performed in other\nresearch papers [19, 16, 28], and by consulting some domain experts or open-source data, e.g."
+  },
+  {
+    "chunk_id": "chunk_0109",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 29,
+    "text": "xperts or open-source data, e.g. WM-811K\nwafer dataset, which is the largest open-source dataset from the real manufacturing process: random\npattern and non-random patterns (ring, scratch, dense and cluster).\nFrom the yield analysis point\nof view, wafer maps with non-random distributions are important and should be carefully inspected,\nbecause they indicate the problematic issues related to the manufacturing process. On the other hand,\nrandom patterns with a controllable number of defects are acceptable, and they only provide less amount\nof information from the perspective of process improvement.\n4.1\nData generation\nLet us now describe the detailed procedure of the defect-pattern generation. We ﬁrst discuss the way to\ngenerate wafer maps with a random pattern. As mentioned above, this random distribution itself will be\nused as one data category (random)."
+  },
+  {
+    "chunk_id": "chunk_0110",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 30,
+    "text": "om distribution itself will be\nused as one data category (random). Moreover, these randomly generated defects will also be used as\nnoise in generating non-random datasets (ring, scratch, dense, and cluster). A wafer will be displayed in\nR2 by a disk with center (0, 0) and radius 10.\n• Random: For the random pattern category, we randomly choose the number of defects for each\nwafer by nrandom ∼Uniform(10, 60). We shall then use the polar coordinate to represent each defect\non a wafer map. The angle and the radius are generated as\nθrandom ∼Uniform(0, 2π)\nand\nrrandom ∼Uniform(0, 10).\n• Ring: We again use the polar coordinate system to represent the defects of the ring pattern. The\nnumber of ring-pattern defects is randomly chosen by nring ∼Uniform(150, 300). Then we generate\nthe pattern as\nθring ∼Uniform(0, 2π)\nand\nrring ∼Uniform(r0, r0 + δ),\nwhere the inner radius r0 > 0 and width δ > 0 of a ring are randomly given by\nr0 ∼Uniform(3, 6)\nand\nδ ∼Uniform(0, 4)."
+  },
+  {
+    "chunk_id": "chunk_0111",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 31,
+    "text": "ng ∼Uniform(0, 2π)\nand\nrring ∼Uniform(r0, r0 + δ),\nwhere the inner radius r0 > 0 and width δ > 0 of a ring are randomly given by\nr0 ∼Uniform(3, 6)\nand\nδ ∼Uniform(0, 4).\n• Scratch: We shall generate this pattern based on the quadratic function\ny = kx2\non [a, b],\n(4)\nwhere the parameters are randomly chosen by\na, b ∼Uniform(−10, 10)\nand\n|a −b| > 5,\nk ∼Uniform(−1/15, 1/15)\nand\nk ̸= 0.\n7\n\nWe choose nscratch ∼Uniform(50, 100), and select nscratch evenly distributed points {xi}nscratch\ni=1\nin\n[a, b]. If we let yi = kx2\ni for all i ∈{1, 2, · · · , nscratch}, we obtain the set of points {(xi, yi)}nscratch\ni=1\nlying on the quadratic curve (4). Finally, we obtain the points {(x′\ni, y′\ni)}nscratch\ni=1\ndescribing the random\nscratch by randomly rotating the portion of curve represented as {(xi, yi)}nscratch\ni=1\n:\n\u0014x′\ni\ny′\ni\n\u0015\n=\n\u0014cos θ\n−sin θ\nsin θ\ncos θ\n\u0015 \u0014xi\nyi\n\u0015\n∀i ∈{1, 2, · · · , nscratch},\nwhere\nθ ∼Uniform(0, 2π)."
+  },
+  {
+    "chunk_id": "chunk_0112",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 32,
+    "text": "ratch\ni=1\n:\n\u0014x′\ni\ny′\ni\n\u0015\n=\n\u0014cos θ\n−sin θ\nsin θ\ncos θ\n\u0015 \u0014xi\nyi\n\u0015\n∀i ∈{1, 2, · · · , nscratch},\nwhere\nθ ∼Uniform(0, 2π).\n• Dense: We generate this pattern of defects in the same way as we did for the random pattern\ngeneration, but the defects are more densely distributed. We randomly select the number of defects\nby ndense ∼Uniform(150, 300), and the defects are represented by the polar coordinate\nθdense ∼Uniform(0, 2π)\nand\nrdense ∼Uniform(0, 10).\n• Cluster: In order to generate defects in this category, we shall use the function make-blobs from\nthe scikit-learn library [20]. The number of sample is chosen by ncluster ∼Uniform(150, 300), the\nnumber of clusters is randomly determined among {1, 2, 3} with the probability 1\n3 for each, and the\nstandard deviation of the clusters follows the distribution Uniform(0.1, 2).\nAs mentioned earlier, the random noise nrandom ∼Uniform(10, 60) is concatenated to the wafer maps\nwith non-random defect patterns."
+  },
+  {
+    "chunk_id": "chunk_0113",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 33,
+    "text": "ibution Uniform(0.1, 2).\nAs mentioned earlier, the random noise nrandom ∼Uniform(10, 60) is concatenated to the wafer maps\nwith non-random defect patterns. Some samples of wafer maps for each class generated by the way above\nare depicted in Figure 2.\nTo evaluate the performance of the proposed method, we shall perform various experiments with\nsimulated data, and compare the results from the TDA-based method and CNN-based method.\nAs\ndescribed in Section 3, the given wafer map is transformed into an 800-dimensional vector. We shall use\nthis vector as an input for the neural network with a single hidden layer with 1024 neurons, and apply\nthe ReLU activation function. And then Adam optimizer which is a stochastic gradient-based optimizer\nwas used for parameter updates.\nFor the CNN-based method, we will use the pre-trained ResNet50\n(trained on ImageNet) with the single layer of 1024 nodes on the top [15]."
+  },
+  {
+    "chunk_id": "chunk_0114",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 34,
+    "text": ", we will use the pre-trained ResNet50\n(trained on ImageNet) with the single layer of 1024 nodes on the top [15]. For this purpose, we ﬁrst\nconvert the given wafer map into an image and put the image into the ResNet50 model which generates\n51200-dimensional features. Then these features are utilized as input for the layer on the top, which will\nbe trained with the Adam optimizer.\n4.2\nBasic performance evaluation\nWe will ﬁrst conduct a basic performance evaluation. For this purpose, 500 wafer maps are generated\nfor each class as described in Subsection 4.1. We then split these data into 300 training dataset, 100\nvalidation dataset, and 100 test dataset. The 300 defect patterns for each category are used for training\nboth our proposed model and the CNN model, and the 100 data for each class are used for the validation.\nOnce high enough training/validation accuracies are achieved (700 epochs in this paper), the 100 test\nwafer maps for each category are used to evaluate both models."
+  },
+  {
+    "chunk_id": "chunk_0115",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 35,
+    "text": "are used for the validation.\nOnce high enough training/validation accuracies are achieved (700 epochs in this paper), the 100 test\nwafer maps for each category are used to evaluate both models. As discussed in Section 3, the proposed\nmethod in this paper has transformed the given wafer map into an 800-dimensional vector, while the\nCNN architecture (ResNet50) has changed the image of the defect pattern to a 51200-dimensional vector.\nFirst, the training and validation accuracies for each epoch are shown in Figure 3 and the confusion\nmatrices are presented in Figure 4 for the test dataset. The overall accuracy for the TDA-based model\nis 99.0% and for the CNN-based model is 93.8% as presented in Table 1. Note that although our TDA-\nbased model performs better in accuracy, the diﬀerence is modest. However, our method outperforms\nthe CNN-based method in several aspects if we consider the situation in the real manufacturing process."
+  },
+  {
+    "chunk_id": "chunk_0116",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 36,
+    "text": "st. However, our method outperforms\nthe CNN-based method in several aspects if we consider the situation in the real manufacturing process.\n8\n\n(a) Random pattern\n(b) Ring pattern\n(c) Scratch pattern\n(d) Dense pattern\n(e) Cluster pattern\nFigure 2: Some samples of datasets generated as outlined in Subsection 4.1 for (a) random pattern, (b)\nring pattern, (c) scratch pattern, (d) dense pattern, (e) cluster pattern.\n9\n\nAccuracy\nTraining time for each epoch\nEpochs needed for 90% accuracy\nTDA-based method\n99.0%\n0.012 sec\n3 epochs\nCNN-based method\n93.8%\n4.234 sec\n156 epochs\nTable 1: Basic performance evaluation I: A basic performance comparison was conducted between the\nTDA-based method and CNN-based method. Both models are trained with 300 training data for each\ncategory."
+  },
+  {
+    "chunk_id": "chunk_0117",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 37,
+    "text": "70%\n80%\n90%\nNumber of wafer maps\n500\n1000\n500\n1000\n500\n1000\nTDA-based method\n18.8 sec\n37.8 sec\n16.2 sec\n33.3 sec\n15.7 sec\n30.7 sec\nCNN-based method\n35.7 sec\n67.9 sec\n36.9 sec\n69.2 sec\n35.1 sec\n67.6 sec\nTable 2: Basic performance evaluation II: The prediction times when the ratio of random defect patterns\nare 70%, 80%, and 90% are measured. For each portion of the random pattern, the experiments are\nconducted to make predictions for both 500 and 1000 wafer maps.\n(a) TDA-based model\n(b) CNN-based model\nFigure 3: The training and validation accuracy for (a) TDA-based method and (b) CNN-based method.\nBoth models are trained with 300 training data for each class and the validation accuracy is estimated\nwith 100 validation data for each category.\n10\n\n(a) TDA-based model\n(b) CNN-based model\nFigure 4: Test accuracy confusion matrices for (a) TDA-based method and (b) CNN-based method."
+  },
+  {
+    "chunk_id": "chunk_0118",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 38,
+    "text": "e 4: Test accuracy confusion matrices for (a) TDA-based method and (b) CNN-based method.\nOne of the most important factors that should be considered in practice is how fast the model can make\npredictions. In the actual manufacturing process, a huge amount of data is poured, and it is necessary to\nperform real-time classiﬁcation on a large number of wafer maps simultaneously. The average times taken\nfor the models to produce a prediction result from raw data are summarized in Table 2. In practice, the\nratio of random defect patterns is very high compared with that of other patterns. Hence the datasets\nused here consist of the relatively high portion of wafer maps with random patterns: 70%, 80% and 90%\nof random patterns, and equal rates for each remaining non-random pattern, where the wafer maps are\nrandomly generated as outlined in Subsection 4.1. As can be seen from Table 2, our model is much faster\ncompared with the CNN-based model."
+  },
+  {
+    "chunk_id": "chunk_0119",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 39,
+    "text": "maps are\nrandomly generated as outlined in Subsection 4.1. As can be seen from Table 2, our model is much faster\ncompared with the CNN-based model. In particular, while the prediction times needed for CNN-based\nmethods slightly vary, the prediction times clearly decrease as the ratio of random pattern increase. Note\nthat if the ratio of the random pattern is more than 80%, the TDA-based model is more than twice\nfaster than the CNN-based method, and therefore it is expected that our method will perform better for\nreal-time classiﬁcation in the actual manufacturing process.\nAnother important factor is training eﬃciency.\nIn real manufacturing circumstances, it is often\nnecessary to retrain the model in accordance with the manufacturing situation and the engineers’ opinions.\nFor example, one may need to add a new category to the dataset or obtain new training data reﬁned\nby experienced engineers."
+  },
+  {
+    "chunk_id": "chunk_0120",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 40,
+    "text": "may need to add a new category to the dataset or obtain new training data reﬁned\nby experienced engineers. Therefore, training eﬃciency should also be considered in the design of the\nwafer map classiﬁcation model. As we can see from Figure 5, we can conﬁrm that our method trains\nthe single-layer perceptron model much faster and more eﬃciently with fewer epochs. For example, as\nsummarized in Table 1, the CNN-based method needs at least 156 epochs to achieve 90% of training\naccuracy, while our proposed model reaches that accuracy as soon as the training starts. Moreover, the\naverage processing time for each epoch for our model is 0.012 seconds, while the CNN-based model takes\n4.234 seconds per each epoch on average.\nAs we can see from the above experiments, our method performs better in terms of model accuracy,\nand it also shows overwhelming performance in terms of training time and eﬃciency."
+  },
+  {
+    "chunk_id": "chunk_0121",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 41,
+    "text": "s of model accuracy,\nand it also shows overwhelming performance in terms of training time and eﬃciency. In order to further\nhighlight the better performance of our method, we shall address the issues brought up in Section 1 and\ndesign two more experiments: a small-data experiment and an imbalanced-data experiment, which are\ncovered in the next subsections.\n11\n\n(a) Training accuracy\n(b) Training loss\nFigure 5: A comparison between the TDA-based model and CNN-based model for (a) training accuracy\nand (b) training loss."
+  },
+  {
+    "chunk_id": "chunk_0122",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 42,
+    "text": "a small amount of training data\n4.3\nSmall-data experiment\nIn this experiment, we will investigate whether the proposed method can train the neural network suﬃ-\nciently well only with a small amount of training data. One of the biggest diﬃculties in the supervised\nlearning problem in practice is obtaining a suﬃcient amount of quality training data. In particular, a\nCNN architecture requires a huge amount of training data to train a large number of parameters. In\nthe defect map classiﬁcation problem, it is diﬃcult to obtain a suﬃcient amount of data because the\ntraining data should be manually labeled by an experienced engineer. In addition, when many engineers\nsimultaneously prepare the training data, the labeling criteria may vary depending on their proﬁciencies,\nwhich may impair the consistency of the data. Therefore, in a wafer map classiﬁcation task, it would\nbe extremely useful if we can train the classiﬁer only with a small amount of data."
+  },
+  {
+    "chunk_id": "chunk_0123",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 43,
+    "text": "istency of the data. Therefore, in a wafer map classiﬁcation task, it would\nbe extremely useful if we can train the classiﬁer only with a small amount of data. Throughout the\nexperiments in this subsection, we will show that the proposed method can train the neural network\nclassiﬁer well enough, even with very few training data.\nFor this purpose, we ﬁrst prepare one dataset and use it in common to evaluate the performance\nof each model trained with diﬀerent amounts of training data. This test dataset which consists of 100\nwafer maps for each class is generated according to the method described above. Next, we will train\nthe classiﬁer for both TDA and CNN-based methods, with a very small amount of training data at the\nbeginning (10 wafer maps for each) and gradually increase the number of training data (until 100 wafer\nmaps for each). And then we will observe the changes in test accuracies. The result of the experiments\nis summarized in Table 3."
+  },
+  {
+    "chunk_id": "chunk_0124",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 44,
+    "text": "raining data (until 100 wafer\nmaps for each). And then we will observe the changes in test accuracies. The result of the experiments\nis summarized in Table 3. As the experiment shows, our method can train the classiﬁer well enough with\nfew training data. Furthermore, as the amount of training data decreases, the model trained with the\nTDA-based method showed only a slight decrease in accuracy (96.4% to 89.6%), whereas the accuracy\nof the CNN-based model decreased signiﬁcantly (90.5% to 66.8%)."
+  },
+  {
+    "chunk_id": "chunk_0125",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 45,
+    "text": "8%\nDataset 6\n75\n61\n29\n59\n51\n90.6%\n83.6%\nDataset 7\n91\n79\n90\n242\n155\n96.4%\n87.4%\nDataset 8\n160\n175\n253\n208\n202\n98.2%\n94.8%\nDataset 9\n270\n9\n43\n33\n219\n93.4%\n72.4%\nDataset 10\n16\n10\n96\n252\n145\n86.8%\n54.8%\nTable 4: Test accuracies for both models trained with imbalanced datasets.\n4.4\nImbalanced-data experiment\nAs we mentioned in Section 1, in real manufacturing circumstances, it is extremely diﬃcult to obtain a\nwell-balanced dataset. Some wafer map patterns appear frequently, while some other patterns might be\nfound very rarely. This is mainly because each defective pattern on a wafer map stems from diﬀerent\ncauses in the manufacturing process. Therefore, it is very important to ﬁnd a way to train a model even\nwith imbalanced data. In this subsection, we will show that our method is much more robust against\nimbalanced data than the CNN-based method.\nFor the experiment, 100 test data for each class of defective pattern are initially generated and ﬁxed\nthroughout the experiments."
+  },
+  {
+    "chunk_id": "chunk_0126",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 46,
+    "text": "ust against\nimbalanced data than the CNN-based method.\nFor the experiment, 100 test data for each class of defective pattern are initially generated and ﬁxed\nthroughout the experiments. Next, we shall generate the training data. Unlike previous experiments, we\nrandomly select the number of data in each category. The number of data for each class is randomly\nchosen by\nN(random), N(ring), N(scratch), N(dense), N(cluster) ∼i.i.d. Int(Uniform(1, 300)),\nwhere, for example, N(random) denotes the number of data in random pattern category. We iterate this\nprocess 10 times so that we have 10 training datasets. We then train the models (both TDA-based and\nCNN-based) with these diﬀerent datasets. Finally, we evaluate the accuracy of each model with the\ninitially ﬁxed test dataset. The result of this experiment is presented in Table 4.\nAs we can see from Table 4, we can conﬁrm that our proposed method performed much better than\nthe CNN-based method."
+  },
+  {
+    "chunk_id": "chunk_0127",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 47,
+    "text": "experiment is presented in Table 4.\nAs we can see from Table 4, we can conﬁrm that our proposed method performed much better than\nthe CNN-based method. When the amount of training data is not very small (Dataset 8), the diﬀerence\nis not signiﬁcant. However, if training data for certain classes are not enough, our TDA-based method\noutperforms the existing CNN-based method. In particular, when the number of data in some categories\nis extremely small (Dataset 3, Dataset 5, Dataset 9, Dataset 10), the CNN-based model does not perform\nwell enough to classify wafer maps normally, whereas our method still achieved high accuracy.\n5\nConclusion\nThis paper proposes a novel method to classify wafer defect patterns based on the theory of persistent\nhomology from topological data analysis. It is a data preprocessing method to convert a wafer map into\na ﬁnite-dimensional vector, which is used for the input of neural network-based classiﬁcation algorithms."
+  },
+  {
+    "chunk_id": "chunk_0128",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 48,
+    "text": "preprocessing method to convert a wafer map into\na ﬁnite-dimensional vector, which is used for the input of neural network-based classiﬁcation algorithms.\nThe main idea is to impose the topological structure to the given point-cloud data using a simplicial\ncomplex and extract the topological properties by observing the dynamics of persistent homology. We\nthen represent the extracted topological features as a ﬁnite-dimensional vector and use it as an input\nfor the classiﬁer. Throughout the various experiments with the simulated dataset, we conﬁrm that our\n13\n\nmethod outperforms the most common existing method, namely, the CNN-based image classiﬁcation\napproach, in many aspects.\nThe main contribution of the present paper is that we have developed a new approach for the wafer\nmap classiﬁcation task, which is completely diﬀerent from the existing methods."
+  },
+  {
+    "chunk_id": "chunk_0129",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 49,
+    "text": "n task, which is completely diﬀerent from the existing methods. This new methodology\nis computationally eﬃcient with high model accuracy and robust against the lack of training data and\nimbalance of training data. This paper serves as a starting point for TDA-based wafer map classiﬁcation,\nand we expect that the proposed method has considerable potential to be extended in several directions.\nOne interesting future research direction is reﬁning this preprocessing method to make the resulting\nvectors work well with the unsupervised clustering algorithms.\nReferences\n[1] H. Adams, T. Emerson, M. Kirby, R. Neville, C. Peterson, P. Shipman, S. Chepushtanova, E. Han-\nson, F. Motta, and L. Ziegelmeier. Persistence images: a stable vector representation of persistent\nhomology. J. Mach. Learn. Res., 18:Paper No. 8, 35, 2017.\n[2] F. Adly, O. Alhussein, P. D. Yoo, Y. Al-Hammadi, K. Taha, S. Muhaidat, Y.-S. Jeong, U. Lee, and\nM. Ismail."
+  },
+  {
+    "chunk_id": "chunk_0130",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 50,
+    "text": "18:Paper No. 8, 35, 2017.\n[2] F. Adly, O. Alhussein, P. D. Yoo, Y. Al-Hammadi, K. Taha, S. Muhaidat, Y.-S. Jeong, U. Lee, and\nM. Ismail. Simpliﬁed subspaced regression network for identiﬁcation of defect patterns in semicon-\nductor wafer maps. IEEE Transactions on Industrial Informatics, 11(6):1267–1276, 2015.\n[3] U. Bauer. Ripser: eﬃcient computation of vietoris–rips persistence barcodes. Journal of Applied\nand Computational Topology, 5(3):391–423, 2021.\n[4] J.-D. Boissonnat, F. Chazal, and B. Michel. Topological data analysis. In Novel mathematics inspired\nby industrial challenges, volume 38 of Math. Ind., pages 247–269. Springer, Cham, 2022.\n[5] P. Bubenik. Statistical topological data analysis using persistence landscapes. J. Mach. Learn. Res.,\n16:77–102, 2015.\n[6] F. Chazal, V. de Silva, and S. Oudot. Persistence stability for geometric complexes. Geom. Dedicata,\n173:193–214, 2014.\n[7] D. Cohen-Steiner, H. Edelsbrunner, and J. Harer. Stability of persistence diagrams."
+  },
+  {
+    "chunk_id": "chunk_0131",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 51,
+    "text": "lva, and S. Oudot. Persistence stability for geometric complexes. Geom. Dedicata,\n173:193–214, 2014.\n[7] D. Cohen-Steiner, H. Edelsbrunner, and J. Harer. Stability of persistence diagrams. Discrete Comput.\nGeom., 37(1):103–120, 2007.\n[8] D. Cohen-Steiner, H. Edelsbrunner, J. Harer, and Y. Mileyko. Lipschitz functions have Lp-stable\npersistence. Found. Comput. Math., 10(2):127–139, 2010.\n[9] D. Cohen-Steiner, H. Edelsbrunner, J. Harer, and Y. Mileyko. Lipschitz functions have Lp-stable\npersistence. Found. Comput. Math., 10(2):127–139, 2010.\n[10] V. Divol and T. Lacombe. Understanding the topology and the geometry of the space of persistence\ndiagrams via optimal partial transport. J. Appl. Comput. Topol., 5(1):1–53, 2021.\n[11] H. Edelsbrunner and J. Harer. Persistent homology—a survey. In Surveys on discrete and computa-\ntional geometry, volume 453 of Contemp. Math., pages 257–282. Amer. Math. Soc., Providence, RI,\n2008.\n[12] H. Edelsbrunner and J. L. Harer. Computational topology."
+  },
+  {
+    "chunk_id": "chunk_0132",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 52,
+    "text": "rveys on discrete and computa-\ntional geometry, volume 453 of Contemp. Math., pages 257–282. Amer. Math. Soc., Providence, RI,\n2008.\n[12] H. Edelsbrunner and J. L. Harer. Computational topology. American Mathematical Society, Provi-\ndence, RI, 2010. An introduction.\n[13] M. Fan, Q. Wang, and B. van der Waal. Wafer defect patterns recognition based on optics and multi-\nlabel classiﬁcation. In 2016 IEEE Advanced Information Management, Communicates, Electronic\nand Automation Control Conference (IMCEC), pages 912–915, 2016.\n14\n\n[14] A. Hatcher. Algebraic topology. Cambridge University Press, Cambridge, 2002.\n[15] K. He, X. Zhang, S. Ren, and J. Sun. Deep residual learning for image recognition. In 2016 IEEE\nConference on Computer Vision and Pattern Recognition (CVPR), pages 770–778, 2016.\n[16] K. Kyeong and H. Kim. Classiﬁcation of mixed-type defect patterns in wafer bin maps using con-\nvolutional neural networks. IEEE Transactions on Semiconductor Manufacturing, 31(3):395–402,\n2018."
+  },
+  {
+    "chunk_id": "chunk_0133",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 53,
+    "text": "] K. Kyeong and H. Kim. Classiﬁcation of mixed-type defect patterns in wafer bin maps using con-\nvolutional neural networks. IEEE Transactions on Semiconductor Manufacturing, 31(3):395–402,\n2018.\n[17] C.-W. Liu and C.-F. Chien.\nAn intelligent system for wafer bin map defect diagnosis: An em-\npirical study for semiconductor manufacturing. Engineering Applications of Artiﬁcial Intelligence,\n26(5):1479–1486, 2013.\n[18] Y. Mileyko, S. Mukherjee, and J. Harer. Probability measures on the space of persistence diagrams.\nInverse Problems, 27(12):124007, 22, 2011.\n[19] T. Nakazawa and D. V. Kulkarni. Wafer map defect pattern classiﬁcation and image retrieval using\nconvolutional neural network. IEEE Transactions on Semiconductor Manufacturing, 31(2):309–314,\n2018.\n[20] F. Pedregosa, G. Varoquaux, A. Gramfort, V. Michel, B. Thirion, O. Grisel, M. Blondel, P. Pretten-\nhofer, R. Weiss, V. Dubourg, J. Vanderplas, A. Passos, D. Cournapeau, M. Brucher, M. Perrot, and\nE. Duchesnay."
+  },
+  {
+    "chunk_id": "chunk_0134",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 54,
+    "text": "Gramfort, V. Michel, B. Thirion, O. Grisel, M. Blondel, P. Pretten-\nhofer, R. Weiss, V. Dubourg, J. Vanderplas, A. Passos, D. Cournapeau, M. Brucher, M. Perrot, and\nE. Duchesnay. Scikit-learn: Machine learning in Python. Journal of Machine Learning Research,\n12:2825–2830, 2011.\n[21] M. Piao, C. H. Jin, J. Y. Lee, and J.-Y. Byun. Decision tree ensemble-based wafer map failure\npattern recognition based on radon transform-based features. IEEE Transactions on Semiconductor\nManufacturing, 31(2):250–257, 2018.\n[22] M. Saqlain, Q. Abbas, and J. Y. Lee. A deep convolutional neural network for wafer defect identiﬁ-\ncation on an imbalanced dataset in semiconductor manufacturing processes. IEEE Transactions on\nSemiconductor Manufacturing, 33(3):436–444, 2020.\n[23] M. Saqlain, B. Jargalsaikhan, and J. Y. Lee. A voting ensemble classiﬁer for wafer map defect pat-\nterns identiﬁcation in semiconductor manufacturing. IEEE Transactions on Semiconductor Manu-\nfacturing, 32(2):171–182, 2019.\n[24] N."
+  },
+  {
+    "chunk_id": "chunk_0135",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 55,
+    "text": ". Y. Lee. A voting ensemble classiﬁer for wafer map defect pat-\nterns identiﬁcation in semiconductor manufacturing. IEEE Transactions on Semiconductor Manu-\nfacturing, 32(2):171–182, 2019.\n[24] N. Saul. scikit-tda/scikit-tda: sunsetting cechmate, Aug. 2021.\n[25] C. Tralie, N. Saul, and R. Bar-On. Ripser.py: A lean persistent homology library for python. Journal\nof Open Source Software, 3(29):925, 2018.\n[26] K. Turner, Y. Mileyko, S. Mukherjee, and J. Harer. Fr´echet means for distributions of persistence\ndiagrams. Discrete Comput. Geom., 52(1):44–70, 2014.\n[27] J. Yu and X. Lu. Wafer map defect detection and recognition using joint local and nonlocal linear\ndiscriminant analysis. IEEE Transactions on Semiconductor Manufacturing, 29(1):33–43, 2016.\n[28] N. Yu, Q. Xu, and H. Wang. Wafer defect pattern recognition and analysis based on convolutional\nneural network. IEEE Transactions on Semiconductor Manufacturing, 32(4):566–573, 2019.\n15"
+  },
+  {
+    "chunk_id": "chunk_0136",
+    "source_file": "wafer_inspection_ml.txt",
+    "chunk_index": 56,
+    "text": "ct pattern recognition and analysis based on convolutional\nneural network. IEEE Transactions on Semiconductor Manufacturing, 32(4):566–573, 2019.\n15"
+  }
+]

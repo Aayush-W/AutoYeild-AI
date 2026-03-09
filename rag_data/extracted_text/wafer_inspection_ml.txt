@@ -1,0 +1,826 @@
+--- Page 1 ---
+A novel approach for wafer defect pattern classiﬁcation based on
+topological data analysis
+Seungchan Ko∗, Dowan Koo†
+Abstract
+In semiconductor manufacturing, wafer map defect pattern provides critical information for facility
+maintenance and yield management, so the classiﬁcation of defect patterns is one of the most important
+tasks in the manufacturing process. In this paper, we propose a novel way to represent the shape of
+the defect pattern as a ﬁnite-dimensional vector, which will be used as an input for a neural network
+algorithm for classiﬁcation. The main idea is to extract the topological features of each pattern by using
+the theory of persistent homology from topological data analysis (TDA). Through some experiments
+with a simulated dataset, we show that the proposed method is faster and much more eﬃcient in
+training with higher accuracy, compared with the method using convolutional neural networks (CNN)
+which is the most common approach for wafer map defect pattern classiﬁcation. Moreover, our method
+outperforms the CNN-based method when the number of training data is not enough and is imbalanced.
+Keywords: Topological data analysis, persistent homology, machine learning, convolutional neural net-
+work, wafer map classiﬁcation, semiconductor manufacturing
+1
+Introduction
+A Wafer map provides a graphical representation of defect distribution and the defect pattern contains
+important information to identify the root causes of process failures and any potential problems. After
+certain steps of the manufacturing process in lines, metrology facilities inspect to detect abnormalities
+of dies and create a wafer map based on the detected abnormalities. This wafer map visualization help
+engineers monitor any unusual defect distribution and take appropriate action for the corresponding
+problems. For example, once a wafer map is produced with some corresponding root causes, similar
+defect distributions of wafers may indicate the common problem of a certain step, and this would be
+useful to tackle the problems.
+In modern semiconductor manufacturing, advances in manufacturing technology have brought a lot
+of positive aspects such as high product performance, cost reduction, and yield improvement. This high-
+frequency operation has caused more complicated problems and quality variation and it increases the
+importance of the wafer map defect classiﬁcation task. It has been done manually by engineers (see,
+for example, [17]). This manual approach not only takes a long time and needs high labor costs, but
+also suﬀers from a lack of consistency because it heavily depends on the engineer’s proﬁciency. In recent
+years, the automatic classiﬁer of wafer map defect patterns has gained more attention due to various
+advantages such as better performance, lower cost, and better consistency. A wide range of machine
+learning algorithms has been studied to solve this problem. See [2, 27, 13, 21, 23], where the applications
+of regression analysis, decision tree, support vector machine, and artiﬁcial neural network are addressed.
+In particular, a convolutional neural network (CNN) has gained more popularity and becomes one
+of the most common methods for this task. CNN is an end-to-end model which does not require any
+domain-speciﬁc feature engineering and has achieved tremendous success in image classiﬁcation. Since
+∗Department of Mathematics, Sungkyunkwan University, Suwon, Republic of Korea. Email: ksm0385@gmail.com
+†Department of Mathematics, Yonsei University, Seoul, Republic of Korea. Email: dowan.koo@yonsei.ac.kr
+1
+arXiv:2209.08945v1  [cs.LG]  19 Sep 2022
+
+
+--- Page 2 ---
+a defect pattern on a wafer map can be represented as an image, CNN-based methods have exhibited
+reasonably good performance in defect map classiﬁcation tasks. In this direction, see [19, 16, 28] and
+[22]. However, the automatic classiﬁers including CNN have some drawbacks in several aspects.
+Firstly, the CNN-based models contain a large number of parameters and are computationally ex-
+pensive. It takes a long time to train the model and to predict the defect patterns for a large number of
+wafers. In the real manufacturing process, however, it is expected to make prompt predictions for a huge
+number of wafers in a limited time. Furthermore, it is also necessary to retrain the model regularly in
+accordance with the changes in a manufacturing process or new data accumulation. Hence, it is important
+to develop a fast and computationally eﬃcient model with a small number of parameters.
+Secondly, the performance of the aforementioned classiﬁers highly depends on the amount and quality
+of the training data because they are based on the supervised learning algorithm. To train CNN-based
+models, for example, a large amount of training data is needed. Since the training data of wafer maps can
+only be obtained through manual inspection, it usually requires high labor costs and takes a long time
+to prepare the training data. In addition, this labeling task depends on the proﬁciency of the engineers
+so the labeling may not be coherent and the quality of the training data may deteriorate. Hence, from
+a practical point of view, it is desirable to develop a wafer map classiﬁer that can be eﬀectively trained
+with relatively few training data.
+Thirdly, the training data might not be balanced. In the actual manufacturing process, some defective
+patterns appear frequently while some defective patterns are rarely found. This problem is worse in the
+case of well-established processes. It is ideal for the number of wafers for each pattern to be similar, but
+it is diﬃcult to be satisﬁed in practice since there are various patterns and each defective pattern stems
+from diﬀerent causes in the manufacturing process. To handle this problem, some image augmentation
+techniques were used for the CNN-based model, but we cannot expect that these augmented data properly
+reﬂect the nature of the original defect distributions.
+Recently, the area of computational topology has grown rapidly and provides plenty of computa-
+tional tools for data analysis ([12]). One of the common tools is persistent homology from topological
+data analysis, which observes the dynamics of topological features in a sequence of nested topological
+spaces ([11]). This information can be visualized as a persistence diagram (PD), a set of points in the
+two-dimensional plane where a new topological feature appears at x-coordinate and disappears at y-
+coordinate. This compact description of topological features is more useful for the analysis of complex
+and high-dimensional data because many important topological features are invariant under dimension-
+ality reduction in some sense. It is noteworthy that the spaces of PDs can be equipped with a metric
+function and it is known that these functions are stable with respect to small perturbations of given data.
+See, for example [18, 26, 7, 8, 6] where bottleneck and Wasserstein metrics were adopted and the stability
+issue was addressed.
+However, computing the bottleneck or Wasserstein distance between PDs is computationally expensive
+when the number of oﬀ-diagonal points is large. Furthermore, to utilize many useful machine learning
+techniques with PDs, some extra structure other than a metric function is needed. To overcome this
+problem, there has been plenty of eﬀorts to transform PDs into suitable forms for various machine
+learning algorithms. One of the most common approaches is a persistence landscape (PL). In [5], the
+author developed a concept of PL, a functional representation λ : N × R →[−∞, ∞] of a PD in a Banach
+space. For 1 ≤p ≤∞, we deﬁne the p-landscape distance as ∥λ1 −λ2∥p for two PLs λ1 and λ2. Then the
+p and ∞-landscape metrics are stable with respect to the p-Wasserstein distance and to the bottleneck
+distance respectively on PDs.
+On the other hand, in [1], the notion of persistence image (PI) was introduced. PI is a representation
+of a PD as a ﬁnite-dimensional vector and it is proved that this transformation equips the stability as
+well. PL is sometimes more useful because the mapping from a PD to a PL is invertible. However, PI is
+more advantageous in many applications because it can be applied with a wide range of machine learning
+techniques. It was shown in [1] that PI is computationally more eﬃcient to compute and PIs outperform
+PLs in various classiﬁcation and clustering tasks.
+2
+
+
+--- Page 3 ---
+Therefore, in this paper, we adopt the PI approach for the representation of PD. Once we extract
+a topological feature from the given defect pattern on a wafer and represent it as a PI, then we shall
+use these PIs as inputs of neural networks for classiﬁcation. As it will be shown later, this approach is
+computationally eﬃcient, and robust against the small-data and imbalanced-data problems mentioned
+above, compared with the CNN-based approach.
+To the best of our knowledge, this is the ﬁrst study that applies the techniques from topological data
+analysis to the wafer map classiﬁcation problem. Although some shortcomings need to be addressed
+and further research should be followed-up, this new method has shown better performance in various
+aspects compared to the existing methods. We expect this TDA-based method to be utilized as a new
+alternative for the defect pattern classiﬁcation problem, especially when the training data is insuﬃcient
+and imbalanced.
+The rest of the article is organized as follows.
+In Section 2, we review the theory of persistent
+homology. We describe how to extract topological structure from the given point-set data and how to
+represent it as a PD. Moreover, the converting procedure from PD into PI is introduced and the stability
+of the transformation is discussed. In Section 3, we shall present in detail our method of expressing wafer
+defect pattern as a ﬁnite-dimensional vector, based on the theory discussed in Section 2. In Section 4,
+some experiments on the classiﬁcation of wafer map defect patterns will be performed with simulated data
+and conﬁrm the advantages of the proposed method over the previous methods. Finally, some concluding
+remarks will be provided in Section 5.
+2
+Persistent homology and vector representation
+We brieﬂy review some essential mathematical theory of homology for completeness. Homology can be
+used to distinguish diﬀerent (non-homeomorphic) topological spaces. In particular, simplicial homology
+can be computed by considering simplicial complex. A simplicial complex S consists of k-simplicies,
+where k ∈N. A 0-(dimensional) simplex is a vertex, 1-simplex is an edge, 2-simplex is a triangle, and
+3-simplex is a tetrahedron. In general, k-simplex contains k + 1 vertices and is denoted by [v0, v1, ..., vk].
+The bracket notation implies that the orientation is under consideration. We call a family of simplices S
+a Simplicial complex if it satisﬁes the following properties:
+• for any simplex σ in S, all lower-dimensional simplices of σ are contained in S, and
+• the non-empty intersection of any two simplices in S is again a simplex in S.
+For instance, the intersection of two adjacent triangles sharing two vertices (2-simplex) is an edge (1-
+simplex).
+Now we consider the vector space Ck which consists of all R-combinations of k-simplices of S. The
+boundary map ∂k acts on a k-simplex to its boundary as a sum of its (k −1)-dimensional faces, formally
+deﬁned as
+∂k[v0, v1, ..., vk] :=
+k
+X
+i=0
+(−1)i[v0, ..., ˆvi, ..., vk]
+where [v0, ..., ˆvi, ..., vk] is a (k −1)-simplex obtained from [v0, ..., vk] with vi removed. It is noteworthy
+that the boundary of a boundary is always zero, i.e ∂k−1 ◦∂k = 0.
+We denote Bk by the image of ∂k+1, whose elements are called k-boundaries and Zk by the kernel
+of ∂k, i.e elements of Ck whose image under ∂k is zero in Ck−1. The elements of Zk are called k-cycles.
+Clearly, Zk contains Bk because ∂k ◦∂k+1 = 0.
+And then we deﬁne the k-homology group of S by
+Hk(S) := Zk/Bk and the rank of this group is called the Betti number. Typical elements of the homology
+group are connected components, loops, and spheres. For more details and concrete examples, see [14].
+In topological data analysis, the idea of homology is often employed to classify point-cloud data. In
+this paper, we shall use Vietories-Rips simplicial complexes [11, 12, 4]. Let Y be a given point-set data
+3
+
+
+--- Page 4 ---
+equipped with a metric structure so that the distance between any two points in Y is assigned. For a
+ﬁxed scale ϵ > 0, we shall say k + 1 points in Y form a k-simplex if their mutual distance is at most ϵ.
+We denote Sϵ by the simplicial complex obtained by this procedure. Though Y is a set of vertices, Sϵ
+may contain loops or some interesting homological objects for certain ϵ > 0. However, it is not possible
+to choose such a ‘nice’ ϵ > 0 a priori. For example, for small ϵ > 0, the Vietories-Rips complexes would
+appear as islands of many connected components whereas, for large ϵ > 0, the complex would be realized
+as a single connected component.
+To circumvent this diﬃculty, the idea of persistent homology was introduced [14, 12, 11]. The core
+idea of persistent homology is to observe the ‘birth’ and ‘death’ of each homological feature along with
+gradually increasing scales.
+We denote Sϵ1, Sϵ2, · · · , Sϵn by Vietories-Rips complexes with increasing
+scales ϵ1 ≤ϵ2 ≤· · · ≤ϵn. To extract the overall topological feature of a point-set Y , we will track the
+elements of Hk(Sϵi) as the scale ϵi augments.
+A persistent diagram (PD) is often used as a standard way to represent the persistent homology as a
+multi-set of points in R2. For a ﬁxed dimension k, each point (b, d) ∈R2 is encoded as birth and death,
+where a topological homology appears at scale b and disappears at scale d. It is obvious that every point
+in PD is above the graph y = x since every ‘death’ happens after ‘birth’. Usually, the points far from the
+diagonal line are considered to be a robust topological property as the length d−b denotes its persistence.
+It is noteworthy that the space of persistence diagrams can be equipped with some metrics. One of the
+most common metrics used for PDs is the p-Wasserstein distance between two PDs B and B′, which is
+deﬁned by
+Wp(B, B′) =
+inf
+γ:B→B′(
+X
+u∈B
+∥u −γ(u)∥p
+∞)1/p
+where 1 ≤p < +∞. When p = ∞, then W∞metric is called bottleneck distance and the P
+u∈B is replaced
+by supu∈B. These metrics can be used to compare the (dis-)similarity of two PDs and will be utilized to
+represent the stability of the vector transformation later. See, for example, [9, 10] where a general study
+of the space of persistence diagrams endowed with Wp metrics was studied.
+As mentioned earlier, we shall use Persistence Image (PI) as a converting method from a PD into
+a ﬁnite-dimensional vector as proposed in [1]. Let B be a given PD in birth-death coordinates. We
+transform B via a map T deﬁned by T(x, y) := (x, y −x). Hence, the image T(B) can be interpreted
+as a birth-persistence diagram. Next, let φu be a probability distribution with mean u = (ux, uy) ∈R2.
+In this paper, we will choose φu to be the Gaussian distribution with mean u ∈T(B) and variance σ2.
+Similarly, as before, the points near the horizontal axis are considered to be noise whereas the points away
+from the horizontal axis are rather robust. This motivates us to consider the use of weighting function
+f : R2 →R, which is zero along the horizontal line, continuous and piecewise diﬀerentiable. For instance,
+one common option is to take f as
+f(ux, uy) :=
+
+
+
+
+
+1
+for
+uy > c
+uy
+c
+for
+0 ≤uy ≤c
+0
+for
+uy < 0
+(1)
+For the converted PD by the mapping T together with the weighting function f, we now deﬁne the
+persistent surface by
+ρB(z) :=
+X
+u∈B
+f(u)φu(z)
+(2)
+Here the choice of the weighting function is crucial in proving the stability from PDs to PIs.
+Now, as a ﬁnal step, we discretize the persistent surface ρB by taking averages over the boxes. We
+ﬁrst ﬁx any grid with n boxes, where each box(or pixel) is denoted by p. We then deﬁne the persistent
+image by I(ρB)p =
+´
+p ρB dxdy. For a given PD B, we deﬁne its persistent image by the collection of
+pixels I(ρB)p, and therefore we have obtained the ﬁnite-dimensional vector representation of the given
+PD.
+4
+
+
+--- Page 5 ---
+Lastly, we discuss the stability of the mapping described above.
+Here, stability means that the
+distance between two output vectors can be controlled by the perturbation of corresponding input data.
+In practice, a lack of stability might lead to a tragic situation when a small change in input can make
+violent behavior for the output, which signiﬁcantly lowers the validity of the given transformation.
+Fortunately, the stability estimate is available for the mapping from PDs to PIs where the input data
+PDs are equipped with 1-Wasserstein distance. Since PIs are vectors, it is natural to assign the Euclidean
+distance. More precisely, if we use the Gaussian distribution in (2), we can deduce the following stability
+estimate which is quoted from [1]:
+∥I(ρB)p −I(ρB′)p∥1 ≤(
+√
+5∥∇f∥∞+
+r
+10
+π
+∥f∥∞
+σ
+)W1(B, B′),
+(3)
+where f is the weight function and σ is the standard deviation of the Gaussian distribution. In the next
+subsequent section, we will describe the way in detail to transform a given wafer map into the PI.
+3
+Methodology
+In this section, we present our main methodology to obtain a ﬁnite-dimensional vector from a given wafer
+map based on the theory described in Section 2. This vector encodes the overall topological features of the
+wafer map. Our data preprocessing method consists of the following three steps; from the wafer map, the
+zero and one-dimensional persistence diagrams (PDs) are obtained. Secondly, these PDs are converted
+into persistence images (PIs) for each dimension. Lastly, after ﬂattening those two PIs to vectors, we
+shall concatenate them into a single vector of ﬁnite length. The entire process is depicted in Figure 1.
+Figure 1: The entire process of our data preprocessing method based on topological data analysis. The
+‘Step’ in the ﬁgure corresponds to the ‘Step’ listed in Section 3.
+Step 1 - Obtaining Persistence Diagrams
+5
+
+
+--- Page 6 ---
+Firstly, we shall convert the given wafer map into a PD. Since every wafer map itself is two-
+dimensional, we only need to collect the zero and one-dimensional PDs because higher-dimensional
+PDs are trivial. Note that a wafer map can be interpreted as a collection of dots on a disk and by
+endowing radii to these dots, they can be connected to the neighbors and gradually conglomerate,
+as the scale increases. Each point in PD represents the scale at which the corresponding topolog-
+ical feature (e.g., connected component, loop) appears and disappears. The PD can exhibit the
+topological properties of wafer map defect patterns. The zero-dimensional PD can shed light on
+the local/global closeness of the dots, while one-dimensional PD can eﬀectively capture the loop
+patterns formed by the dots. For this process, we use the Python package Ripser [25, 3, 24].
+In 0-dim PD in Figure 1, all the points align vertically with birth scale 0. This is because, in the
+beginning, every dot in the wafer forms a connected component and some dots converge into the
+same component as the radius increases, which results in the disappearance of the zero-dimensional
+topological feature (connected component). The point (0, 3.0) designates that every dot in the wafer
+has at least one another dot within the distance at most 3. More importantly, the density of points
+in 0-dim PD from Figure 1 is relatively high in the lower part of the diagram; it means that most
+of the dots have other dots nearby.
+In 1-dim PD from Figure 1, a point around (2, 9) in the north-western corner stands out while
+other points are clustered near the origin. The points near the y = x would be considered less
+relevant but the points far away from this diagonal line are more crucial in unveiling the essential
+structure of the wafer map. The point near (2, 9) indicates that some collection of points start to
+form a loop at around radius 2 and lose that shape at around radius 9. The far oﬀ-diagonal points
+in 1-dim PD are often related to loops or curvy lines of wafer maps.
+Step 2 - Transforming Persistence Diagrams into Persistence Images
+In this stage, PDs are converted into PIs. Although this procedure was mentioned in Section
+2, we brieﬂy discuss again this process with precise parameters used in the experiments which will
+be conducted in Section 4.
+First, PD is transformed into a persistent surface.
+More precisely,
+each point (ux, uy) in the PD is shifted to the birth-persistence coordinate by T(ux, uy), where
+T(x, y) = (x, y −x). Here, y −x can be interpreted as the persistence of its topological feature.
+Then, we consider the Gaussian probability distribution of mean T(ux, uy) and variance σ2. The
+variance is taken as σ2 = 0.01 in this paper. Summing all the Gaussian functions corresponding to
+each shifted point of PD multiplied by the linear weighting function, we get the persistent surface.
+As the persistent surface is continuous, and hence the resolution is very high. Therefore we need
+to discretize the surface to generate the ﬁnite-dimensional vector from it. The entire domain of the
+persistent surface is partitioned into many pixels of the same size. The number of pixels is taken to
+be 20 ×20 in the experiments in Section 4. By taking an average of the persistent surface over each
+pixel, we get the persistent image (PI). In the PI depicted in Figure 1, the bright yellow and reddish
+part designates high values while the dark blue part indicates lower values. For this transformation
+of PD into PI, we will use the Python library Persim [24].
+Step 3 Vector representation of PIs
+At the ﬁnal preprocessing step, we shall rearrange the components of PI to make a ﬁnite-
+dimensional vector. Each zero and one-dimensional PI encoded in matrix forms (as each PI consists
+of 20 × 20 pixels) are ﬂattened as two 400-dimensional vectors. And then these two vectors are
+concatenated into a single 800-dimensional vector. This ﬁnal output vector will be used as the input
+data of the neural network for the classiﬁcation task.
+We have described our method to transform a given wafer map into a ﬁnite-dimensional vector.
+One striking diﬀerence between this representation methodology and the CNN-based feature extraction
+6
+
+
+--- Page 7 ---
+is the dimension of resulting vectors. As mentioned earlier, our TDA-based method generates an 800-
+dimensional vector, while the CNN-based method using ResNet50 generates a vector of 51200 components.
+Surprisingly, as we will see in Section 4, this lower-dimensional vector generated by the proposed method
+encapsulates the information of the defect distribution very well, and the classiﬁcation model with these
+vectors performs much better than the model with vectors generated by CNN.
+4
+Experiments
+In this section, we will conduct several experiments to demonstrate the performance of our proposed
+method. For the experiments, we shall use simulated datasets. More precisely, we artiﬁcially generate
+the defect patterns to train the classiﬁer and evaluate the performance of the proposed method. We have
+selected ﬁve types of most common defect patterns by referring to the experiments performed in other
+research papers [19, 16, 28], and by consulting some domain experts or open-source data, e.g. WM-811K
+wafer dataset, which is the largest open-source dataset from the real manufacturing process: random
+pattern and non-random patterns (ring, scratch, dense and cluster).
+From the yield analysis point
+of view, wafer maps with non-random distributions are important and should be carefully inspected,
+because they indicate the problematic issues related to the manufacturing process. On the other hand,
+random patterns with a controllable number of defects are acceptable, and they only provide less amount
+of information from the perspective of process improvement.
+4.1
+Data generation
+Let us now describe the detailed procedure of the defect-pattern generation. We ﬁrst discuss the way to
+generate wafer maps with a random pattern. As mentioned above, this random distribution itself will be
+used as one data category (random). Moreover, these randomly generated defects will also be used as
+noise in generating non-random datasets (ring, scratch, dense, and cluster). A wafer will be displayed in
+R2 by a disk with center (0, 0) and radius 10.
+• Random: For the random pattern category, we randomly choose the number of defects for each
+wafer by nrandom ∼Uniform(10, 60). We shall then use the polar coordinate to represent each defect
+on a wafer map. The angle and the radius are generated as
+θrandom ∼Uniform(0, 2π)
+and
+rrandom ∼Uniform(0, 10).
+• Ring: We again use the polar coordinate system to represent the defects of the ring pattern. The
+number of ring-pattern defects is randomly chosen by nring ∼Uniform(150, 300). Then we generate
+the pattern as
+θring ∼Uniform(0, 2π)
+and
+rring ∼Uniform(r0, r0 + δ),
+where the inner radius r0 > 0 and width δ > 0 of a ring are randomly given by
+r0 ∼Uniform(3, 6)
+and
+δ ∼Uniform(0, 4).
+• Scratch: We shall generate this pattern based on the quadratic function
+y = kx2
+on [a, b],
+(4)
+where the parameters are randomly chosen by
+a, b ∼Uniform(−10, 10)
+and
+|a −b| > 5,
+k ∼Uniform(−1/15, 1/15)
+and
+k ̸= 0.
+7
+
+
+--- Page 8 ---
+We choose nscratch ∼Uniform(50, 100), and select nscratch evenly distributed points {xi}nscratch
+i=1
+in
+[a, b]. If we let yi = kx2
+i for all i ∈{1, 2, · · · , nscratch}, we obtain the set of points {(xi, yi)}nscratch
+i=1
+lying on the quadratic curve (4). Finally, we obtain the points {(x′
+i, y′
+i)}nscratch
+i=1
+describing the random
+scratch by randomly rotating the portion of curve represented as {(xi, yi)}nscratch
+i=1
+:
+x′
+i
+y′
+i
+
+=
+cos θ
+−sin θ
+sin θ
+cos θ
+ xi
+yi
+
+∀i ∈{1, 2, · · · , nscratch},
+where
+θ ∼Uniform(0, 2π).
+• Dense: We generate this pattern of defects in the same way as we did for the random pattern
+generation, but the defects are more densely distributed. We randomly select the number of defects
+by ndense ∼Uniform(150, 300), and the defects are represented by the polar coordinate
+θdense ∼Uniform(0, 2π)
+and
+rdense ∼Uniform(0, 10).
+• Cluster: In order to generate defects in this category, we shall use the function make-blobs from
+the scikit-learn library [20]. The number of sample is chosen by ncluster ∼Uniform(150, 300), the
+number of clusters is randomly determined among {1, 2, 3} with the probability 1
+3 for each, and the
+standard deviation of the clusters follows the distribution Uniform(0.1, 2).
+As mentioned earlier, the random noise nrandom ∼Uniform(10, 60) is concatenated to the wafer maps
+with non-random defect patterns. Some samples of wafer maps for each class generated by the way above
+are depicted in Figure 2.
+To evaluate the performance of the proposed method, we shall perform various experiments with
+simulated data, and compare the results from the TDA-based method and CNN-based method.
+As
+described in Section 3, the given wafer map is transformed into an 800-dimensional vector. We shall use
+this vector as an input for the neural network with a single hidden layer with 1024 neurons, and apply
+the ReLU activation function. And then Adam optimizer which is a stochastic gradient-based optimizer
+was used for parameter updates.
+For the CNN-based method, we will use the pre-trained ResNet50
+(trained on ImageNet) with the single layer of 1024 nodes on the top [15]. For this purpose, we ﬁrst
+convert the given wafer map into an image and put the image into the ResNet50 model which generates
+51200-dimensional features. Then these features are utilized as input for the layer on the top, which will
+be trained with the Adam optimizer.
+4.2
+Basic performance evaluation
+We will ﬁrst conduct a basic performance evaluation. For this purpose, 500 wafer maps are generated
+for each class as described in Subsection 4.1. We then split these data into 300 training dataset, 100
+validation dataset, and 100 test dataset. The 300 defect patterns for each category are used for training
+both our proposed model and the CNN model, and the 100 data for each class are used for the validation.
+Once high enough training/validation accuracies are achieved (700 epochs in this paper), the 100 test
+wafer maps for each category are used to evaluate both models. As discussed in Section 3, the proposed
+method in this paper has transformed the given wafer map into an 800-dimensional vector, while the
+CNN architecture (ResNet50) has changed the image of the defect pattern to a 51200-dimensional vector.
+First, the training and validation accuracies for each epoch are shown in Figure 3 and the confusion
+matrices are presented in Figure 4 for the test dataset. The overall accuracy for the TDA-based model
+is 99.0% and for the CNN-based model is 93.8% as presented in Table 1. Note that although our TDA-
+based model performs better in accuracy, the diﬀerence is modest. However, our method outperforms
+the CNN-based method in several aspects if we consider the situation in the real manufacturing process.
+8
+
+
+--- Page 9 ---
+(a) Random pattern
+(b) Ring pattern
+(c) Scratch pattern
+(d) Dense pattern
+(e) Cluster pattern
+Figure 2: Some samples of datasets generated as outlined in Subsection 4.1 for (a) random pattern, (b)
+ring pattern, (c) scratch pattern, (d) dense pattern, (e) cluster pattern.
+9
+
+
+--- Page 10 ---
+Accuracy
+Training time for each epoch
+Epochs needed for 90% accuracy
+TDA-based method
+99.0%
+0.012 sec
+3 epochs
+CNN-based method
+93.8%
+4.234 sec
+156 epochs
+Table 1: Basic performance evaluation I: A basic performance comparison was conducted between the
+TDA-based method and CNN-based method. Both models are trained with 300 training data for each
+category.
+Ratio of random pattern
+70%
+80%
+90%
+Number of wafer maps
+500
+1000
+500
+1000
+500
+1000
+TDA-based method
+18.8 sec
+37.8 sec
+16.2 sec
+33.3 sec
+15.7 sec
+30.7 sec
+CNN-based method
+35.7 sec
+67.9 sec
+36.9 sec
+69.2 sec
+35.1 sec
+67.6 sec
+Table 2: Basic performance evaluation II: The prediction times when the ratio of random defect patterns
+are 70%, 80%, and 90% are measured. For each portion of the random pattern, the experiments are
+conducted to make predictions for both 500 and 1000 wafer maps.
+(a) TDA-based model
+(b) CNN-based model
+Figure 3: The training and validation accuracy for (a) TDA-based method and (b) CNN-based method.
+Both models are trained with 300 training data for each class and the validation accuracy is estimated
+with 100 validation data for each category.
+10
+
+
+--- Page 11 ---
+(a) TDA-based model
+(b) CNN-based model
+Figure 4: Test accuracy confusion matrices for (a) TDA-based method and (b) CNN-based method.
+One of the most important factors that should be considered in practice is how fast the model can make
+predictions. In the actual manufacturing process, a huge amount of data is poured, and it is necessary to
+perform real-time classiﬁcation on a large number of wafer maps simultaneously. The average times taken
+for the models to produce a prediction result from raw data are summarized in Table 2. In practice, the
+ratio of random defect patterns is very high compared with that of other patterns. Hence the datasets
+used here consist of the relatively high portion of wafer maps with random patterns: 70%, 80% and 90%
+of random patterns, and equal rates for each remaining non-random pattern, where the wafer maps are
+randomly generated as outlined in Subsection 4.1. As can be seen from Table 2, our model is much faster
+compared with the CNN-based model. In particular, while the prediction times needed for CNN-based
+methods slightly vary, the prediction times clearly decrease as the ratio of random pattern increase. Note
+that if the ratio of the random pattern is more than 80%, the TDA-based model is more than twice
+faster than the CNN-based method, and therefore it is expected that our method will perform better for
+real-time classiﬁcation in the actual manufacturing process.
+Another important factor is training eﬃciency.
+In real manufacturing circumstances, it is often
+necessary to retrain the model in accordance with the manufacturing situation and the engineers’ opinions.
+For example, one may need to add a new category to the dataset or obtain new training data reﬁned
+by experienced engineers. Therefore, training eﬃciency should also be considered in the design of the
+wafer map classiﬁcation model. As we can see from Figure 5, we can conﬁrm that our method trains
+the single-layer perceptron model much faster and more eﬃciently with fewer epochs. For example, as
+summarized in Table 1, the CNN-based method needs at least 156 epochs to achieve 90% of training
+accuracy, while our proposed model reaches that accuracy as soon as the training starts. Moreover, the
+average processing time for each epoch for our model is 0.012 seconds, while the CNN-based model takes
+4.234 seconds per each epoch on average.
+As we can see from the above experiments, our method performs better in terms of model accuracy,
+and it also shows overwhelming performance in terms of training time and eﬃciency. In order to further
+highlight the better performance of our method, we shall address the issues brought up in Section 1 and
+design two more experiments: a small-data experiment and an imbalanced-data experiment, which are
+covered in the next subsections.
+11
+
+
+--- Page 12 ---
+(a) Training accuracy
+(b) Training loss
+Figure 5: A comparison between the TDA-based model and CNN-based model for (a) training accuracy
+and (b) training loss.
+Number of training
+data (for each class)
+10
+20
+30
+40
+50
+60
+70
+80
+90
+100
+TDA-based model
+89.6%
+91.6%
+93.4%
+95.4%
+97.0%
+96.2%
+95.8%
+96.0%
+97.4%
+96.4%
+CNN-based model
+66.8%
+74.3%
+71.4%
+73.5%
+79.1%
+81.8%
+85.0%
+86.4%
+87.2%
+90.5%
+Table 3: Test accuracies for both models trained with a small amount of training data
+4.3
+Small-data experiment
+In this experiment, we will investigate whether the proposed method can train the neural network suﬃ-
+ciently well only with a small amount of training data. One of the biggest diﬃculties in the supervised
+learning problem in practice is obtaining a suﬃcient amount of quality training data. In particular, a
+CNN architecture requires a huge amount of training data to train a large number of parameters. In
+the defect map classiﬁcation problem, it is diﬃcult to obtain a suﬃcient amount of data because the
+training data should be manually labeled by an experienced engineer. In addition, when many engineers
+simultaneously prepare the training data, the labeling criteria may vary depending on their proﬁciencies,
+which may impair the consistency of the data. Therefore, in a wafer map classiﬁcation task, it would
+be extremely useful if we can train the classiﬁer only with a small amount of data. Throughout the
+experiments in this subsection, we will show that the proposed method can train the neural network
+classiﬁer well enough, even with very few training data.
+For this purpose, we ﬁrst prepare one dataset and use it in common to evaluate the performance
+of each model trained with diﬀerent amounts of training data. This test dataset which consists of 100
+wafer maps for each class is generated according to the method described above. Next, we will train
+the classiﬁer for both TDA and CNN-based methods, with a very small amount of training data at the
+beginning (10 wafer maps for each) and gradually increase the number of training data (until 100 wafer
+maps for each). And then we will observe the changes in test accuracies. The result of the experiments
+is summarized in Table 3. As the experiment shows, our method can train the classiﬁer well enough with
+few training data. Furthermore, as the amount of training data decreases, the model trained with the
+TDA-based method showed only a slight decrease in accuracy (96.4% to 89.6%), whereas the accuracy
+of the CNN-based model decreased signiﬁcantly (90.5% to 66.8%).
+12
+
+
+--- Page 13 ---
+Number of training data
+Test accuracy
+Random
+Ring
+Scratch
+Dense
+Cluster
+TDA-based model
+CNN-based model
+Dataset 1
+253
+151
+102
+142
+46
+95.0%
+81.8%
+Dataset 2
+187
+39
+210
+35
+193
+97.4%
+84.2%
+Dataset 3
+21
+281
+49
+71
+229
+90.8%
+66.8%
+Dataset 4
+167
+31
+212
+47
+86
+96.0%
+81.0%
+Dataset 5
+273
+42
+5
+8
+285
+81.4%
+57.8%
+Dataset 6
+75
+61
+29
+59
+51
+90.6%
+83.6%
+Dataset 7
+91
+79
+90
+242
+155
+96.4%
+87.4%
+Dataset 8
+160
+175
+253
+208
+202
+98.2%
+94.8%
+Dataset 9
+270
+9
+43
+33
+219
+93.4%
+72.4%
+Dataset 10
+16
+10
+96
+252
+145
+86.8%
+54.8%
+Table 4: Test accuracies for both models trained with imbalanced datasets.
+4.4
+Imbalanced-data experiment
+As we mentioned in Section 1, in real manufacturing circumstances, it is extremely diﬃcult to obtain a
+well-balanced dataset. Some wafer map patterns appear frequently, while some other patterns might be
+found very rarely. This is mainly because each defective pattern on a wafer map stems from diﬀerent
+causes in the manufacturing process. Therefore, it is very important to ﬁnd a way to train a model even
+with imbalanced data. In this subsection, we will show that our method is much more robust against
+imbalanced data than the CNN-based method.
+For the experiment, 100 test data for each class of defective pattern are initially generated and ﬁxed
+throughout the experiments. Next, we shall generate the training data. Unlike previous experiments, we
+randomly select the number of data in each category. The number of data for each class is randomly
+chosen by
+N(random), N(ring), N(scratch), N(dense), N(cluster) ∼i.i.d. Int(Uniform(1, 300)),
+where, for example, N(random) denotes the number of data in random pattern category. We iterate this
+process 10 times so that we have 10 training datasets. We then train the models (both TDA-based and
+CNN-based) with these diﬀerent datasets. Finally, we evaluate the accuracy of each model with the
+initially ﬁxed test dataset. The result of this experiment is presented in Table 4.
+As we can see from Table 4, we can conﬁrm that our proposed method performed much better than
+the CNN-based method. When the amount of training data is not very small (Dataset 8), the diﬀerence
+is not signiﬁcant. However, if training data for certain classes are not enough, our TDA-based method
+outperforms the existing CNN-based method. In particular, when the number of data in some categories
+is extremely small (Dataset 3, Dataset 5, Dataset 9, Dataset 10), the CNN-based model does not perform
+well enough to classify wafer maps normally, whereas our method still achieved high accuracy.
+5
+Conclusion
+This paper proposes a novel method to classify wafer defect patterns based on the theory of persistent
+homology from topological data analysis. It is a data preprocessing method to convert a wafer map into
+a ﬁnite-dimensional vector, which is used for the input of neural network-based classiﬁcation algorithms.
+The main idea is to impose the topological structure to the given point-cloud data using a simplicial
+complex and extract the topological properties by observing the dynamics of persistent homology. We
+then represent the extracted topological features as a ﬁnite-dimensional vector and use it as an input
+for the classiﬁer. Throughout the various experiments with the simulated dataset, we conﬁrm that our
+13
+
+
+--- Page 14 ---
+method outperforms the most common existing method, namely, the CNN-based image classiﬁcation
+approach, in many aspects.
+The main contribution of the present paper is that we have developed a new approach for the wafer
+map classiﬁcation task, which is completely diﬀerent from the existing methods. This new methodology
+is computationally eﬃcient with high model accuracy and robust against the lack of training data and
+imbalance of training data. This paper serves as a starting point for TDA-based wafer map classiﬁcation,
+and we expect that the proposed method has considerable potential to be extended in several directions.
+One interesting future research direction is reﬁning this preprocessing method to make the resulting
+vectors work well with the unsupervised clustering algorithms.
+References
+[1] H. Adams, T. Emerson, M. Kirby, R. Neville, C. Peterson, P. Shipman, S. Chepushtanova, E. Han-
+son, F. Motta, and L. Ziegelmeier. Persistence images: a stable vector representation of persistent
+homology. J. Mach. Learn. Res., 18:Paper No. 8, 35, 2017.
+[2] F. Adly, O. Alhussein, P. D. Yoo, Y. Al-Hammadi, K. Taha, S. Muhaidat, Y.-S. Jeong, U. Lee, and
+M. Ismail. Simpliﬁed subspaced regression network for identiﬁcation of defect patterns in semicon-
+ductor wafer maps. IEEE Transactions on Industrial Informatics, 11(6):1267–1276, 2015.
+[3] U. Bauer. Ripser: eﬃcient computation of vietoris–rips persistence barcodes. Journal of Applied
+and Computational Topology, 5(3):391–423, 2021.
+[4] J.-D. Boissonnat, F. Chazal, and B. Michel. Topological data analysis. In Novel mathematics inspired
+by industrial challenges, volume 38 of Math. Ind., pages 247–269. Springer, Cham, 2022.
+[5] P. Bubenik. Statistical topological data analysis using persistence landscapes. J. Mach. Learn. Res.,
+16:77–102, 2015.
+[6] F. Chazal, V. de Silva, and S. Oudot. Persistence stability for geometric complexes. Geom. Dedicata,
+173:193–214, 2014.
+[7] D. Cohen-Steiner, H. Edelsbrunner, and J. Harer. Stability of persistence diagrams. Discrete Comput.
+Geom., 37(1):103–120, 2007.
+[8] D. Cohen-Steiner, H. Edelsbrunner, J. Harer, and Y. Mileyko. Lipschitz functions have Lp-stable
+persistence. Found. Comput. Math., 10(2):127–139, 2010.
+[9] D. Cohen-Steiner, H. Edelsbrunner, J. Harer, and Y. Mileyko. Lipschitz functions have Lp-stable
+persistence. Found. Comput. Math., 10(2):127–139, 2010.
+[10] V. Divol and T. Lacombe. Understanding the topology and the geometry of the space of persistence
+diagrams via optimal partial transport. J. Appl. Comput. Topol., 5(1):1–53, 2021.
+[11] H. Edelsbrunner and J. Harer. Persistent homology—a survey. In Surveys on discrete and computa-
+tional geometry, volume 453 of Contemp. Math., pages 257–282. Amer. Math. Soc., Providence, RI,
+2008.
+[12] H. Edelsbrunner and J. L. Harer. Computational topology. American Mathematical Society, Provi-
+dence, RI, 2010. An introduction.
+[13] M. Fan, Q. Wang, and B. van der Waal. Wafer defect patterns recognition based on optics and multi-
+label classiﬁcation. In 2016 IEEE Advanced Information Management, Communicates, Electronic
+and Automation Control Conference (IMCEC), pages 912–915, 2016.
+14
+
+
+--- Page 15 ---
+[14] A. Hatcher. Algebraic topology. Cambridge University Press, Cambridge, 2002.
+[15] K. He, X. Zhang, S. Ren, and J. Sun. Deep residual learning for image recognition. In 2016 IEEE
+Conference on Computer Vision and Pattern Recognition (CVPR), pages 770–778, 2016.
+[16] K. Kyeong and H. Kim. Classiﬁcation of mixed-type defect patterns in wafer bin maps using con-
+volutional neural networks. IEEE Transactions on Semiconductor Manufacturing, 31(3):395–402,
+2018.
+[17] C.-W. Liu and C.-F. Chien.
+An intelligent system for wafer bin map defect diagnosis: An em-
+pirical study for semiconductor manufacturing. Engineering Applications of Artiﬁcial Intelligence,
+26(5):1479–1486, 2013.
+[18] Y. Mileyko, S. Mukherjee, and J. Harer. Probability measures on the space of persistence diagrams.
+Inverse Problems, 27(12):124007, 22, 2011.
+[19] T. Nakazawa and D. V. Kulkarni. Wafer map defect pattern classiﬁcation and image retrieval using
+convolutional neural network. IEEE Transactions on Semiconductor Manufacturing, 31(2):309–314,
+2018.
+[20] F. Pedregosa, G. Varoquaux, A. Gramfort, V. Michel, B. Thirion, O. Grisel, M. Blondel, P. Pretten-
+hofer, R. Weiss, V. Dubourg, J. Vanderplas, A. Passos, D. Cournapeau, M. Brucher, M. Perrot, and
+E. Duchesnay. Scikit-learn: Machine learning in Python. Journal of Machine Learning Research,
+12:2825–2830, 2011.
+[21] M. Piao, C. H. Jin, J. Y. Lee, and J.-Y. Byun. Decision tree ensemble-based wafer map failure
+pattern recognition based on radon transform-based features. IEEE Transactions on Semiconductor
+Manufacturing, 31(2):250–257, 2018.
+[22] M. Saqlain, Q. Abbas, and J. Y. Lee. A deep convolutional neural network for wafer defect identiﬁ-
+cation on an imbalanced dataset in semiconductor manufacturing processes. IEEE Transactions on
+Semiconductor Manufacturing, 33(3):436–444, 2020.
+[23] M. Saqlain, B. Jargalsaikhan, and J. Y. Lee. A voting ensemble classiﬁer for wafer map defect pat-
+terns identiﬁcation in semiconductor manufacturing. IEEE Transactions on Semiconductor Manu-
+facturing, 32(2):171–182, 2019.
+[24] N. Saul. scikit-tda/scikit-tda: sunsetting cechmate, Aug. 2021.
+[25] C. Tralie, N. Saul, and R. Bar-On. Ripser.py: A lean persistent homology library for python. Journal
+of Open Source Software, 3(29):925, 2018.
+[26] K. Turner, Y. Mileyko, S. Mukherjee, and J. Harer. Fr´echet means for distributions of persistence
+diagrams. Discrete Comput. Geom., 52(1):44–70, 2014.
+[27] J. Yu and X. Lu. Wafer map defect detection and recognition using joint local and nonlocal linear
+discriminant analysis. IEEE Transactions on Semiconductor Manufacturing, 29(1):33–43, 2016.
+[28] N. Yu, Q. Xu, and H. Wang. Wafer defect pattern recognition and analysis based on convolutional
+neural network. IEEE Transactions on Semiconductor Manufacturing, 32(4):566–573, 2019.
+15

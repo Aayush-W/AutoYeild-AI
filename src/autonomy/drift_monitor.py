@@ -1,8 +1,6 @@
 from __future__ import annotations
 
-import json
 import threading
-from pathlib import Path
 from typing import Any, Dict, Literal, Optional
 
 TriggerMode = Literal["below", "above"]
@@ -11,18 +9,13 @@ DEFAULT_CONFIDENCE_THRESHOLD = 0.45
 DEFAULT_MAX_MATCH_COUNT = 3
 DEFAULT_TRIGGER_MODE: TriggerMode = "below"
 
-_STATE_FILE = (
-    Path(__file__).resolve().parents[2] / "outputs" / "metrics" / "drift_state.json"
-)
-
 
 class DriftMonitor:
     """
-    Stateful threshold monitor.
+    Stateful threshold monitor backed by MongoDB (sync PyMongo).
 
     A trigger is emitted once when the streak of matching confidences reaches
-    max_low_confidence. It does not fire on every request while the condition
-    stays true; it re-arms after a non-matching confidence.
+    max_low_confidence. It re-arms after a non-matching confidence.
     """
 
     def __init__(
@@ -30,12 +23,10 @@ class DriftMonitor:
         confidence_threshold: float = DEFAULT_CONFIDENCE_THRESHOLD,
         max_low_confidence: int = DEFAULT_MAX_MATCH_COUNT,
         trigger_mode: TriggerMode = DEFAULT_TRIGGER_MODE,
-        state_file: Path | None = None,
     ) -> None:
         self.confidence_threshold = float(confidence_threshold)
         self.max_low_confidence = int(max_low_confidence)
         self.trigger_mode: TriggerMode = trigger_mode
-        self._state_file = Path(state_file) if state_file else _STATE_FILE
         self._lock = threading.Lock()
         self._state = self._load_state()
         self.configure(
@@ -43,6 +34,47 @@ class DriftMonitor:
             max_low_confidence=self.max_low_confidence,
             trigger_mode=self.trigger_mode,
         )
+
+    def _default_state(self) -> Dict[str, Any]:
+        return {
+            "match_count": 0,
+            "total_updates": 0,
+            "drift_events": 0,
+            "trigger_armed": True,
+            "last_threshold": self.confidence_threshold,
+            "last_trigger_mode": self.trigger_mode,
+            "last_confidence": None,
+        }
+
+    def _load_state(self) -> Dict[str, Any]:
+        try:
+            from config.db import sync_db
+            doc = sync_db["drift_state"].find_one({"_id": "singleton"})
+            if doc and isinstance(doc, dict):
+                # Migrate old key name if present
+                if "match_count" not in doc and "low_confidence_count" in doc:
+                    doc["match_count"] = int(doc.get("low_confidence_count", 0))
+                merged = self._default_state()
+                merged.update({k: v for k, v in doc.items() if k != "_id"})
+                return merged
+        except Exception:
+            pass
+        return self._default_state()
+
+    def _save_state(self) -> None:
+        try:
+            from config.db import sync_db
+            sync_db["drift_state"].update_one(
+                {"_id": "singleton"},
+                {"$set": self._state},
+                upsert=True
+            )
+        except Exception:
+            pass
+
+    # ------------------------------------------------------------------
+    # Public interface
+    # ------------------------------------------------------------------
 
     def configure(
         self,
@@ -67,48 +99,9 @@ class DriftMonitor:
         self._state["last_threshold"] = self.confidence_threshold
         self._state["last_trigger_mode"] = self.trigger_mode
         if config_changed:
-            # Prevent stale streak state from one mode/config affecting another.
             self._state["match_count"] = 0
             self._state["trigger_armed"] = True
         self._save_state()
-
-    def _default_state(self) -> Dict[str, Any]:
-        return {
-            "match_count": 0,
-            "total_updates": 0,
-            "drift_events": 0,
-            "trigger_armed": True,
-            "last_threshold": self.confidence_threshold,
-            "last_trigger_mode": self.trigger_mode,
-            "last_confidence": None,
-        }
-
-    def _load_state(self) -> Dict[str, Any]:
-        if not self._state_file.exists():
-            return self._default_state()
-
-        try:
-            data = json.loads(self._state_file.read_text(encoding="utf-8"))
-            if not isinstance(data, dict):
-                return self._default_state()
-        except Exception:
-            return self._default_state()
-
-        if "match_count" not in data and "low_confidence_count" in data:
-            data["match_count"] = int(data.get("low_confidence_count", 0))
-
-        merged = self._default_state()
-        merged.update(data)
-        return merged
-
-    def _save_state(self) -> None:
-        try:
-            self._state_file.parent.mkdir(parents=True, exist_ok=True)
-            self._state_file.write_text(
-                json.dumps(self._state, indent=2), encoding="utf-8"
-            )
-        except Exception:
-            pass
 
     def _is_match(self, confidence: float) -> bool:
         if self.trigger_mode == "below":
@@ -160,6 +153,10 @@ class DriftMonitor:
         return payload
 
 
+# ---------------------------------------------------------------------------
+# Process-level singleton
+# ---------------------------------------------------------------------------
+
 _singleton_lock = threading.Lock()
 _singleton: DriftMonitor | None = None
 
@@ -169,11 +166,7 @@ def get_drift_monitor(
     max_low_confidence: Optional[int] = None,
     trigger_mode: Optional[TriggerMode] = None,
 ) -> DriftMonitor:
-    """
-    Return process-level DriftMonitor singleton.
-
-    Passing None keeps the current singleton value for that parameter.
-    """
+    """Return process-level DriftMonitor singleton."""
     global _singleton
     with _singleton_lock:
         if _singleton is None:
