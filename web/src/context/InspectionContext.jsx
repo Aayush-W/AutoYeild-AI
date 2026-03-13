@@ -1,5 +1,11 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { analyzeImage, getHistory, getMetrics } from "../api/client.js";
+import { createDefaultImpactInputs, defaultEnergyProfile, defaultGridProfile } from "../data/impactSources.js";
+import {
+  appendImpactHistory,
+  buildImpactResult,
+  summarizeImpactHistory,
+} from "../utils/impactCalculator.js";
 
 const InspectionContext = createContext(null);
 
@@ -9,13 +15,47 @@ export function InspectionProvider({ children }) {
   const [error, setError] = useState("");
   const [history, setHistory] = useState([]);
   const [metrics, setMetrics] = useState(null);
+  const [impactInputs, setImpactInputs] = useState(() => createDefaultImpactInputs());
+  const [impactHistory, setImpactHistory] = useState([]);
 
-  const runAnalysis = async (file, options) => {
+  const impactSources = useMemo(
+    () => ({
+      energyProfile: defaultEnergyProfile,
+      gridProfile: defaultGridProfile,
+    }),
+    []
+  );
+
+  const updateImpactInputs = useCallback((partialInputs) => {
+    setImpactInputs((prev) => ({ ...prev, ...partialInputs }));
+  }, []);
+
+  const refreshDashboard = useCallback(async () => {
+    try {
+      const [historyData, metricsData] = await Promise.all([
+        getHistory(),
+        getMetrics()
+      ]);
+      setHistory(historyData);
+      setMetrics(metricsData);
+    } catch (err) {
+      setError(err.message || "Failed to load dashboard data");
+    }
+  }, []);
+
+  const runAnalysis = useCallback(async (file, options) => {
     setLoading(true);
     setError("");
     try {
       const result = await analyzeImage(file, options);
+      const nextImpactResult = buildImpactResult({
+        inspection: result,
+        impactInputs,
+        sources: impactSources,
+      });
+
       setInspection(result);
+      setImpactHistory((prev) => appendImpactHistory(prev, nextImpactResult));
       const [historyData, metricsData] = await Promise.all([
         getHistory(),
         getMetrics()
@@ -29,24 +69,26 @@ export function InspectionProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  };
-
-  const refreshDashboard = async () => {
-    try {
-      const [historyData, metricsData] = await Promise.all([
-        getHistory(),
-        getMetrics()
-      ]);
-      setHistory(historyData);
-      setMetrics(metricsData);
-    } catch (err) {
-      setError(err.message || "Failed to load dashboard data");
-    }
-  };
+  }, [impactInputs, impactSources]);
 
   useEffect(() => {
     refreshDashboard();
-  }, []);
+  }, [refreshDashboard]);
+
+  const impactResult = useMemo(
+    () =>
+      buildImpactResult({
+        inspection,
+        impactInputs,
+        sources: impactSources,
+      }),
+    [impactInputs, impactSources, inspection]
+  );
+
+  const impactSummary = useMemo(
+    () => summarizeImpactHistory(impactHistory),
+    [impactHistory]
+  );
 
   const value = useMemo(
     () => ({
@@ -57,9 +99,29 @@ export function InspectionProvider({ children }) {
       error,
       history,
       metrics,
-      refreshDashboard
+      refreshDashboard,
+      impactInputs,
+      updateImpactInputs,
+      impactSources,
+      impactResult,
+      impactHistory,
+      impactSummary,
     }),
-    [inspection, loading, error, history, metrics]
+    [
+      error,
+      history,
+      impactHistory,
+      impactInputs,
+      impactResult,
+      impactSources,
+      impactSummary,
+      inspection,
+      loading,
+      metrics,
+      refreshDashboard,
+      runAnalysis,
+      updateImpactInputs,
+    ]
   );
 
   return (

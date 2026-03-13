@@ -1,16 +1,5 @@
 """
-Thread-safe Grad-CAM for EfficientNet-B0.
-
-Fixes applied vs the previous revision:
-- register_full_backward_hook replaced with register_backward_hook for
-  compatibility with all supported PyTorch versions AND because the full-backward
-  hook's grad_output tuple refers to grads w.r.t. layer *inputs*, not *outputs*,
-  which produced incorrect/misleading heatmaps.
-- Per-call local closure variables still used (fixes the original global-state
-  race condition without breaking correctness).
-- threading.Lock still in place around forward+backward pass.
-- Activations captured via detach().clone() to avoid retaining the graph.
-- No in-place mutation of the captured activation tensor.
+Thread-safe Grad-CAM for the active baseline runtime model.
 """
 from __future__ import annotations
 
@@ -22,8 +11,9 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from PIL import Image
-from torchvision import transforms
-from torchvision.models import efficientnet_b0
+
+from src.inference.model_loader import get_default_model, get_gradcam_target_layer
+from src.utils.preprocessing import IMAGE_SIZE, get_inference_transform
 
 # ---------------------------------------------------------------------------
 # Paths & constants
@@ -31,33 +21,20 @@ from torchvision.models import efficientnet_b0
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-MODEL_PATH = PROJECT_ROOT / "models" / "baseline_model.pt"
-from src.utils.preprocessing import get_inference_transform, IMAGE_SIZE
 OUTPUT_DIR = PROJECT_ROOT / "outputs" / "heatmaps"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # ---------------------------------------------------------------------------
 # Load model once at import time (shared read-only across threads)
 # ---------------------------------------------------------------------------
-checkpoint = torch.load(str(MODEL_PATH), map_location=DEVICE)
-class_names = checkpoint["class_names"]
-num_classes = len(class_names)
-
-model = efficientnet_b0(weights=None)
-in_features = model.classifier[1].in_features
-model.classifier[1] = torch.nn.Linear(in_features, num_classes)
-model.load_state_dict(checkpoint["model_state_dict"])
-model = model.to(DEVICE)
-model.eval()
-
-# Target layer for Grad-CAM (last feature block)
-_target_layer = model.features[-1]
+model, class_names, model_meta = get_default_model()
+_target_layer = get_gradcam_target_layer(model, model_meta["model_type"])
 
 # Serialise forward+backward so concurrent async requests don't mix gradients
 _gradcam_lock = threading.Lock()
 
 # ---------------------------------------------------------------------------
-# Transform  (must match training normalisation exactly)
+# Transform (must match training normalisation exactly)
 # ---------------------------------------------------------------------------
 _transform = get_inference_transform()
 
@@ -65,7 +42,6 @@ _transform = get_inference_transform()
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
-
 def generate_gradcam(image_path: str) -> tuple[str, str]:
     """
     Compute Grad-CAM overlay for the predicted class of *image_path*.
@@ -80,23 +56,16 @@ def generate_gradcam(image_path: str) -> tuple[str, str]:
     input_tensor = _transform(image).unsqueeze(0).to(DEVICE)
 
     with _gradcam_lock:
-        # Per-call local lists — no global state
         _activations: list[torch.Tensor] = []
         _gradients: list[torch.Tensor] = []
 
-        # register_backward_hook: hook(module, grad_input, grad_output)
-        # grad_output[0] is the gradient of the loss w.r.t. the OUTPUT of this
-        # layer — which is exactly what Grad-CAM needs.
         def _fwd_hook(module, input_, output):  # noqa: N802
-            # Clone so we hold a snapshot even after the tensor is freed
             _activations.append(output.detach().clone())
 
         def _bwd_hook(module, grad_input, grad_output):  # noqa: N802
-            # grad_output[0]: gradient of loss w.r.t. this layer's output tensor
             _gradients.append(grad_output[0].detach().clone())
 
         fwd_handle = _target_layer.register_forward_hook(_fwd_hook)
-        # Use register_backward_hook (compatible with all supported PyTorch versions)
         bwd_handle = _target_layer.register_backward_hook(_bwd_hook)
 
         try:
@@ -106,34 +75,30 @@ def generate_gradcam(image_path: str) -> tuple[str, str]:
             model.zero_grad()
             output[0, pred_class].backward()
         finally:
-            # Always deregister — even if backward raises
             fwd_handle.remove()
             bwd_handle.remove()
 
         if not _activations or not _gradients:
             raise RuntimeError(
                 "Grad-CAM hooks did not capture data. "
-                "Check that _target_layer is in the forward path."
+                "Check that the target layer is in the forward path."
             )
 
-        acts = _activations[0]   # (1, C, H, W)
-        grads = _gradients[0]    # (1, C, H, W)
+        acts = _activations[0]
+        grads = _gradients[0]
 
-    # --- Pure tensor math — outside the lock ---
-    pooled_grads = grads.mean(dim=[0, 2, 3])      # (C,)  global-average-pooled
+    pooled_grads = grads.mean(dim=[0, 2, 3])
 
-    # Weight each channel; use a fresh clone — no in-place mutation of `acts`
     weighted_acts = acts.clone()
     for i in range(weighted_acts.shape[1]):
         weighted_acts[:, i, :, :] *= pooled_grads[i]
 
-    heatmap = weighted_acts.mean(dim=1).squeeze()  # (H, W)
+    heatmap = weighted_acts.mean(dim=1).squeeze()
     heatmap = F.relu(heatmap)
 
     max_val = heatmap.max()
     if max_val > 0:
         heatmap = heatmap / max_val
-    # If max_val == 0 (blank image / uniform prediction) heatmap stays all-zero
 
     heatmap_np = heatmap.cpu().numpy()
     heatmap_np = cv2.resize(heatmap_np, IMAGE_SIZE)

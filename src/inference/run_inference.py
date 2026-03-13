@@ -1,36 +1,20 @@
-import torch
-import torch.nn as nn
-from torchvision import transforms
-from torchvision.models import efficientnet_b0
-from PIL import Image
 import sys
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-MODEL_PATH = PROJECT_ROOT / "models" / "baseline_model.pt"
-from src.utils.preprocessing import get_inference_transform, describe_tensor_stats
+import torch
+from PIL import Image
+
+from src.inference.model_loader import get_default_model
+from src.utils.preprocessing import get_inference_transform
 
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-
-# -------------------------
-# Load model
-# -------------------------
-checkpoint = torch.load(str(MODEL_PATH), map_location=DEVICE)
-class_names = checkpoint["class_names"]
-num_classes = len(class_names)
-
-model = efficientnet_b0(weights=None)
-in_features = model.classifier[1].in_features
-model.classifier[1] = nn.Linear(in_features, num_classes)
-
-model.load_state_dict(checkpoint["model_state_dict"])
-model = model.to(DEVICE)
-model.eval()
+model, class_names, model_meta = get_default_model()
 
 # -------------------------
 # Transform (match training: Resize, CenterCrop, ImageNet norm)
 # -------------------------
 transform = get_inference_transform()
+
 
 # -------------------------
 # Inference
@@ -63,6 +47,7 @@ def predict_with_probs(image_path, topk=3):
     pred_idx = int(top_indices[0])
     return class_names[pred_idx], float(top_probs[0]), results
 
+
 # -------------------------
 # Run
 # -------------------------
@@ -71,9 +56,9 @@ if __name__ == "__main__":
         print("Usage: python run_inference.py <image_path>")
         sys.exit(1)
 
-    img_path = sys.argv[1]
+    img_path = Path(sys.argv[1])
     label, confidence = predict(img_path)
 
+    print(f"Model: {model_meta['model_type']}")
     print(f"Prediction: {label}")
     print(f"Confidence: {confidence:.4f}")
-    

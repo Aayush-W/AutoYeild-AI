@@ -135,7 +135,13 @@ export default function SystemOverview({
   overviewMode = "workspace",
   setOverviewMode,
 }) {
-  const { inspection, history, metrics, refreshDashboard } = useInspection();
+  const {
+    inspection,
+    history,
+    metrics,
+    refreshDashboard,
+    impactSummary,
+  } = useInspection();
   const [showIntro, setShowIntro] = useState(true);
 
   const heroRef = useRef(null);
@@ -244,7 +250,7 @@ export default function SystemOverview({
             <div className="ov-kicker">AutoYield AI</div>
           </div>
           <div className="ov-topstrip-center">
-            <div className="ov-model-pill">DefectNet-v4.2-TRT</div>
+            <div className="ov-model-pill">AutoYield-AI</div>
           </div>
           <div className="ov-topstrip-right">
             {overviewMode === "frontpage" && (
@@ -324,8 +330,8 @@ export default function SystemOverview({
             <div className="ov-desc-label">NOT A DEMO - LIVE SYSTEM</div>
             <div className="ov-desc-text">
               AutoYield AI is an autonomous semiconductor inspection platform.
-              DefectNet-v4.2-TRT runs real-time defect classification, drift
-              detection, and self-retraining loops on 12nm FinFET wafer imagery.
+              AutoYield-AI runs real-time defect classification, drift
+              detection, and self-retraining loops on semiconductor wafer imagery.
             </div>
             <div className="ov-desc-stats">
               <div className="ov-desc-stat">
@@ -360,7 +366,7 @@ export default function SystemOverview({
         <div className="engine-banner-left">
           <div className="engine-status-dot" />
           <div>
-            <div className="engine-title">Neural Engine v4.2 - DefectNet-TRT</div>
+            <div className="engine-title">Neural Engine v4.2 - AutoYield-AI</div>
             <div className="engine-subtitle">
               // Active diagnostic feed running - real-time inference pipeline
             </div>
@@ -369,7 +375,7 @@ export default function SystemOverview({
         <div className="engine-stats">
           <div className="engine-stat">
             <div className="engine-stat-label">Uptime</div>
-            <div className="engine-stat-value green">99.98%</div>
+            <div className="engine-stat-value green">90.98%</div>
           </div>
           <div className="engine-stat">
             <div className="engine-stat-label">Last Scan</div>
@@ -555,6 +561,52 @@ export default function SystemOverview({
           )}
         </div>
       </div>
+
+      {impactSummary.batchesAnalyzed > 0 && (
+        <div className="grid-4">
+          <div className="metric-card">
+            <div className="metric-label">
+              <span className="material-symbols-rounded">bolt</span>
+              Session Energy Saved
+            </div>
+            <div className="metric-value">
+              {Math.round(impactSummary.energySavedKwh).toLocaleString()} kWh
+            </div>
+            <div className="metric-foot">Frontend impact ledger</div>
+          </div>
+
+          <div className="metric-card">
+            <div className="metric-label">
+              <span className="material-symbols-rounded">eco</span>
+              Session CO2e Prevented
+            </div>
+            <div className="metric-value">
+              {Math.round(impactSummary.carbonPreventedKgco2e).toLocaleString()} kg
+            </div>
+            <div className="metric-foot">India official factor applied</div>
+          </div>
+
+          <div className="metric-card">
+            <div className="metric-label">
+              <span className="material-symbols-rounded">trending_up</span>
+              Avg Yield Uplift
+            </div>
+            <div className="metric-value">{impactSummary.avgYieldUpliftPp.toFixed(2)} pp</div>
+            <div className="metric-foot">Batch-level recovery model</div>
+          </div>
+
+          <div className="metric-card">
+            <div className="metric-label">
+              <span className="material-symbols-rounded">savings</span>
+              Session Cost Saved
+            </div>
+            <div className="metric-value">
+              INR {Math.round(impactSummary.totalCostSavedInr).toLocaleString("en-IN")}
+            </div>
+            <div className="metric-foot">INR · operator economics inputs</div>
+          </div>
+        </div>
+      )}
 
       <div className="card reveal" ref={tableRef}>
         <div className="card-header">

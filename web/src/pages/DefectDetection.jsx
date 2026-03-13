@@ -1,5 +1,11 @@
 import { useInspection } from "../context/InspectionContext.jsx";
 import { useNavigate } from "react-router-dom";
+import {
+  ImpactBoard,
+  ImpactSessionLedger,
+  ImpactSourceCard,
+} from "../components/ImpactBoard.jsx";
+import { buildAnalysisReport, downloadAnalysisReport } from "../utils/reportBuilder.js";
 
 // All data logic PRESERVED
 const DEFECT_DESCRIPTIONS = {
@@ -23,7 +29,15 @@ const SEVERITY_CHIP = {
 };
 
 export default function DefectDetection() {
-  const { inspection, history } = useInspection();
+  const {
+    inspection,
+    history,
+    metrics,
+    impactInputs,
+    impactResult,
+    impactHistory,
+    impactSummary,
+  } = useInspection();
   const navigate = useNavigate();
   const hasData = Boolean(inspection);
 
@@ -35,6 +49,19 @@ export default function DefectDetection() {
   const confidence = hasData ? Math.round(inspection.confidence * 100) : null;
 
   const histBatches = history.length ? [...history].reverse().slice(0, 4) : [];
+
+  const handleDownloadReport = () => {
+    const report = buildAnalysisReport({
+      inspection,
+      history,
+      metrics,
+      impactInputs,
+      impactResult,
+      impactHistory,
+      impactSummary,
+    });
+    downloadAnalysisReport(report);
+  };
 
   return (
     <>
@@ -48,6 +75,12 @@ export default function DefectDetection() {
         </div>
         {hasData && (
           <div style={{ display: "flex", gap: 8 }}>
+            <button className="btn" onClick={handleDownloadReport}>
+              <span className="material-symbols-rounded" style={{ fontSize: 14 }}>
+                download
+              </span>
+              Download JSON Report
+            </button>
             <span className={`chip ${severityChip}`}>{severity}</span>
             <span className="chip info">{inspection.inference_time_ms} ms</span>
           </div>
@@ -180,6 +213,17 @@ export default function DefectDetection() {
             </div>
           </div>
         </div>
+      )}
+
+      {hasData && impactResult && (
+        <div className="grid-2">
+          <ImpactBoard impactResult={impactResult} />
+          <ImpactSourceCard impactResult={impactResult} />
+        </div>
+      )}
+
+      {impactHistory.length > 0 && (
+        <ImpactSessionLedger impactHistory={impactHistory} impactSummary={impactSummary} />
       )}
 
       {/* Historical Comparison */}

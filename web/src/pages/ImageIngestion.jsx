@@ -21,7 +21,14 @@ export default function ImageIngestion() {
   const [retrainEpochs, setRetrainEpochs] = useState(1);
 
   const navigate = useNavigate();
-  const { runAnalysis, loading, error } = useInspection();
+  const {
+    runAnalysis,
+    loading,
+    error,
+    impactInputs,
+    updateImpactInputs,
+    impactSources,
+  } = useInspection();
 
   const onDragOver = useCallback((e) => { e.preventDefault(); setDragging(true); }, []);
   const onDragLeave = useCallback(() => setDragging(false), []);
@@ -48,6 +55,9 @@ export default function ImageIngestion() {
       <span className="toggle-track" />
     </label>
   );
+
+  const hasEnergyOverride = impactInputs.manualEnergyIntensityOverrideKwhPerWafer !== "";
+  const hasGridOverride = impactInputs.manualGridFactorOverrideKgco2PerKwh !== "";
 
   return (
     <>
@@ -213,6 +223,163 @@ export default function ImageIngestion() {
                   Current engine optimized for 12nm process node. Ensure lighting
                   calibration matches Standard-B prior to mass ingestion.
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="card-title" style={{ marginBottom: 16 }}>
+              <span className="material-symbols-rounded">eco</span>
+              IMPACT ASSUMPTIONS
+            </div>
+
+            <div className="impact-input-grid">
+              <div className="param-row">
+                <div className="param-label">batch_id</div>
+                <input
+                  type="text"
+                  value={impactInputs.batchId}
+                  onChange={(e) => updateImpactInputs({ batchId: e.target.value })}
+                  className="param-input"
+                  placeholder="Optional batch label"
+                />
+              </div>
+              <div className="param-row">
+                <div className="param-label">batch_wafer_count</div>
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  value={impactInputs.batchWaferCount}
+                  onChange={(e) =>
+                    updateImpactInputs({ batchWaferCount: Number(e.target.value) || 1 })
+                  }
+                  className="param-input"
+                />
+              </div>
+              <div className="param-row">
+                <div className="param-label">affected_wafers</div>
+                <input
+                  type="number"
+                  min="0"
+                  max={impactInputs.batchWaferCount}
+                  step="1"
+                  value={impactInputs.affectedWafersDetected}
+                  onChange={(e) =>
+                    updateImpactInputs({
+                      affectedWafersDetected: Math.min(
+                        impactInputs.batchWaferCount,
+                        Math.max(0, Number(e.target.value) || 0)
+                      ),
+                    })
+                  }
+                  className="param-input"
+                />
+              </div>
+              <div className="param-row">
+                <div className="param-label">recovery_rate_pct</div>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={impactInputs.treatmentRecoveryRatePct}
+                  onChange={(e) =>
+                    updateImpactInputs({
+                      treatmentRecoveryRatePct: Math.min(
+                        100,
+                        Math.max(0, Number(e.target.value) || 0)
+                      ),
+                    })
+                  }
+                  className="param-input"
+                />
+              </div>
+              <div className="param-row">
+                <div className="param-label">wafer_diameter_mm</div>
+                <select
+                  value={impactInputs.waferDiameterMm}
+                  onChange={(e) =>
+                    updateImpactInputs({ waferDiameterMm: Number(e.target.value) })
+                  }
+                  className="param-select"
+                >
+                  <option value="200">200mm</option>
+                  <option value="300">300mm</option>
+                </select>
+              </div>
+              <div className="param-row">
+                <div className="param-label">cost_per_wafer_inr</div>
+                <input
+                  type="number"
+                  min="0"
+                  step="1000"
+                  value={impactInputs.loadedCostPerWaferInr}
+                  onChange={(e) =>
+                    updateImpactInputs({ loadedCostPerWaferInr: Number(e.target.value) || 0 })
+                  }
+                  className="param-input"
+                />
+              </div>
+              <div className="param-row">
+                <div className="param-label">tariff_inr_per_kwh</div>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  value={impactInputs.electricityTariffInrPerKwh}
+                  onChange={(e) =>
+                    updateImpactInputs({
+                      electricityTariffInrPerKwh: Number(e.target.value) || 0,
+                    })
+                  }
+                  className="param-input"
+                />
+              </div>
+              <div className="param-row">
+                <div className="param-label">energy_override</div>
+                <input
+                  type="number"
+                  min="0"
+                  step="10"
+                  value={impactInputs.manualEnergyIntensityOverrideKwhPerWafer}
+                  onChange={(e) =>
+                    updateImpactInputs({
+                      manualEnergyIntensityOverrideKwhPerWafer: e.target.value,
+                    })
+                  }
+                  className="param-input"
+                  placeholder="Optional kWh/wafer"
+                />
+              </div>
+              <div className="param-row">
+                <div className="param-label">grid_override</div>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.001"
+                  value={impactInputs.manualGridFactorOverrideKgco2PerKwh}
+                  onChange={(e) =>
+                    updateImpactInputs({
+                      manualGridFactorOverrideKgco2PerKwh: e.target.value,
+                    })
+                  }
+                  className="param-input"
+                  placeholder="Optional kgCO2e/kWh"
+                />
+              </div>
+            </div>
+
+            <div className="impact-source-note">
+              <div className="impact-source-note-title">Source-backed defaults</div>
+              <div className="impact-source-note-body">
+                Energy factor: {impactSources.energyProfile.energyKwhPerCm2.toFixed(3)} kWh/cm2
+                {" · "}
+                Grid factor: {impactSources.gridProfile.factorValueKgco2PerKwh.toFixed(3)} kgCO2e/kWh
+              </div>
+              <div className="impact-source-note-body">
+                Overrides: energy {hasEnergyOverride ? "ENABLED" : "OFF"} {" · "}
+                grid {hasGridOverride ? "ENABLED" : "OFF"}
               </div>
             </div>
           </div>
