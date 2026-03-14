@@ -20,7 +20,7 @@ if not LOGGER.handlers:
 LOGGER.setLevel(logging.INFO)
 
 APP_ROOT = Path(__file__).resolve().parents[2]
-TRAINING_SCRIPT = APP_ROOT / "src" / "training" / "train_classifier.py"
+TRAINING_SCRIPT = APP_ROOT / "src" / "training" / "train_convnext_finetune.py"
 
 
 def _load_history() -> List[Dict[str, Any]]:

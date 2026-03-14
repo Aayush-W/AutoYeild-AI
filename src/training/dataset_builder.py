@@ -1,7 +1,10 @@
 import os
 import random
+from pathlib import Path
 from PIL import Image
 from tqdm import tqdm
+import torch
+from torch.utils.data import Dataset
 
 RAW_DATA_DIR = "data/raw"
 PROCESSED_DATA_DIR = "data/processed"
@@ -74,6 +77,48 @@ def process_dataset():
             )
 
     print("\n✅ Dataset processing complete.")
+
+
+# ─────────────────────────────────────────────
+# PyTorch Dataset  (used by train_convnext_finetune.py)
+# ─────────────────────────────────────────────
+class WaferDataset(Dataset):
+    """
+    Simple image-folder dataset that mirrors torchvision.ImageFolder
+    but accepts a transform and returns (tensor, label_int) pairs.
+
+    Folder structure expected:
+        root/
+          class_a/img1.png
+          class_b/img2.jpg
+          ...
+    """
+    VALID_EXT = (".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff")
+
+    def __init__(self, root, transform=None):
+        self.root      = Path(root)
+        self.transform = transform
+
+        self.classes   = sorted([d.name for d in self.root.iterdir() if d.is_dir()])
+        self.class_to_idx = {cls: i for i, cls in enumerate(self.classes)}
+
+        self.samples = []   # list of (path_str, label_int)
+        for cls in self.classes:
+            cls_dir = self.root / cls
+            for fp in sorted(cls_dir.iterdir()):
+                if fp.suffix.lower() in self.VALID_EXT:
+                    self.samples.append((str(fp), self.class_to_idx[cls]))
+
+    def __len__(self):
+        return len(self.samples)
+
+    def __getitem__(self, idx):
+        path, label = self.samples[idx]
+        img = Image.open(path).convert("RGB")
+        if self.transform:
+            img = self.transform(img)
+        return img, label
+
 
 if __name__ == "__main__":
     process_dataset()

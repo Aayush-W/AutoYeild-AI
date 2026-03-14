@@ -1,30 +1,20 @@
 import torch
 import torch.nn as nn
 from torchvision import transforms
-from torchvision.models import efficientnet_b0
 from PIL import Image
 import sys
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-MODEL_PATH = PROJECT_ROOT / "models" / "baseline_model.pt"
-from src.utils.preprocessing import get_inference_transform, describe_tensor_stats
+from src.inference.model_loader import get_default_model
+from src.utils.preprocessing import get_inference_transform
 
+# -------------------------
+# Load model (Shared singleton)
+# -------------------------
+model, class_names, meta = get_default_model()
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-
-# -------------------------
-# Load model
-# -------------------------
-checkpoint = torch.load(str(MODEL_PATH), map_location=DEVICE)
-class_names = checkpoint["class_names"]
-num_classes = len(class_names)
-
-model = efficientnet_b0(weights=None)
-in_features = model.classifier[1].in_features
-model.classifier[1] = nn.Linear(in_features, num_classes)
-
-model.load_state_dict(checkpoint["model_state_dict"])
-model = model.to(DEVICE)
+model.to(DEVICE)
 model.eval()
 
 # -------------------------

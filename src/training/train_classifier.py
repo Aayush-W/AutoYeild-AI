@@ -12,6 +12,9 @@ from sklearn.metrics import accuracy_score
 
 from src.evaluation.metrics import compute_classification_metrics
 
+# Resolve the script's own directory so DATA_DIR / MODELS_DIR are absolute
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # =========================
 # CONFIG
 # =========================

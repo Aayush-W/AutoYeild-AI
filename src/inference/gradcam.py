@@ -23,35 +23,32 @@ import torch
 import torch.nn.functional as F
 from PIL import Image
 from torchvision import transforms
-from torchvision.models import efficientnet_b0
 
 # ---------------------------------------------------------------------------
 # Paths & constants
 # ---------------------------------------------------------------------------
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-MODEL_PATH = PROJECT_ROOT / "models" / "baseline_model.pt"
+from src.inference.model_loader import get_default_model
 from src.utils.preprocessing import get_inference_transform, IMAGE_SIZE
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 OUTPUT_DIR = PROJECT_ROOT / "outputs" / "heatmaps"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # ---------------------------------------------------------------------------
-# Load model once at import time (shared read-only across threads)
+# Load model (Shared singleton)
 # ---------------------------------------------------------------------------
-checkpoint = torch.load(str(MODEL_PATH), map_location=DEVICE)
-class_names = checkpoint["class_names"]
-num_classes = len(class_names)
-
-model = efficientnet_b0(weights=None)
-in_features = model.classifier[1].in_features
-model.classifier[1] = torch.nn.Linear(in_features, num_classes)
-model.load_state_dict(checkpoint["model_state_dict"])
-model = model.to(DEVICE)
+model, class_names, meta = get_default_model()
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+model.to(DEVICE)
 model.eval()
 
-# Target layer for Grad-CAM (last feature block)
-_target_layer = model.features[-1]
+# Target layer for Grad-CAM
+# ConvNeXt class provides a helper property; EfficientNet is hardcoded
+if meta["model_type"] == "convnext_small":
+    _target_layer = model.target_layer
+else:
+    _target_layer = model.features[-1]
 
 # Serialise forward+backward so concurrent async requests don't mix gradients
 _gradcam_lock = threading.Lock()

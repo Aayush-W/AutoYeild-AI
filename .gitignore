@@ -42,3 +42,7 @@ __pycache__/
 .dist/
 *.log
 outputs/debug/
+outputs/finetune/
+
+# Model weights (Large Files)
+models/*.pt
