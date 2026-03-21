@@ -74,7 +74,7 @@ GEMINI_API_KEY=your_key_here
 GEMINI_MODEL=gemini-1.5-flash
 ```
 
-Without these, the system uses deterministic fallback rules.
+Without these, the system uses  fallback rules.
 
 ## Project Structure
 
