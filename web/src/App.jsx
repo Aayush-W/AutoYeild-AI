@@ -10,6 +10,7 @@ import DriftMonitoring from "./pages/DriftMonitoring.jsx";
 import SyntheticData from "./pages/SyntheticData.jsx";
 import AutoRetraining from "./pages/AutoRetraining.jsx";
 import LogsArtifacts from "./pages/LogsArtifacts.jsx";
+import BatchInspection from "./pages/BatchInspection.jsx";
 import { InspectionProvider } from "./context/InspectionContext.jsx";
 
 function AppRoutes() {
@@ -81,6 +82,7 @@ function AppRoutes() {
         <Route path="/synthetic-data" element={<SyntheticData />} />
         <Route path="/auto-retraining" element={<AutoRetraining />} />
         <Route path="/logs" element={<LogsArtifacts />} />
+        <Route path="/batch-inspection" element={<BatchInspection />} />
         <Route path="*" element={<Navigate to="/overview" replace />} />
       </Routes>
     </Layout>

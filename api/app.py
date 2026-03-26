@@ -10,7 +10,7 @@ import uuid
 from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Literal
+from typing import Any, Dict, List, Literal, Optional
 
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,6 +22,13 @@ from src.reasoning.root_cause_agent import analyze_defect
 from src.autonomy.drift_monitor import get_drift_monitor
 from src.autonomy.triage_agent import triage
 from src.self_improvement.synthetic_generator import generate_synthetic_images
+from src.batch.batch_processor import (
+    start_batch_job,
+    get_batch_job,
+    prepare_images_from_uploads,
+    MAX_IMAGES,
+    MAX_ARCHIVE_MB,
+)
 
 from config.db import async_db
 from api.services.explainability_engine import generate_explanation
@@ -581,3 +588,91 @@ def schedule_retrain(min_drift_events: int = 1):
     Pass min_drift_events as a query param to override the threshold.
     """
     return trigger_retraining(min_drift_events=min_drift_events)
+
+
+# ---------------------------------------------------------------------------
+# Batch Inspect endpoints  (POST + GET, two aliases each)
+# ---------------------------------------------------------------------------
+
+async def _handle_batch_predict(
+    images: List[UploadFile] = File(default=[]),
+    archive: Optional[UploadFile] = File(default=None),
+    include_visualization: bool = Form(True),
+    enable_genai: bool = Form(False),
+):
+    image_files: List[tuple] = []
+    for upload in images:
+        if upload.filename:
+            raw = await upload.read()
+            image_files.append((upload.filename, raw))
+
+    archive_files: List[tuple] = []
+    if archive and archive.filename:
+        archive_raw = await archive.read()
+        size_mb = len(archive_raw) / (1024 * 1024)
+        if size_mb > MAX_ARCHIVE_MB:
+            raise HTTPException(
+                status_code=413,
+                detail=f"Archive exceeds {MAX_ARCHIVE_MB} MB limit.",
+            )
+        archive_files.append((archive.filename, archive_raw))
+
+    try:
+        named_images = prepare_images_from_uploads(image_files, archive_files)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+        
+    if not named_images:
+        raise HTTPException(status_code=400, detail="No valid image files found.")
+    if len(named_images) > MAX_IMAGES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Batch exceeds maximum of {MAX_IMAGES} images.",
+        )
+
+    try:
+        job_id = await start_batch_job(
+            named_images,
+            include_visualization=include_visualization,
+            enable_genai=enable_genai,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return {"job_id": job_id, "status": "queued", "total": len(named_images)}
+
+
+@app.post("/api/batch_predict")
+async def batch_predict_api(
+    images: List[UploadFile] = File(default=[]),
+    archive: Optional[UploadFile] = File(default=None),
+    include_visualization: bool = Form(True),
+    enable_genai: bool = Form(False),
+):
+    return await _handle_batch_predict(images, archive, include_visualization, enable_genai)
+
+
+@app.post("/batch_predict")
+async def batch_predict_root(
+    images: List[UploadFile] = File(default=[]),
+    archive: Optional[UploadFile] = File(default=None),
+    include_visualization: bool = Form(True),
+    enable_genai: bool = Form(False),
+):
+    return await _handle_batch_predict(images, archive, include_visualization, enable_genai)
+
+
+async def _handle_batch_status(job_id: str):
+    state = await get_batch_job(job_id)
+    if state is None:
+        raise HTTPException(status_code=404, detail=f"Batch job '{job_id}' not found.")
+    return state
+
+
+@app.get("/api/batch_predict/{job_id}")
+async def batch_status_api(job_id: str):
+    return await _handle_batch_status(job_id)
+
+
+@app.get("/batch_predict/{job_id}")
+async def batch_status_root(job_id: str):
+    return await _handle_batch_status(job_id)

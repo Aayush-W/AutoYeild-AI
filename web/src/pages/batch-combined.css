@@ -1,0 +1,102 @@
+.batch-combined-panel {
+  width: 100%;
+  border: 1px solid var(--stroke-minor);
+  background: var(--bg-1);
+  border-radius: var(--r-md);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.batch-combined-images {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.batch-combined-image-card {
+  border: 1px solid var(--stroke-minor);
+  border-radius: var(--r-sm);
+  background: var(--panel);
+  overflow: hidden;
+}
+
+.batch-combined-caption {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--stroke-minor);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.batch-combined-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+}
+
+.batch-combined-prediction {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.batch-comparison-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.batch-comparison-item {
+  border: 1px solid var(--stroke-minor);
+  border-radius: var(--r-sm);
+  background: var(--panel);
+  padding: 8px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--muted);
+}
+
+.batch-comparison-item strong {
+  color: var(--text);
+  font-size: 10px;
+}
+
+.batch-comparison-conclusion {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--stroke-minor);
+  background: var(--panel);
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.batch-inline-error {
+  border: 1px dashed var(--accent-danger);
+  border-radius: var(--r-sm);
+  color: var(--accent-danger);
+  background: color-mix(in srgb, var(--accent-danger) 8%, transparent);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  padding: 8px 10px;
+}
+
+@media (max-width: 900px) {
+  .batch-combined-images {
+    grid-template-columns: 1fr;
+  }
+}

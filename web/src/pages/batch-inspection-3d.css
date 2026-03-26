@@ -1,0 +1,827 @@
+.batch3d-page {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-bottom: 36px;
+}
+
+.batch3d-page::before {
+  content: "";
+  position: fixed;
+  inset: 52px 0 0 240px;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 14%, rgba(14, 165, 233, 0.16), transparent 36%),
+    radial-gradient(circle at 80% 82%, rgba(239, 68, 68, 0.14), transparent 42%),
+    repeating-linear-gradient(
+      0deg,
+      rgba(148, 163, 184, 0.08) 0 1px,
+      transparent 1px 36px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(148, 163, 184, 0.08) 0 1px,
+      transparent 1px 36px
+    ),
+    linear-gradient(180deg, #04070f 0%, #070b14 60%, #0a101d 100%);
+  z-index: 0;
+}
+
+.batch3d-page > * {
+  position: relative;
+  z-index: 1;
+}
+
+.batch3d-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 14px;
+  padding: 18px 20px;
+  background: rgba(7, 11, 20, 0.75);
+  backdrop-filter: blur(8px);
+}
+
+.batch3d-kicker {
+  margin: 0 0 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #67e8f9;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+}
+
+.batch3d-header h1 {
+  margin: 0;
+  font-size: 31px;
+  line-height: 1.06;
+  color: #e2e8f0;
+  letter-spacing: -0.03em;
+}
+
+.batch3d-sub {
+  margin: 8px 0 0;
+  color: #93a4bc;
+  font-size: 13px;
+  max-width: 760px;
+}
+
+.batch3d-header-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.batch3d-panel {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 14px;
+  background: rgba(8, 13, 24, 0.76);
+  backdrop-filter: blur(10px);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.batch3d-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.batch3d-panel-head h2 {
+  margin: 0;
+  color: #dbe7f5;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  font-family: var(--font-mono);
+}
+
+.batch3d-panel-head span {
+  color: #8fa3bf;
+  font-size: 11px;
+  font-family: var(--font-mono);
+}
+
+.batch3d-dropzone {
+  border: 1px dashed rgba(45, 212, 191, 0.5);
+  border-radius: 12px;
+  background: rgba(10, 16, 32, 0.66);
+  min-height: 148px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 18px;
+  cursor: pointer;
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.batch3d-dropzone.is-dragging {
+  border-color: #22d3ee;
+  box-shadow: 0 0 0 1px rgba(34, 211, 238, 0.4), 0 0 28px rgba(34, 211, 238, 0.22);
+}
+
+.batch3d-drop-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 23px;
+  color: #22d3ee;
+  border: 1px solid rgba(34, 211, 238, 0.35);
+}
+
+.batch3d-drop-title {
+  color: #dbe7f5;
+  font-weight: 600;
+}
+
+.batch3d-drop-subtitle {
+  color: #90a1ba;
+  font-size: 12px;
+  font-family: var(--font-mono);
+}
+
+.batch3d-upload-controls {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.batch3d-upload-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #9bb0cb;
+  font-size: 11px;
+  font-family: var(--font-mono);
+}
+
+.batch3d-upload-controls input,
+.batch3d-upload-controls select {
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 9px;
+  padding: 8px 10px;
+  background: rgba(11, 17, 30, 0.9);
+  color: #e2e8f0;
+  font-size: 13px;
+  font-family: var(--font-body);
+}
+
+.batch3d-preview-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.batch3d-preview-item {
+  width: 74px;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 9px;
+  overflow: hidden;
+  background: rgba(9, 15, 28, 0.8);
+}
+
+.batch3d-preview-item img {
+  width: 100%;
+  height: 62px;
+  object-fit: cover;
+  display: block;
+}
+
+.batch3d-preview-item span {
+  display: block;
+  padding: 5px 6px;
+  font-size: 9px;
+  color: #9bb0cb;
+  font-family: var(--font-mono);
+}
+
+.batch3d-panel-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.batch3d-primary-btn,
+.batch3d-secondary-btn {
+  border-radius: 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 10px 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.batch3d-primary-btn {
+  border: 1px solid rgba(34, 211, 238, 0.8);
+  background: linear-gradient(135deg, rgba(8, 145, 178, 0.26), rgba(34, 197, 94, 0.16));
+  color: #cffafe;
+}
+
+.batch3d-primary-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.batch3d-secondary-btn {
+  border: 1px solid rgba(148, 163, 184, 0.38);
+  background: rgba(15, 23, 42, 0.75);
+  color: #cbd5e1;
+}
+
+.batch3d-progress-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.batch3d-progress-bar {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 999px;
+  height: 11px;
+  overflow: hidden;
+  background: rgba(10, 16, 32, 0.6);
+}
+
+.batch3d-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22d3ee, #22c55e, #eab308, #ef4444);
+  transition: width 300ms ease;
+}
+
+.batch3d-progress-meta {
+  display: flex;
+  justify-content: space-between;
+  color: #9eb2ca;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.batch3d-step-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.batch3d-step {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 10px;
+  background: rgba(8, 12, 22, 0.8);
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 10px;
+  font-family: var(--font-mono);
+}
+
+.batch3d-step .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #64748b;
+}
+
+.batch3d-step.active {
+  border-color: rgba(34, 211, 238, 0.55);
+  color: #d7f7ff;
+}
+
+.batch3d-step.active .dot {
+  background: #22d3ee;
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.6);
+}
+
+.batch3d-step.done {
+  border-color: rgba(34, 197, 94, 0.42);
+  color: #bbf7d0;
+}
+
+.batch3d-step.done .dot {
+  background: #22c55e;
+}
+
+.batch3d-mode-strip {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.batch3d-toggle-group {
+  display: inline-flex;
+  gap: 6px;
+  padding: 5px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 10px;
+  background: rgba(7, 12, 24, 0.8);
+}
+
+.batch3d-toggle-group button {
+  border: 1px solid transparent;
+  background: transparent;
+  color: #94a3b8;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 7px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.batch3d-toggle-group button.active {
+  border-color: rgba(34, 211, 238, 0.45);
+  background: rgba(8, 145, 178, 0.2);
+  color: #cffafe;
+}
+
+.batch3d-digital-twin-layout {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1.65fr 1fr;
+}
+
+.batch3d-canvas-shell {
+  min-height: 430px;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  overflow: hidden;
+  background: radial-gradient(circle at center, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 0.94));
+}
+
+.wafer-3d-frame {
+  width: 100%;
+  height: 430px;
+}
+
+.batch3d-canvas-loading {
+  height: 430px;
+  display: grid;
+  place-items: center;
+  color: #93a4bc;
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.batch3d-detail-panel {
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  border-radius: 12px;
+  background: rgba(8, 13, 25, 0.8);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.batch3d-detail-panel h3 {
+  margin: 0;
+  color: #e2e8f0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-family: var(--font-mono);
+}
+
+.batch3d-detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  color: #9eb1ca;
+  font-size: 12px;
+}
+
+.batch3d-detail-row strong {
+  color: #e2e8f0;
+}
+
+.batch3d-selected-image {
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(7, 12, 24, 0.9);
+  position: relative;
+}
+
+.batch3d-selected-image img {
+  width: 100%;
+  height: 178px;
+  object-fit: cover;
+  display: block;
+}
+
+.batch3d-selected-image span {
+  position: absolute;
+  left: 6px;
+  bottom: 6px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  font-size: 9px;
+  color: #dbeafe;
+  background: rgba(2, 6, 23, 0.78);
+  border: 1px solid rgba(148, 163, 184, 0.38);
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+
+.batch3d-selected-image-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.batch3d-detail-block {
+  border: 1px solid rgba(148, 163, 184, 0.2);
+  border-radius: 10px;
+  padding: 9px 10px;
+  background: rgba(11, 17, 31, 0.8);
+}
+
+.batch3d-detail-block h4 {
+  margin: 0 0 7px;
+  color: #9cd6ff;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+
+.batch3d-detail-block ul {
+  margin: 0;
+  padding-left: 16px;
+  color: #9eb1ca;
+  font-size: 12px;
+  display: grid;
+  gap: 4px;
+}
+
+.batch3d-detail-block p {
+  margin: 0;
+  color: #c7d4e7;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.batch3d-sample-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.batch3d-sample-item {
+  border: 1px solid rgba(148, 163, 184, 0.26);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(8, 13, 24, 0.9);
+  position: relative;
+}
+
+.batch3d-sample-item img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  display: block;
+}
+
+.batch3d-sample-item span {
+  display: block;
+  padding: 4px 6px;
+  color: #9eb1ca;
+  font-size: 9px;
+  font-family: var(--font-mono);
+}
+
+.batch3d-sample-heatmap {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid rgba(148, 163, 184, 0.42);
+  object-fit: cover;
+  box-shadow: 0 0 0 1px rgba(2, 6, 23, 0.64);
+}
+
+.batch3d-sample-placeholder {
+  min-height: 62px;
+  display: grid;
+  place-items: center;
+  color: #94a3b8;
+  font-size: 9px;
+  font-family: var(--font-mono);
+}
+
+.batch3d-muted {
+  color: #93a4bc;
+  font-size: 12px;
+}
+
+.batch3d-region-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.batch3d-region-card {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-left: 4px solid var(--region-accent);
+  border-radius: 11px;
+  background: rgba(9, 15, 28, 0.8);
+  padding: 11px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.batch3d-region-card header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.batch3d-region-card h3 {
+  margin: 0;
+  color: #e2e8f0;
+  font-size: 13px;
+}
+
+.batch3d-region-card strong {
+  color: var(--region-accent);
+  font-size: 13px;
+}
+
+.batch3d-region-row {
+  color: #9bb0ca;
+  font-size: 12px;
+}
+
+.batch3d-region-row b {
+  color: #dbe7f5;
+}
+
+.batch3d-chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.batch3d-chart-card {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 12px;
+  background: rgba(8, 13, 24, 0.74);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.batch3d-chart-card.full {
+  grid-column: 1 / -1;
+}
+
+.batch3d-chart-card h3 {
+  margin: 0;
+  color: #dbe7f5;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+
+.batch3d-bar-chart {
+  display: grid;
+  gap: 8px;
+}
+
+.batch3d-bar-row {
+  display: grid;
+  gap: 5px;
+}
+
+.batch3d-bar-meta {
+  display: flex;
+  justify-content: space-between;
+  color: #9eb1ca;
+  font-size: 11px;
+}
+
+.batch3d-bar-track {
+  height: 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  overflow: hidden;
+  background: rgba(8, 13, 24, 0.9);
+}
+
+.batch3d-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #22d3ee, #f59e0b, #ef4444);
+}
+
+.batch3d-pie-wrap {
+  display: grid;
+  grid-template-columns: 126px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.batch3d-pie {
+  width: 126px;
+  height: 126px;
+  border-radius: 50%;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  box-shadow: 0 0 18px rgba(8, 145, 178, 0.2);
+}
+
+.batch3d-pie-legend {
+  display: grid;
+  gap: 7px;
+}
+
+.batch3d-pie-item {
+  display: grid;
+  grid-template-columns: 10px 1fr auto;
+  gap: 8px;
+  align-items: center;
+  color: #9eb1ca;
+  font-size: 11px;
+}
+
+.batch3d-pie-item strong {
+  color: #dbe7f5;
+}
+
+.batch3d-pie-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.batch3d-trend-chart {
+  width: 100%;
+  height: 180px;
+}
+
+.batch3d-chart-empty {
+  min-height: 120px;
+  display: grid;
+  place-items: center;
+  color: #9eb1ca;
+  font-size: 12px;
+}
+
+.batch3d-insight-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.batch3d-insight-grid article {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 12px;
+  background: rgba(8, 13, 24, 0.75);
+  padding: 12px;
+}
+
+.batch3d-insight-grid h3 {
+  margin: 0 0 8px;
+  color: #dbe7f5;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+}
+
+.batch3d-insight-grid p,
+.batch3d-insight-grid li {
+  color: #9eb1ca;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.batch3d-insight-grid ul {
+  margin: 0;
+  padding-left: 16px;
+  display: grid;
+  gap: 4px;
+}
+
+.batch3d-error-banner {
+  border: 1px solid rgba(248, 113, 113, 0.42);
+  background: rgba(127, 29, 29, 0.25);
+  color: #fecaca;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+}
+
+.wafer-hover-card {
+  border: 1px solid rgba(14, 165, 233, 0.6);
+  border-radius: 10px;
+  padding: 8px 9px;
+  min-width: 180px;
+  background: rgba(2, 6, 23, 0.9);
+  color: #dbe7f5;
+  font-size: 11px;
+  box-shadow: 0 0 28px rgba(14, 165, 233, 0.24);
+}
+
+.wafer-hover-title {
+  color: #22d3ee;
+  margin-bottom: 6px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: var(--font-mono);
+}
+
+.wafer-hover-row {
+  color: #bfdbfe;
+}
+
+.wafer-hover-image {
+  width: 140px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 7px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.batch3d-composite-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.batch3d-composite-grid img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+}
+
+@media (max-width: 1180px) {
+  .batch3d-digital-twin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .wafer-3d-frame,
+  .batch3d-canvas-loading {
+    height: 380px;
+  }
+
+  .batch3d-chart-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .batch3d-insight-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .batch3d-sample-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .batch3d-selected-image-grid,
+  .batch3d-composite-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .batch3d-upload-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .batch3d-step-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .batch3d-header h1 {
+    font-size: 25px;
+  }
+
+  .batch3d-pie-wrap {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
+  .batch3d-sample-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "pythonVersion": "3.11",
+  "venvPath": ".",
+  "venv": ".venv",
+  "include": [
+    "src",
+    "api",
+    "config",
+    "scripts"
+  ],
+  "extraPaths": [
+    "."
+  ],
+  "typeCheckingMode": "basic"
+}

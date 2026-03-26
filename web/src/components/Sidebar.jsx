@@ -9,6 +9,7 @@ const navGroups = [
       { path: "/defect-detection", icon: "analytics", label: "Defect Detection" },
       { path: "/explainability", icon: "visibility", label: "Explainability" },
       { path: "/root-cause", icon: "manage_search", label: "Root Cause" },
+      { path: "/batch-inspection", icon: "grid_view", label: "Batch Inspection" },
     ],
   },
   {

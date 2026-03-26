@@ -11,6 +11,8 @@ const PAGE_TITLES = {
   "/synthetic-data": ["SYNTH_DATA_GEN", "Synthetic Data"],
   "/auto-retraining": ["AUTO_RETRAIN_LOOP", "Auto-Retraining"],
   "/logs": ["ARTIFACT_LOG", "Logs & Artifacts"],
+  "/batch-inspection": ["SPATIAL_DEFECT_INTEL", "Batch Inspection"],
+
 };
 
 export default function Topbar({ overviewMode, setOverviewMode }) {
