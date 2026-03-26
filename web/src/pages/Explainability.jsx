@@ -2,7 +2,49 @@ import { useState } from "react";
 import { useInspection } from "../context/InspectionContext.jsx";
 import { useNavigate } from "react-router-dom";
 
-// All existing logic PRESERVED
+function ExplainabilityBlock({ title, icon, section, numbered = false }) {
+  const bullets = section?.bullets ?? [];
+  const explanation = section?.explanation ?? [];
+  const steps = section?.steps ?? [];
+
+  return (
+    <div style={{ marginBottom: 18, paddingBottom: 14, borderBottom: "1px solid var(--stroke)" }}>
+      <div className="card-title" style={{ marginBottom: 8 }}>
+        <span className="material-symbols-rounded">{icon}</span>
+        {title}
+      </div>
+      {bullets.length > 0 && (
+        <ul style={{ fontSize: 12, color: "var(--secondary)", lineHeight: 1.6, paddingLeft: 20, margin: "0 0 10px 0" }}>
+          {bullets.map((item, index) => (
+            <li key={index}>{item}</li>
+          ))}
+        </ul>
+      )}
+      {explanation.length > 0 && (
+        <div style={{ display: "grid", gap: 6 }}>
+          {explanation.map((line, index) => (
+            <div key={index} style={{ fontSize: 12, color: "var(--secondary)", lineHeight: 1.6 }}>
+              {line}
+            </div>
+          ))}
+        </div>
+      )}
+      {steps.length > 0 && (
+        <div style={{ display: "grid", gap: 8 }}>
+          {steps.map((step, index) => (
+            <div key={index} className="insight-action">
+              <span className="material-symbols-rounded">
+                {numbered ? "format_list_numbered" : "select_check_box"}
+              </span>
+              <div className="insight-action-text">{numbered ? `${index + 1}. ${step}` : step}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Explainability() {
   const { inspection } = useInspection();
   const navigate = useNavigate();
@@ -13,7 +55,17 @@ export default function Explainability() {
 
   const confidence = hasData ? Math.round(inspection.confidence * 100) : null;
   const reasoning = inspection?.reasoning ?? {};
-  const aiInsight = inspection?.ai_insight;
+  const explainability = inspection?.explainability_analysis ?? inspection?.ai_insight ?? null;
+  const heatmapAnalysis = inspection?.heatmap_analysis ?? inspection?.triage ?? {};
+  const meta = explainability?.metadata ?? {};
+
+  const predictionReasoning = explainability?.prediction_reasoning ?? { bullets: [], explanation: [] };
+  const heatmapInterpretation = explainability?.heatmap_interpretation ?? { bullets: [], explanation: [] };
+  const defectPatternContext = explainability?.defect_pattern_context ?? { bullets: [], explanation: [] };
+  const confidenceAnalysis = explainability?.confidence_analysis ?? { bullets: [], explanation: [] };
+  const driftImpact = explainability?.drift_impact ?? { bullets: [], explanation: [] };
+  const engineeringInterpretation = explainability?.engineering_interpretation ?? { bullets: [], explanation: [] };
+  const recommendedSteps = explainability?.recommended_investigation_steps ?? [];
 
   const Toggle = ({ checked, onChange, label }) => (
     <div className="param-row" style={{ paddingBottom: 0, borderBottom: "none" }}>
@@ -27,7 +79,6 @@ export default function Explainability() {
 
   return (
     <>
-      {/* Section Header */}
       <div className="section-header">
         <div>
           <div className="section-title">GradCAM Analysis</div>
@@ -63,42 +114,46 @@ export default function Explainability() {
         </div>
       )}
 
-      {/* Top row: Active Model Status + Feature Drift */}
       <div className="grid-2">
-        {/* Active Model Status */}
         <div className="model-status-widget" style={{ flexDirection: "column", alignItems: "flex-start", gap: 10 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, width: "100%" }}>
             <div className="engine-status-dot" />
             <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Active Model Status</div>
           </div>
           <div className="model-status-name">DefectNet-v4.2-TRT</div>
-          <div style={{ display: "flex", gap: 12 }}>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <div>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Target Layer</div>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 700, color: "var(--text)", marginTop: 2 }}>M2_Cu</div>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 700, color: "var(--text)", marginTop: 2 }}>
+                {meta.target_layer ?? "M2_Cu"}
+              </div>
             </div>
             <div>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Lot ID</div>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 700, color: "var(--text)", marginTop: 2 }}>L-9921</div>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 700, color: "var(--text)", marginTop: 2 }}>
+                {meta.lot_id ?? inspection?.inspection_id ?? "N/A"}
+              </div>
             </div>
             <div>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Process Tool</div>
-              <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 700, color: "var(--text)", marginTop: 2 }}>Litho-04</div>
+              <div style={{ fontFamily: "var(--font-mono)", fontSize: 12, fontWeight: 700, color: "var(--text)", marginTop: 2 }}>
+                {meta.inspection_tool ?? "Litho-04"}
+              </div>
             </div>
           </div>
           <div className="model-status-badge">ACTIVE</div>
         </div>
 
-        {/* Feature Drift Monitor */}
         <div className="card">
           <div className="card-header">
             <div className="card-title">
               <span className="material-symbols-rounded">monitor_heart</span>
               FEATURE DRIFT MONITOR
             </div>
-            <span className="chip warn">WATCH</span>
+            <span className={`chip ${inspection?.drift_detected ? "warn" : "success"}`}>
+              {inspection?.drift_detected ? "WATCH" : "STABLE"}
+            </span>
           </div>
-          {/* Mini drift chart */}
           <div style={{ height: 80, display: "flex", alignItems: "flex-end", gap: 3 }}>
             {[30, 42, 38, 55, 48, 60, 72, 65, 80, 74, 88, 78, 85, 92, 78, 68, 74, 80, 76, 72, 68, 85, 90, 95].map((v, i) => (
               <div key={i} style={{
@@ -106,17 +161,15 @@ export default function Explainability() {
                 height: `${v}%`,
                 background: v > 80 ? "var(--accent)" : v > 60 ? "var(--accent-warn)" : "rgba(0,0,0,0.12)",
                 borderRadius: 0,
-                transition: "background 0.2s",
               }} title={`${v}%`} />
             ))}
           </div>
           <div className="stat-foot" style={{ marginTop: 8 }}>
-            // Focus drift score over last 24 exposures · Litho-04
+            {driftImpact.bullets?.[0] ?? "// Focus drift score over last 24 exposures"}
           </div>
         </div>
       </div>
 
-      {/* Visualization Controls */}
       <div className="card">
         <div className="card-title" style={{ marginBottom: 14 }}>
           <span className="material-symbols-rounded">tune</span>
@@ -140,9 +193,7 @@ export default function Explainability() {
         </div>
       </div>
 
-      {/* AI Attention Map & Heatmap panels */}
       <div className={sideBySide ? "grid-2" : ""}>
-        {/* Original SEM */}
         <div className="card">
           <div className="card-title" style={{ marginBottom: 14 }}>
             <span className="material-symbols-rounded">image</span>
@@ -159,7 +210,6 @@ export default function Explainability() {
           )}
         </div>
 
-        {/* GradCAM Heatmap */}
         <div className="card">
           <div className="card-title" style={{ marginBottom: 14 }}>
             <span className="material-symbols-rounded">local_fire_department</span>
@@ -182,95 +232,79 @@ export default function Explainability() {
             </div>
           )}
 
-          {/* Heatmap Legend */}
           <div className="heatmap-legend" style={{ marginTop: 12 }}>
             <div className="heatmap-legend-label">LOW</div>
             <div className="heatmap-legend-bar" />
             <div className="heatmap-legend-label">HIGH</div>
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
-            {["COOL", "MODERATE", "WARM", "CRITICAL"].map(l => (
-              <div key={l} style={{ fontFamily: "var(--font-mono)", fontSize: 8, color: "var(--muted)", letterSpacing: "0.06em" }}>{l}</div>
+            {["COOL", "MODERATE", "WARM", "CRITICAL"].map((label) => (
+              <div key={label} style={{ fontFamily: "var(--font-mono)", fontSize: 8, color: "var(--muted)", letterSpacing: "0.06em" }}>{label}</div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* AI Insight Engine */}
       <div className="card" style={{ borderLeft: "3px solid var(--accent)" }}>
         <div className="card-title" style={{ marginBottom: 16 }}>
           <span className="material-symbols-rounded">psychology</span>
-          AI INSIGHT ENGINE
+          EXPLAINABILITY ANALYSIS
         </div>
 
-        {!aiInsight ? (
+        {!explainability ? (
           <div style={{ fontSize: 13, color: "var(--muted)", fontStyle: "italic", padding: "12px 0" }}>
             // No automated reasoning available for this inspection yet.
           </div>
         ) : (
           <>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
-              <div style={{ fontSize: 14, color: "var(--secondary)", lineHeight: 1.7, fontStyle: "italic", flex: 1, paddingRight: 16 }}>
-                {aiInsight.summary}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16, gap: 12 }}>
+              <div style={{ fontSize: 13, color: "var(--secondary)", lineHeight: 1.7, flex: 1 }}>
+                {explainability.summary}
               </div>
-              {aiInsight.certainty && (
-                <span className={`chip ${aiInsight.certainty === 'high' ? 'success' : aiInsight.certainty === 'low' ? 'warn' : 'info'}`} style={{ textTransform: "capitalize", flexShrink: 0 }}>
-                  {aiInsight.certainty} Confidence
+              {explainability.certainty && (
+                <span className={`chip ${explainability.certainty === "high" ? "success" : explainability.certainty === "low" ? "warn" : "info"}`} style={{ textTransform: "capitalize", flexShrink: 0 }}>
+                  {explainability.certainty} confidence
                 </span>
               )}
             </div>
 
-            {aiInsight.reasoning_basis?.length > 0 && (
-              <div style={{ marginTop: 16, padding: "12px 14px", background: "var(--bg-1)", border: "1px solid var(--stroke)" }}>
-                <div className="card-title" style={{ marginBottom: 8 }}>
-                  <span className="material-symbols-rounded">list</span>
-                  NEURAL RATIONALE
-                </div>
-                <ul style={{ fontSize: 12, color: "var(--secondary)", lineHeight: 1.6, paddingLeft: 20, margin: 0 }}>
-                  {aiInsight.reasoning_basis.map((basis, i) => (
-                    <li key={i}>{basis}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <div className="card-title" style={{ marginBottom: 10, marginTop: 16 }}>
-              <span className="material-symbols-rounded">build</span>
-              RECOMMENDED ACTIONS
+            <div style={{ maxHeight: 560, overflowY: "auto", paddingRight: 6 }}>
+              <ExplainabilityBlock title="Prediction Reasoning" icon="analytics" section={predictionReasoning} />
+              <ExplainabilityBlock title="Heatmap Interpretation" icon="local_fire_department" section={heatmapInterpretation} />
+              <ExplainabilityBlock title="Defect Pattern Context" icon="library_books" section={defectPatternContext} />
+              <ExplainabilityBlock title="Confidence Analysis" icon="verified" section={confidenceAnalysis} />
+              <ExplainabilityBlock title="Drift Impact" icon="monitor_heart" section={driftImpact} />
+              <ExplainabilityBlock title="Engineering Interpretation" icon="precision_manufacturing" section={engineeringInterpretation} />
+              <ExplainabilityBlock
+                title="Recommended Investigation Steps"
+                icon="checklist"
+                section={{ steps: recommendedSteps }}
+                numbered
+              />
             </div>
 
-            {aiInsight.recommended_checks?.map((action, i) => (
-              <div className="insight-action" key={i}>
-                <span className="material-symbols-rounded">select_check_box</span>
-                <div className="insight-action-text">{action}</div>
+            {explainability.rag_sources?.length > 0 && (
+              <div style={{ marginTop: 16, borderTop: "1px solid var(--stroke)", paddingTop: 12, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                <span className="material-symbols-rounded" style={{ fontSize: 14, color: "var(--muted)" }}>library_books</span>
+                <span style={{ fontSize: 11, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Sources:</span>
+                {explainability.rag_sources.map((src, index) => (
+                  <span key={index} style={{ fontSize: 11, color: "var(--secondary)", background: "var(--bg-1)", padding: "2px 6px", borderRadius: 4, border: "1px solid var(--stroke)" }}>
+                    {src.replace(".txt", "")}
+                  </span>
+                ))}
               </div>
-            ))}
-
-            {aiInsight.rag_sources?.length > 0 && (
-               <div style={{ marginTop: 16, borderTop: "1px solid var(--stroke)", paddingTop: 12, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                 <span className="material-symbols-rounded" style={{ fontSize: 14, color: "var(--muted)" }}>library_books</span>
-                 <span style={{ fontSize: 11, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.05em" }}>Sources:</span>
-                 {aiInsight.rag_sources.map((src, i) => (
-                   <span key={i} style={{ fontSize: 11, color: "var(--secondary)", background: "var(--bg-1)", padding: "2px 6px", borderRadius: 4, border: "1px solid var(--stroke)" }}>
-                     {src.replace('.txt', '')}
-                   </span>
-                 ))}
-               </div>
             )}
-            
-            {/* Optional debug flag if fallback was used */}
-            {aiInsight.fallback_used && (
+
+            {explainability.fallback_used && (
               <div style={{ marginTop: 12, fontSize: 10, color: "var(--accent-warn)", textAlign: "right" }}>
-                * Deterministic fallback active
+                * Fallback reasoning active
               </div>
             )}
           </>
         )}
       </div>
 
-      {/* Model Fidelity + Triage */}
       <div className="grid-2">
-        {/* Model Fidelity */}
         <div className="reasoning-panel">
           <div className="reasoning-panel-title">
             <span className="material-symbols-rounded" style={{ fontSize: 13 }}>verified</span>
@@ -285,12 +319,13 @@ export default function Explainability() {
               <div className="progress thick">
                 <span style={{ width: `${confidence}%` }} />
               </div>
-              <div className="stat-foot" style={{ marginTop: 10 }}>
-                {confidence >= 90
-                  ? "// High-fidelity match — strong class alignment"
-                  : confidence >= 70
-                    ? "// Moderate fidelity — secondary class candidates present"
-                    : "// Low fidelity — consider retraining or manual review"}
+              <div style={{ display: "grid", gap: 6, marginTop: 10 }}>
+                {(confidenceAnalysis.bullets ?? []).slice(0, 3).map((item, index) => (
+                  <div key={index} className="stat-foot">{item}</div>
+                ))}
+                {(confidenceAnalysis.explanation ?? []).slice(0, 2).map((item, index) => (
+                  <div key={`exp-${index}`} className="stat-foot">{item}</div>
+                ))}
               </div>
             </div>
           ) : (
@@ -298,30 +333,32 @@ export default function Explainability() {
           )}
         </div>
 
-        {/* Region of Interest */}
         <div className="reasoning-panel">
           <div className="reasoning-panel-title">
             <span className="material-symbols-rounded" style={{ fontSize: 13 }}>my_location</span>
             REGION OF INTEREST
           </div>
-          <div className="reasoning-panel-body">
-            {reasoning.cause_summary ?? (
-              hasData
-                ? "The attention mechanism is focused on high-activation regions corresponding to the detected defect pattern."
-                : "// Run an analysis to see the spatial attention region."
-            )}
+          <div style={{ display: "grid", gap: 6 }}>
+            {(heatmapInterpretation.bullets ?? []).slice(0, 4).map((item, index) => (
+              <div key={index} className="reasoning-panel-body">{item}</div>
+            ))}
+            {(heatmapInterpretation.explanation ?? []).slice(0, 2).map((item, index) => (
+              <div key={`heat-${index}`} className="reasoning-panel-body">{item}</div>
+            ))}
           </div>
-          {hasData && inspection.triage && (
-            <div style={{ marginTop: 12 }}>
-              <span className={`chip ${inspection.triage.priority === "high" ? "warn" : "info"}`}>
-                PRIORITY: {inspection.triage.priority ?? "NORMAL"}
+          {hasData && (
+            <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <span className={`chip ${inspection.triage?.priority === "high" ? "warn" : "info"}`}>
+                PRIORITY: {inspection.triage?.priority ?? "NORMAL"}
+              </span>
+              <span className="chip info">
+                REGION: {heatmapAnalysis.dominant_region ?? "N/A"}
               </span>
             </div>
           )}
         </div>
       </div>
 
-      {/* Synthetic images (if drift triggered) — PRESERVED */}
       {hasData && inspection.synthetic_images?.length > 0 && (
         <div className="card">
           <div className="card-title" style={{ marginBottom: 14 }}>

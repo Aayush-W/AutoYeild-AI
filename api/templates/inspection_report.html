@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>AutoYield AI Inspection Report</title>
+    <style>
+        /* __INJECT_STYLES_HERE__ */
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>AutoYield AI - Visual Wafer Inspection Report</h1>
+        <p>Inspection ID: <strong>{{ inspection_id }}</strong> | Generated: {{ generated_at }}</p>
+    </div>
+
+    <!-- Page 1 -->
+    <div class="section">
+        <h2>1. Executive Dashboard</h2>
+
+        <!-- Row 1 -->
+        <div class="kpi-container">
+            <div class="kpi-row">
+                <div class="kpi-card {{ severity_color }}">
+                    <h3>Defect Class</h3>
+                    <p class="kpi-value">{{ defect_class }}</p>
+                </div>
+                <div class="kpi-spacer"></div>
+                <div class="kpi-card">
+                    <h3>Confidence Score</h3>
+                    <p class="kpi-value">{{ confidence_score }}</p>
+                </div>
+                <div class="kpi-spacer"></div>
+                <div class="kpi-card {{ severity_color }}">
+                    <h3>Severity Level</h3>
+                    <p class="kpi-value">{{ severity_level }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="kpi-container">
+            <div class="kpi-row">
+                <div class="kpi-card">
+                    <h3>Drift Status</h3>
+                    <p class="kpi-value">{{ drift_status }}</p>
+                </div>
+                <div class="kpi-spacer"></div>
+                <div class="kpi-card">
+                    <h3>Inference Time</h3>
+                    <p class="kpi-value">{{ inference_time }}</p>
+                </div>
+                <div class="kpi-spacer"></div>
+                <div class="kpi-card {{ severity_color }}">
+                    <h3>Yield Risk</h3>
+                    <p class="kpi-value">{{ severity_level }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>2. Prediction Confidence Chart</h2>
+        <div class="chart-container">
+            <img src="{{ confidence_chart }}" alt="Confidence Chart">
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>3. Explainability Visualization & AI Insight</h2>
+        <div class="heatmap-section">
+            <div class="heatmap-cell">
+                <img src="{{ wafer_image }}" alt="Original Wafer">
+            </div>
+            <div class="heatmap-cell">
+                <img src="{{ heatmap_overlay }}" alt="Heatmap Overlay">
+            </div>
+        </div>
+        <div class="metrics-box">
+            <p><strong>Hotspots detected:</strong> {{ hotspots_detected }}</p>
+            <p><strong>Activation spread:</strong> {{ activation_spread }}</p>
+            <p><strong>Dominant region:</strong> {{ dominant_region }}</p>
+        </div>
+        <div class="ai-insight-box">
+            <h4>Generative AI Insight</h4>
+            <div class="ai-text">{{ ai_insight_text }}</div>
+        </div>
+    </div>
+
+    <!-- Forcing page break for WeasyPrint logic -->
+    <div style="page-break-before: always;"></div>
+
+    <!-- Page 2 -->
+    <div class="section">
+        <h2>4. Drift Monitoring Graph</h2>
+        <div class="chart-container">
+            <img src="{{ drift_chart }}" alt="Drift Trend Chart">
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>5. Defect Distribution</h2>
+        <div class="chart-container">
+            <img src="{{ defect_pie }}" alt="Defect Pie Chart">
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>6. Root Cause Evidence</h2>
+        <ul class="root-cause-list">
+            {{ root_cause_html }}
+        </ul>
+    </div>
+
+    <div style="page-break-before: always;"></div>
+
+    <!-- Page 3 -->
+    <div class="section">
+        <h2>7. Operational Impact Charts</h2>
+        <div class="chart-container">
+            <img src="{{ impact_chart }}" alt="Impact Bar Chart">
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>8. Recommended Actions Checklist</h2>
+        <ul class="actions">
+            {{ recommended_actions_html }}
+        </ul>
+    </div>
+
+    <div style="page-break-before: always;"></div>
+
+    <!-- Page 4 -->
+    <div class="section">
+        <h2>9. Manufacturing Analytics (Economic Impact)</h2>
+        {{ manufacturing_metrics_html }}
+    </div>
+
+    <div class="section">
+        <h2>10. Recent Inspection History</h2>
+        <table class="history-table">
+            <thead>
+                <tr>
+                    <th>Inspection ID</th>
+                    <th>Timestamp</th>
+                    <th>Defect Class</th>
+                    <th>Confidence</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ history_table_html }}
+            </tbody>
+        </table>
+    </div>
+
+</body>
+
+</html>

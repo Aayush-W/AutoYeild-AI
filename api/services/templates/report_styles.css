@@ -1,0 +1,282 @@
+@page {
+  size: A4;
+  margin: 16mm 14mm;
+}
+
+:root {
+  --paper: #f3f5f7;
+  --panel: #ffffff;
+  --panel-soft: #eef2f6;
+  --text: #132033;
+  --muted: #667085;
+  --border: rgba(17, 24, 39, 0.10);
+  --shadow: rgba(15, 23, 42, 0.08);
+  --danger: #d64545;
+  --warn: #d97706;
+  --success: #1f9d63;
+  --info: #2563eb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, Arial, sans-serif;
+  background: var(--paper);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.report-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  background: linear-gradient(135deg, #0f172a 0%, #1f2937 100%);
+  color: #ffffff;
+  border-radius: 16px;
+  padding: 22px 24px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.hero-meta {
+  display: grid;
+  gap: 10px;
+  min-width: 220px;
+}
+
+.meta-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.meta-card span {
+  display: block;
+  font-size: 10px;
+  opacity: 0.74;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.meta-card strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 14px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.section-heading p,
+.panel-header p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.kpi-grid,
+.two-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.kpi-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.kpi-card,
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 10px 20px var(--shadow);
+}
+
+.kpi-card {
+  padding: 16px 18px;
+  min-height: 104px;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: #cbd5e1;
+}
+
+.kpi-card.success::after {
+  background: var(--success);
+}
+
+.kpi-card.warn::after {
+  background: var(--warn);
+}
+
+.kpi-card.danger::after {
+  background: var(--danger);
+}
+
+.kpi-card.info::after {
+  background: var(--info);
+}
+
+.kpi-label {
+  color: var(--muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+
+.kpi-value {
+  margin-top: 10px;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.kpi-subtext {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.panel {
+  padding: 16px 18px;
+}
+
+.panel.compact {
+  padding-bottom: 8px;
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.chart-image,
+.visual-image {
+  display: block;
+  width: 100%;
+  border-radius: 12px;
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+}
+
+.visuals .panel {
+  min-height: 300px;
+}
+
+.visual-image {
+  height: 280px;
+  object-fit: contain;
+  padding: 8px;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px 16px;
+}
+
+.metric-row {
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.metric-label {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.metric-value {
+  display: block;
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.bullet-list,
+.signal-list,
+.checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.bullet-list li,
+.signal-list li,
+.checklist li {
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 11px 12px;
+}
+
+.signal-list li::before {
+  content: "✔";
+  color: var(--success);
+  margin-right: 8px;
+  font-weight: 700;
+}
+
+.checklist li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.checkbox {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 2px solid var(--info);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.page-break {
+  page-break-before: always;
+}

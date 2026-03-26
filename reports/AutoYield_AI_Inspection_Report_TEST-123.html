@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AutoYield AI Inspection Report</title>
+  <style>
+@page {
+  size: A4;
+  margin: 16mm 14mm;
+}
+
+:root {
+  --paper: #f3f5f7;
+  --panel: #ffffff;
+  --panel-soft: #eef2f6;
+  --text: #132033;
+  --muted: #667085;
+  --border: rgba(17, 24, 39, 0.10);
+  --shadow: rgba(15, 23, 42, 0.08);
+  --danger: #d64545;
+  --warn: #d97706;
+  --success: #1f9d63;
+  --info: #2563eb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, Arial, sans-serif;
+  background: var(--paper);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.report-shell {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.hero {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  background: linear-gradient(135deg, #0f172a 0%, #1f2937 100%);
+  color: #ffffff;
+  border-radius: 16px;
+  padding: 22px 24px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.72;
+}
+
+.hero h1 {
+  margin: 0;
+  font-size: 28px;
+  line-height: 1.1;
+}
+
+.hero-meta {
+  display: grid;
+  gap: 10px;
+  min-width: 220px;
+}
+
+.meta-card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.meta-card span {
+  display: block;
+  font-size: 10px;
+  opacity: 0.74;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.meta-card strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 14px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.section-heading h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.section-heading p,
+.panel-header p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.kpi-grid,
+.two-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.kpi-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.kpi-card,
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 10px 20px var(--shadow);
+}
+
+.kpi-card {
+  padding: 16px 18px;
+  min-height: 104px;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: #cbd5e1;
+}
+
+.kpi-card.success::after {
+  background: var(--success);
+}
+
+.kpi-card.warn::after {
+  background: var(--warn);
+}
+
+.kpi-card.danger::after {
+  background: var(--danger);
+}
+
+.kpi-card.info::after {
+  background: var(--info);
+}
+
+.kpi-label {
+  color: var(--muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+
+.kpi-value {
+  margin-top: 10px;
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.kpi-subtext {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.panel {
+  padding: 16px 18px;
+}
+
+.panel.compact {
+  padding-bottom: 8px;
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.chart-image,
+.visual-image {
+  display: block;
+  width: 100%;
+  border-radius: 12px;
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+}
+
+.visuals .panel {
+  min-height: 300px;
+}
+
+.visual-image {
+  height: 280px;
+  object-fit: contain;
+  padding: 8px;
+}
+
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px 16px;
+}
+
+.metric-row {
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.metric-label {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.metric-value {
+  display: block;
+  margin-top: 6px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.bullet-list,
+.signal-list,
+.checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.bullet-list li,
+.signal-list li,
+.checklist li {
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 11px 12px;
+}
+
+.signal-list li::before {
+  content: "✔";
+  color: var(--success);
+  margin-right: 8px;
+  font-weight: 700;
+}
+
+.checklist li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.checkbox {
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 2px solid var(--info);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.page-break {
+  page-break-before: always;
+}
+
+  </style>
+</head>
+<body>
+  <main class="report-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">AutoYield AI Report Export</p>
+        <h1>AUTOYIELD AI - VISUAL WAFER INSPECTION REPORT</h1>
+      </div>
+      <div class="hero-meta">
+        <div class="meta-card">
+          <span>Inspection ID</span>
+          <strong>TEST-123</strong>
+        </div>
+        <div class="meta-card">
+          <span>Generated</span>
+          <strong>2026-03-14T00:00:00Z</strong>
+        </div>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="section-heading">
+        <h2>1. Executive Dashboard</h2>
+        <p>Visual KPI summary for engineering review.</p>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi-card neutral"><div class="kpi-label">Defect Class</div><div class="kpi-value">CENTER</div><div class="kpi-subtext">Predicted primary class</div></div><div class="kpi-card info"><div class="kpi-label">Confidence Score</div><div class="kpi-value">82.0%</div><div class="kpi-subtext">Classifier probability</div></div><div class="kpi-card success"><div class="kpi-label">Severity Level</div><div class="kpi-value">LOW</div><div class="kpi-subtext">Engineering impact</div></div><div class="kpi-card success"><div class="kpi-label">Drift Status</div><div class="kpi-value">CLEAR</div><div class="kpi-subtext">Monitoring state</div></div><div class="kpi-card neutral"><div class="kpi-label">Inference Time</div><div class="kpi-value">143 ms</div><div class="kpi-subtext">End-to-end runtime</div></div><div class="kpi-card success"><div class="kpi-label">Yield Risk</div><div class="kpi-value">LOW</div><div class="kpi-subtext">Operational exposure</div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="two-column">
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Prediction Confidence Chart</h3>
+            <p>Relative class probabilities from the inference engine.</p>
+          </div>
+          <img class="chart-image" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZwogIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMC8vRU4nCiAgJ2h0dHA6Ly93d3cudzMub3JnL1RSLzIwMDEvUkVDLVNWRy0yMDAxMDkwNC9EVEQvc3ZnMTAuZHRkJz4KPHN2ZyB3aWR0aD0iNDIwIiBoZWlnaHQ9IjIxMCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pbllNaW4gbWVldCIgdmlld0JveD0iMCAwIDQyMCAyMTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmVyc2lvbj0iMS4wIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj4KCTx0aXRsZT4uLi48L3RpdGxlPgoJPGRlc2M+Li4uPC9kZXNjPgoJPGNsaXBQYXRoIGlkPSJjbGlwIj4KCQk8cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iNDIwIiBoZWlnaHQ9IjIxMCIvPgoJPC9jbGlwUGF0aD4KCTxnIGlkPSJncm91cCIgdHJhbnNmb3JtPSJzY2FsZSgxLC0xKSB0cmFuc2xhdGUoMCwtMjEwKSIgc3R5bGU9ImNsaXAtcGF0aDogdXJsKCNjbGlwKSI+CgkJPGcgdHJhbnNmb3JtPSIiPgoJCQk8dGV4dCB4PSI4IiB5PSIxOTYiIHN0eWxlPSJmb250LWZhbWlseTogVGltZXMtUm9tYW47IGZvbnQtc2l6ZTogMTFweDtmaWxsOiByZ2IoNiUsNiUsNiUpOyBzdHJva2U6bm9uZTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsMzkyKSBzY2FsZSgxLC0xKSI+UHJlZGljdGlvbiBDb25maWRlbmNlIERpc3RyaWJ1dGlvbjwvdGV4dD4KCQkJPGcgdHJhbnNmb3JtPSIiPgoJCQkJPGcgdHJhbnNmb3JtPSIiPgoJCQkJCTxyZWN0IHg9IjU1LjAiIHk9IjIwLjAiIHdpZHRoPSIxMjQuMCIgaGVpZ2h0PSIxMzYuMTIiIHN0eWxlPSJzdHJva2U6IHJnYigwJSwwJSwwJSk7IHN0cm9rZS1saW5lY2FwOiBidXR0OyBzdHJva2Utd2lkdGg6IDE7IGZpbGw6IHJnYig2JSw2JSw2JSk7IGZpbGwtcnVsZTogZXZlbm9kZDsiLz4KCQkJCQk8cmVjdCB4PSIyNDEuMCIgeT0iMjAuMCIgd2lkdGg9IjEyNC4wIiBoZWlnaHQ9IjE4LjI1OTk5OTk5OTk5OTk5OCIgc3R5bGU9InN0cm9rZTogcmdiKDAlLDAlLDAlKTsgc3Ryb2tlLWxpbmVjYXA6IGJ1dHQ7IHN0cm9rZS13aWR0aDogMTsgZmlsbDogcmdiKDEwMCUsNDclLDAlKTsgZmlsbC1ydWxlOiBldmVub2RkOyIvPgoJCQkJCTxnIHRyYW5zZm9ybT0iIj4KCQkJCQkJPGcgdHJhbnNmb3JtPSIgbWF0cml4KDEsMCwwLDEsMTE3LDE2Mi4xMikiPgoJCQkJCQkJPHRleHQgeD0iLTYuMTI1IiB5PSItMi44MDAwMDAwMDAwMDAwMDA3IiBzdHlsZT0iZm9udC1mYW1pbHk6IFRpbWVzLVJvbWFuOyBmb250LXNpemU6IDdweDtmaWxsOiByZ2IoMCUsMCUsMCUpOyBzdHJva2U6bm9uZTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsLTUpIHNjYWxlKDEsLTEpIj44Mi4wPC90ZXh0PgoJCQkJCQk8L2c+CgkJCQkJCTxnIHRyYW5zZm9ybT0iIG1hdHJpeCgxLDAsMCwxLDMwMyw0NC4yNikiPgoJCQkJCQkJPHRleHQgeD0iLTYuMTI1IiB5PSItMi44MDAwMDAwMDAwMDAwMDA3IiBzdHlsZT0iZm9udC1mYW1pbHk6IFRpbWVzLVJvbWFuOyBmb250LXNpemU6IDdweDtmaWxsOiByZ2IoMCUsMCUsMCUpOyBzdHJva2U6bm9uZTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsLTUpIHNjYWxlKDEsLTEpIj4xMS4wPC90ZXh0PgoJCQkJCQk8L2c+CgkJCQkJPC9nPgoJCQkJPC9nPgoJCQkJPGcgdHJhbnNmb3JtPSIiPgoJCQkJCTxnIHRyYW5zZm9ybT0iIj4KCQkJCQkJPHBhdGggZD0iTSAyNCwyMCBMIDM5NiwyMCBaIiBzdHlsZT0ic3Ryb2tlOiByZ2IoMCUsMCUsMCUpOyBzdHJva2UtbGluZWNhcDogYnV0dDsgc3Ryb2tlLXdpZHRoOiAxOyIvPgoJCQkJCTwvZz4KCQkJCQk8ZyB0cmFuc2Zvcm09IiI+CgkJCQkJCTxwYXRoIGQ9Ik0gMjQsMjAgTCAyNCwxNSBaIiBzdHlsZT0ic3Ryb2tlOiByZ2IoMCUsMCUsMCUpOyBzdHJva2UtbGluZWNhcDogYnV0dDsgc3Ryb2tlLXdpZHRoOiAxOyIvPgoJCQkJCQk8cGF0aCBkPSJNIDIxMCwyMCBMIDIxMCwxNSBaIiBzdHlsZT0ic3Ryb2tlOiByZ2IoMCUsMCUsMCUpOyBzdHJva2UtbGluZWNhcDogYnV0dDsgc3Ryb2tlLXdpZHRoOiAxOyIvPgoJCQkJCQk8cGF0aCBkPSJNIDM5NiwyMCBMIDM5NiwxNSBaIiBzdHlsZT0ic3Ryb2tlOiByZ2IoMCUsMCUsMCUpOyBzdHJva2UtbGluZWNhcDogYnV0dDsgc3Ryb2tlLXdpZHRoOiAxOyIvPgoJCQkJCTwvZz4KCQkJCQk8ZyB0cmFuc2Zvcm09IiI+CgkJCQkJCTxnIHRyYW5zZm9ybT0iIG1hdHJpeCgwLjkzOTY5MywwLjM0MjAyLC0wLjM0MjAyLDAuOTM5NjkzLDExNywxNSkiPgoJCQkJCQkJPHRleHQgeD0iLTkuMzMxIiB5PSItNy4wMDAwMDAwMDAwMDAwMDEiIHN0eWxlPSJmb250LWZhbWlseTogVGltZXMtUm9tYW47IGZvbnQtc2l6ZTogN3B4O2ZpbGw6IHJnYigwJSwwJSwwJSk7IHN0cm9rZTpub25lOyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCwtMTQpIHNjYWxlKDEsLTEpIj5DZW50ZXI8L3RleHQ+CgkJCQkJCTwvZz4KCQkJCQkJPGcgdHJhbnNmb3JtPSIgbWF0cml4KDAuOTM5NjkzLDAuMzQyMDIsLTAuMzQyMDIsMC45Mzk2OTMsMzAzLDE1KSI+CgkJCQkJCQk8dGV4dCB4PSItNy45Njk1IiB5PSItNy4wMDAwMDAwMDAwMDAwMDEiIHN0eWxlPSJmb250LWZhbWlseTogVGltZXMtUm9tYW47IGZvbnQtc2l6ZTogN3B4O2ZpbGw6IHJnYigwJSwwJSwwJSk7IHN0cm9rZTpub25lOyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCwtMTQpIHNjYWxlKDEsLTEpIj5Mb2NhbDwvdGV4dD4KCQkJCQkJPC9nPgoJCQkJCTwvZz4KCQkJCTwvZz4KCQkJCTxnIHRyYW5zZm9ybT0iIj4KCQkJCQk8ZyB0cmFuc2Zvcm09IiI+CgkJCQkJCTxwYXRoIGQ9Ik0gMjQsMjAgTCAyNCwxODYgWiIgc3R5bGU9InN0cm9rZTogcmdiKDAlLDAlLDAlKTsgc3Ryb2tlLWxpbmVjYXA6IGJ1dHQ7IHN0cm9rZS13aWR0aDogMTsiLz4KCQkJCQk8L2c+CgkJCQkJPGcgdHJhbnNmb3JtPSIiPgoJCQkJCQk8cGF0aCBkPSJNIDI0LDIwIEwgMTksMjAgWiIgc3R5bGU9InN0cm9rZTogcmdiKDAlLDAlLDAlKTsgc3Ryb2tlLWxpbmVjYXA6IGJ1dHQ7IHN0cm9rZS13aWR0aDogMTsiLz4KCQkJCQkJPHBhdGggZD0iTSAyNCw1My4yIEwgMTksNTMuMiBaIiBzdHlsZT0ic3Ryb2tlOiByZ2IoMCUsMCUsMCUpOyBzdHJva2UtbGluZWNhcDogYnV0dDsgc3Ryb2tlLXdpZHRoOiAxOyIvPgoJCQkJCQk8cGF0aCBkPSJNIDI0LDg2LjQgTCAxOSw4Ni40IFoiIHN0eWxlPSJzdHJva2U6IHJnYigwJSwwJSwwJSk7IHN0cm9rZS1saW5lY2FwOiBidXR0OyBzdHJva2Utd2lkdGg6IDE7Ii8+CgkJCQkJCTxwYXRoIGQ9Ik0gMjQsMTE5LjYgTCAxOSwxMTkuNiBaIiBzdHlsZT0ic3Ryb2tlOiByZ2IoMCUsMCUsMCUpOyBzdHJva2UtbGluZWNhcDogYnV0dDsgc3Ryb2tlLXdpZHRoOiAxOyIvPgoJCQkJCQk8cGF0aCBkPSJNIDI0LDE1Mi44IEwgMTksMTUyLjggWiIgc3R5bGU9InN0cm9rZTogcmdiKDAlLDAlLDAlKTsgc3Ryb2tlLWxpbmVjYXA6IGJ1dHQ7IHN0cm9rZS13aWR0aDogMTsiLz4KCQkJCQkJPHBhdGggZD0iTSAyNCwxODYgTCAxOSwxODYgWiIgc3R5bGU9InN0cm9rZTogcmdiKDAlLDAlLDAlKTsgc3Ryb2tlLWxpbmVjYXA6IGJ1dHQ7IHN0cm9rZS13aWR0aDogMTsiLz4KCQkJCQk8L2c+CgkJCQkJPGcgdHJhbnNmb3JtPSIiPgoJCQkJCQk8ZyB0cmFuc2Zvcm09IiBtYXRyaXgoMSwwLDAsMSwxOSwyMCkiPgoJCQkJCQkJPHRleHQgeD0iLTMuNSIgeT0iLTIuODAwMDAwMDAwMDAwMDAwNyIgc3R5bGU9ImZvbnQtZmFtaWx5OiBUaW1lcy1Sb21hbjsgZm9udC1zaXplOiA3cHg7ZmlsbDogcmdiKDAlLDAlLDAlKTsgc3Ryb2tlOm5vbmU7IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLC01KSBzY2FsZSgxLC0xKSI+MDwvdGV4dD4KCQkJCQkJPC9nPgoJCQkJCQk8ZyB0cmFuc2Zvcm09IiBtYXRyaXgoMSwwLDAsMSwxOSw1My4yKSI+CgkJCQkJCQk8dGV4dCB4PSItNy4wIiB5PSItMi44MDAwMDAwMDAwMDAwMDA3IiBzdHlsZT0iZm9udC1mYW1pbHk6IFRpbWVzLVJvbWFuOyBmb250LXNpemU6IDdweDtmaWxsOiByZ2IoMCUsMCUsMCUpOyBzdHJva2U6bm9uZTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsLTUpIHNjYWxlKDEsLTEpIj4yMDwvdGV4dD4KCQkJCQkJPC9nPgoJCQkJCQk8ZyB0cmFuc2Zvcm09IiBtYXRyaXgoMSwwLDAsMSwxOSw4Ni40KSI+CgkJCQkJCQk8dGV4dCB4PSItNy4wIiB5PSItMi44MDAwMDAwMDAwMDAwMDA3IiBzdHlsZT0iZm9udC1mYW1pbHk6IFRpbWVzLVJvbWFuOyBmb250LXNpemU6IDdweDtmaWxsOiByZ2IoMCUsMCUsMCUpOyBzdHJva2U6bm9uZTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsLTUpIHNjYWxlKDEsLTEpIj40MDwvdGV4dD4KCQkJCQkJPC9nPgoJCQkJCQk8ZyB0cmFuc2Zvcm09IiBtYXRyaXgoMSwwLDAsMSwxOSwxMTkuNikiPgoJCQkJCQkJPHRleHQgeD0iLTcuMCIgeT0iLTIuODAwMDAwMDAwMDAwMDAwNyIgc3R5bGU9ImZvbnQtZmFtaWx5OiBUaW1lcy1Sb21hbjsgZm9udC1zaXplOiA3cHg7ZmlsbDogcmdiKDAlLDAlLDAlKTsgc3Ryb2tlOm5vbmU7IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLC01KSBzY2FsZSgxLC0xKSI+NjA8L3RleHQ+CgkJCQkJCTwvZz4KCQkJCQkJPGcgdHJhbnNmb3JtPSIgbWF0cml4KDEsMCwwLDEsMTksMTUyLjgpIj4KCQkJCQkJCTx0ZXh0IHg9Ii03LjAiIHk9Ii0yLjgwMDAwMDAwMDAwMDAwMDciIHN0eWxlPSJmb250LWZhbWlseTogVGltZXMtUm9tYW47IGZvbnQtc2l6ZTogN3B4O2ZpbGw6IHJnYigwJSwwJSwwJSk7IHN0cm9rZTpub25lOyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCwtNSkgc2NhbGUoMSwtMSkiPjgwPC90ZXh0PgoJCQkJCQk8L2c+CgkJCQkJCTxnIHRyYW5zZm9ybT0iIG1hdHJpeCgxLDAsMCwxLDE5LDE4NikiPgoJCQkJCQkJPHRleHQgeD0iLTEwLjUiIHk9Ii0yLjgwMDAwMDAwMDAwMDAwMDciIHN0eWxlPSJmb250LWZhbWlseTogVGltZXMtUm9tYW47IGZvbnQtc2l6ZTogN3B4O2ZpbGw6IHJnYigwJSwwJSwwJSk7IHN0cm9rZTpub25lOyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCwtNSkgc2NhbGUoMSwtMSkiPjEwMDwvdGV4dD4KCQkJCQkJPC9nPgoJCQkJCTwvZz4KCQkJCTwvZz4KCQkJPC9nPgoJCTwvZz4KCTwvZz4KPC9zdmc+Cg==" alt="Prediction confidence chart" />
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Structured Insights</h3>
+            <p>Key findings for rapid scan review.</p>
+          </div>
+          <ul class="bullet-list"><li>Top defect hypothesis: Center at 82.0% confidence.</li><li>Drift monitoring is currently clear.</li><li>Heatmap focus region: Center.</li><li>Priority action: Review tool and process logs.</li></ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section page-break">
+      <div class="section-heading">
+        <h2>2. Explainability Visualization</h2>
+        <p>Original wafer image, Grad-CAM overlay, and supporting activation metrics.</p>
+      </div>
+      <div class="two-column visuals">
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Original Wafer Image</h3>
+          </div>
+          <img class="visual-image" src="" alt="Original wafer image" />
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Activation Heatmap Overlay</h3>
+          </div>
+          <img class="visual-image" src="" alt="Heatmap overlay" />
+        </article>
+      </div>
+      <article class="panel compact">
+        <div class="panel-header">
+          <h3>Explainability Metrics</h3>
+        </div>
+        <div class="metric-grid">
+          <div class="metric-row"><span class="metric-label">Hotspots detected</span><span class="metric-value">2</span></div><div class="metric-row"><span class="metric-label">Activation spread</span><span class="metric-value">0.120</span></div><div class="metric-row"><span class="metric-label">Dominant region</span><span class="metric-value">Center</span></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="two-column">
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Drift Monitoring Graph</h3>
+            <p>Confidence trend across recent inspections with threshold marker.</p>
+          </div>
+          <img class="chart-image" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZwogIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMC8vRU4nCiAgJ2h0dHA6Ly93d3cudzMub3JnL1RSLzIwMDEvUkVDLVNWRy0yMDAxMDkwNC9EVEQvc3ZnMTAuZHRkJz4KPHN2ZyB3aWR0aD0iNDIwIiBoZWlnaHQ9IjIxMCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pbllNaW4gbWVldCIgdmlld0JveD0iMCAwIDQyMCAyMTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmVyc2lvbj0iMS4wIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj4KCTx0aXRsZT4uLi48L3RpdGxlPgoJPGRlc2M+Li4uPC9kZXNjPgoJPGNsaXBQYXRoIGlkPSJjbGlwIj4KCQk8cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iNDIwIiBoZWlnaHQ9IjIxMCIvPgoJPC9jbGlwUGF0aD4KCTxnIGlkPSJncm91cCIgdHJhbnNmb3JtPSJzY2FsZSgxLC0xKSB0cmFuc2xhdGUoMCwtMjEwKSIgc3R5bGU9ImNsaXAtcGF0aDogdXJsKCNjbGlwKSI+CgkJPGcgdHJhbnNmb3JtPSIiPgoJCQk8dGV4dCB4PSI4IiB5PSIxOTYiIHN0eWxlPSJmb250LWZhbWlseTogVGltZXMtUm9tYW47IGZvbnQtc2l6ZTogMTFweDtmaWxsOiByZ2IoNiUsNiUsNiUpOyBzdHJva2U6bm9uZTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsMzkyKSBzY2FsZSgxLC0xKSI+Q29uZmlkZW5jZSBUcmVuZCBBY3Jvc3MgUmVjZW50IEluc3BlY3Rpb25zPC90ZXh0PgoJCQk8ZyB0cmFuc2Zvcm09IiI+CgkJCQk8ZyB0cmFuc2Zvcm09IiI+CgkJCQkJPGcgdHJhbnNmb3JtPSIiPgoJCQkJCQk8cGF0aCBkPSJNIDI0LDIwIEwgMzk2LDIwIFoiIHN0eWxlPSJzdHJva2U6IHJnYigwJSwwJSwwJSk7IHN0cm9rZS1saW5lY2FwOiBidXR0OyBzdHJva2Utd2lkdGg6IDE7Ii8+CgkJCQkJPC9nPgoJCQkJCTxnIHRyYW5zZm9ybT0iIj4KCQkJCQkJPHBhdGggZD0iTSAyNCwyMCBMIDI0LDE1IFoiIHN0eWxlPSJzdHJva2U6IHJnYigwJSwwJSwwJSk7IHN0cm9rZS1saW5lY2FwOiBidXR0OyBzdHJva2Utd2lkdGg6IDE7Ii8+CgkJCQkJCTxwYXRoIGQ9Ik0gMzk2LDIwIEwgMzk2LDE1IFoiIHN0eWxlPSJzdHJva2U6IHJnYigwJSwwJSwwJSk7IHN0cm9rZS1saW5lY2FwOiBidXR0OyBzdHJva2Utd2lkdGg6IDE7Ii8+CgkJCQkJPC9nPgoJCQkJCTxnIHRyYW5zZm9ybT0iIj4KCQkJCQkJPGcgdHJhbnNmb3JtPSIgbWF0cml4KDEsMCwwLDEsMjEwLDE1KSI+CgkJCQkJCQk8dGV4dCB4PSItMTEuNzYiIHk9Ii03LjAwMDAwMDAwMDAwMDAwMSIgc3R5bGU9ImZvbnQtZmFtaWx5OiBUaW1lcy1Sb21hbjsgZm9udC1zaXplOiA3cHg7ZmlsbDogcmdiKDAlLDAlLDAlKTsgc3Ryb2tlOm5vbmU7IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLC0xNCkgc2NhbGUoMSwtMSkiPk5vIERhdGE8L3RleHQ+CgkJCQkJCTwvZz4KCQkJCQk8L2c+CgkJCQk8L2c+CgkJCQk8ZyB0cmFuc2Zvcm09IiI+CgkJCQkJPGcgdHJhbnNmb3JtPSIiPgoJCQkJCQk8cGF0aCBkPSJNIDI0LDIwIEwgMjQsMTg2IFoiIHN0eWxlPSJzdHJva2U6IHJnYigwJSwwJSwwJSk7IHN0cm9rZS1saW5lY2FwOiBidXR0OyBzdHJva2Utd2lkdGg6IDE7Ii8+CgkJCQkJPC9nPgoJCQkJCTxnIHRyYW5zZm9ybT0iIj4KCQkJCQkJPHBhdGggZD0iTSAyNCwyMCBMIDE5LDIwIFoiIHN0eWxlPSJzdHJva2U6IHJnYigwJSwwJSwwJSk7IHN0cm9rZS1saW5lY2FwOiBidXR0OyBzdHJva2Utd2lkdGg6IDE7Ii8+CgkJCQkJCTxwYXRoIGQ9Ik0gMjQsNTMuMiBMIDE5LDUzLjIgWiIgc3R5bGU9InN0cm9rZTogcmdiKDAlLDAlLDAlKTsgc3Ryb2tlLWxpbmVjYXA6IGJ1dHQ7IHN0cm9rZS13aWR0aDogMTsiLz4KCQkJCQkJPHBhdGggZD0iTSAyNCw4Ni40IEwgMTksODYuNCBaIiBzdHlsZT0ic3Ryb2tlOiByZ2IoMCUsMCUsMCUpOyBzdHJva2UtbGluZWNhcDogYnV0dDsgc3Ryb2tlLXdpZHRoOiAxOyIvPgoJCQkJCQk8cGF0aCBkPSJNIDI0LDExOS42IEwgMTksMTE5LjYgWiIgc3R5bGU9InN0cm9rZTogcmdiKDAlLDAlLDAlKTsgc3Ryb2tlLWxpbmVjYXA6IGJ1dHQ7IHN0cm9rZS13aWR0aDogMTsiLz4KCQkJCQkJPHBhdGggZD0iTSAyNCwxNTIuOCBMIDE5LDE1Mi44IFoiIHN0eWxlPSJzdHJva2U6IHJnYigwJSwwJSwwJSk7IHN0cm9rZS1saW5lY2FwOiBidXR0OyBzdHJva2Utd2lkdGg6IDE7Ii8+CgkJCQkJCTxwYXRoIGQ9Ik0gMjQsMTg2IEwgMTksMTg2IFoiIHN0eWxlPSJzdHJva2U6IHJnYigwJSwwJSwwJSk7IHN0cm9rZS1saW5lY2FwOiBidXR0OyBzdHJva2Utd2lkdGg6IDE7Ii8+CgkJCQkJPC9nPgoJCQkJCTxnIHRyYW5zZm9ybT0iIj4KCQkJCQkJPGcgdHJhbnNmb3JtPSIgbWF0cml4KDEsMCwwLDEsMTksMjApIj4KCQkJCQkJCTx0ZXh0IHg9Ii01LjAiIHk9Ii00LjAiIHN0eWxlPSJmb250LWZhbWlseTogVGltZXMtUm9tYW47IGZvbnQtc2l6ZTogMTBweDtmaWxsOiByZ2IoMCUsMCUsMCUpOyBzdHJva2U6bm9uZTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsLTgpIHNjYWxlKDEsLTEpIj4wPC90ZXh0PgoJCQkJCQk8L2c+CgkJCQkJCTxnIHRyYW5zZm9ybT0iIG1hdHJpeCgxLDAsMCwxLDE5LDUzLjIpIj4KCQkJCQkJCTx0ZXh0IHg9Ii0xMC4wIiB5PSItNC4wIiBzdHlsZT0iZm9udC1mYW1pbHk6IFRpbWVzLVJvbWFuOyBmb250LXNpemU6IDEwcHg7ZmlsbDogcmdiKDAlLDAlLDAlKTsgc3Ryb2tlOm5vbmU7IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLC04KSBzY2FsZSgxLC0xKSI+MjA8L3RleHQ+CgkJCQkJCTwvZz4KCQkJCQkJPGcgdHJhbnNmb3JtPSIgbWF0cml4KDEsMCwwLDEsMTksODYuNCkiPgoJCQkJCQkJPHRleHQgeD0iLTEwLjAiIHk9Ii00LjAiIHN0eWxlPSJmb250LWZhbWlseTogVGltZXMtUm9tYW47IGZvbnQtc2l6ZTogMTBweDtmaWxsOiByZ2IoMCUsMCUsMCUpOyBzdHJva2U6bm9uZTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsLTgpIHNjYWxlKDEsLTEpIj40MDwvdGV4dD4KCQkJCQkJPC9nPgoJCQkJCQk8ZyB0cmFuc2Zvcm09IiBtYXRyaXgoMSwwLDAsMSwxOSwxMTkuNikiPgoJCQkJCQkJPHRleHQgeD0iLTEwLjAiIHk9Ii00LjAiIHN0eWxlPSJmb250LWZhbWlseTogVGltZXMtUm9tYW47IGZvbnQtc2l6ZTogMTBweDtmaWxsOiByZ2IoMCUsMCUsMCUpOyBzdHJva2U6bm9uZTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsLTgpIHNjYWxlKDEsLTEpIj42MDwvdGV4dD4KCQkJCQkJPC9nPgoJCQkJCQk8ZyB0cmFuc2Zvcm09IiBtYXRyaXgoMSwwLDAsMSwxOSwxNTIuOCkiPgoJCQkJCQkJPHRleHQgeD0iLTEwLjAiIHk9Ii00LjAiIHN0eWxlPSJmb250LWZhbWlseTogVGltZXMtUm9tYW47IGZvbnQtc2l6ZTogMTBweDtmaWxsOiByZ2IoMCUsMCUsMCUpOyBzdHJva2U6bm9uZTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsLTgpIHNjYWxlKDEsLTEpIj44MDwvdGV4dD4KCQkJCQkJPC9nPgoJCQkJCQk8ZyB0cmFuc2Zvcm09IiBtYXRyaXgoMSwwLDAsMSwxOSwxODYpIj4KCQkJCQkJCTx0ZXh0IHg9Ii0xNS4wIiB5PSItNC4wIiBzdHlsZT0iZm9udC1mYW1pbHk6IFRpbWVzLVJvbWFuOyBmb250LXNpemU6IDEwcHg7ZmlsbDogcmdiKDAlLDAlLDAlKTsgc3Ryb2tlOm5vbmU7IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLC04KSBzY2FsZSgxLC0xKSI+MTAwPC90ZXh0PgoJCQkJCQk8L2c+CgkJCQkJPC9nPgoJCQkJPC9nPgoJCQkJPGcgdHJhbnNmb3JtPSIiPgoJCQkJCTxwb2x5bGluZSBwb2ludHM9IjIxMCAyMCIgc3R5bGU9InN0cm9rZTogcmdiKDYlLDYlLDYlKTsgc3Ryb2tlLWxpbmVjYXA6IHJvdW5kOyBzdHJva2Utd2lkdGg6IDI7IGZpbGw6IE5vbmU7IGZpbGwtcnVsZTogZXZlbm9kZDsiLz4KCQkJCTwvZz4KCQkJPC9nPgoJCQk8cGF0aCBkPSJNIDI0LDEwMyBMIDM5NiwxMDMgWiIgc3R5bGU9InN0cm9rZTogcmdiKDEwMCUsNDclLDAlKTsgc3Ryb2tlLWxpbmVjYXA6IGJ1dHQ7IHN0cm9rZS13aWR0aDogMTsiLz4KCQkJPHRleHQgeD0iMzE2IiB5PSIxMDcuMCIgc3R5bGU9ImZvbnQtZmFtaWx5OiBUaW1lcy1Sb21hbjsgZm9udC1zaXplOiA3cHg7ZmlsbDogcmdiKDEwMCUsNDclLDAlKTsgc3Ryb2tlOm5vbmU7IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLDIxNCkgc2NhbGUoMSwtMSkiPlJldHJhaW4gdGhyZXNob2xkPC90ZXh0PgoJCTwvZz4KCTwvZz4KPC9zdmc+Cg==" alt="Drift trend chart" />
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Defect Distribution</h3>
+            <p>Recent class mix across batch history.</p>
+          </div>
+          <img class="chart-image" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZwogIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMC8vRU4nCiAgJ2h0dHA6Ly93d3cudzMub3JnL1RSLzIwMDEvUkVDLVNWRy0yMDAxMDkwNC9EVEQvc3ZnMTAuZHRkJz4KPHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjIyMCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pbllNaW4gbWVldCIgdmlld0JveD0iMCAwIDMyMCAyMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmVyc2lvbj0iMS4wIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj4KCTx0aXRsZT4uLi48L3RpdGxlPgoJPGRlc2M+Li4uPC9kZXNjPgoJPGNsaXBQYXRoIGlkPSJjbGlwIj4KCQk8cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMzIwIiBoZWlnaHQ9IjIyMCIvPgoJPC9jbGlwUGF0aD4KCTxnIGlkPSJncm91cCIgdHJhbnNmb3JtPSJzY2FsZSgxLC0xKSB0cmFuc2xhdGUoMCwtMjIwKSIgc3R5bGU9ImNsaXAtcGF0aDogdXJsKCNjbGlwKSI+CgkJPGcgdHJhbnNmb3JtPSIiPgoJCQk8dGV4dCB4PSI4IiB5PSIyMDYiIHN0eWxlPSJmb250LWZhbWlseTogVGltZXMtUm9tYW47IGZvbnQtc2l6ZTogMTFweDtmaWxsOiByZ2IoNiUsNiUsNiUpOyBzdHJva2U6bm9uZTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsNDEyKSBzY2FsZSgxLC0xKSI+RGVmZWN0IERpc3RyaWJ1dGlvbiBpbiBSZWNlbnQgSW5zcGVjdGlvbnM8L3RleHQ+CgkJCTxnIHRyYW5zZm9ybT0iIj4KCQkJCTxlbGxpcHNlIGN4PSIxMjMuMCIgY3k9IjEwNS4wIiByeD0iOTMuMCIgcnk9IjkzLjAiIHN0eWxlPSJzdHJva2U6IHJnYigwJSwwJSwwJSk7IHN0cm9rZS1saW5lY2FwOiByb3VuZDsgc3Ryb2tlLXdpZHRoOiAwLjU7IGZpbGw6IHJnYig2JSw2JSw2JSk7IGZpbGwtcnVsZTogZXZlbm9kZDsiLz4KCQkJCTx0ZXh0IHg9IjEwNi4yIiB5PSItNi41OTk5OTk5OTk5OTk5OTQiIHN0eWxlPSJmb250LWZhbWlseTogVGltZXMtUm9tYW47IGZvbnQtc2l6ZTogMTBweDtmaWxsOiByZ2IoMCUsMCUsMCUpOyBzdHJva2U6bm9uZTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsLTEzKSBzY2FsZSgxLC0xKSI+Tm8gRGF0YTwvdGV4dD4KCQkJPC9nPgoJCTwvZz4KCTwvZz4KPC9zdmc+Cg==" alt="Defect distribution chart" />
+        </article>
+      </div>
+    </section>
+
+    <section class="section page-break">
+      <div class="two-column">
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Root Cause Evidence</h3>
+            <p>Signals supporting engineering interpretation.</p>
+          </div>
+          <ul class="signal-list"><li>Dominant activation region: center</li><li>Hotspots detected: 2</li><li>Activation spread: 0.120</li><li>Drift status: Clear</li></ul>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Recent Batch Metrics</h3>
+            <p>Recent system context and session-level summary.</p>
+          </div>
+          <div class="metric-grid">
+            <div class="metric-row"><span class="metric-label">Recent inspections</span><span class="metric-value">0</span></div><div class="metric-row"><span class="metric-label">Drift events</span><span class="metric-value">0</span></div><div class="metric-row"><span class="metric-label">Average confidence</span><span class="metric-value">0.0%</span></div><div class="metric-row"><span class="metric-label">Session savings</span><span class="metric-value">INR 1,200.00</span></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="two-column">
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Operational Impact Charts</h3>
+            <p>Yield and sustainability effect estimates for this inspection.</p>
+          </div>
+          <img class="chart-image" src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPCFET0NUWVBFIHN2ZwogIFBVQkxJQyAnLS8vVzNDLy9EVEQgU1ZHIDEuMC8vRU4nCiAgJ2h0dHA6Ly93d3cudzMub3JnL1RSLzIwMDEvUkVDLVNWRy0yMDAxMDkwNC9EVEQvc3ZnMTAuZHRkJz4KPHN2ZyB3aWR0aD0iNDIwIiBoZWlnaHQ9IjIxMCIgcHJlc2VydmVBc3BlY3RSYXRpbz0ieE1pbllNaW4gbWVldCIgdmlld0JveD0iMCAwIDQyMCAyMTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgdmVyc2lvbj0iMS4wIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIj4KCTx0aXRsZT4uLi48L3RpdGxlPgoJPGRlc2M+Li4uPC9kZXNjPgoJPGNsaXBQYXRoIGlkPSJjbGlwIj4KCQk8cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iNDIwIiBoZWlnaHQ9IjIxMCIvPgoJPC9jbGlwUGF0aD4KCTxnIGlkPSJncm91cCIgdHJhbnNmb3JtPSJzY2FsZSgxLC0xKSB0cmFuc2xhdGUoMCwtMjEwKSIgc3R5bGU9ImNsaXAtcGF0aDogdXJsKCNjbGlwKSI+CgkJPGcgdHJhbnNmb3JtPSIiPgoJCQk8dGV4dCB4PSI4IiB5PSIxOTYiIHN0eWxlPSJmb250LWZhbWlseTogVGltZXMtUm9tYW47IGZvbnQtc2l6ZTogMTFweDtmaWxsOiByZ2IoNiUsNiUsNiUpOyBzdHJva2U6bm9uZTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsMzkyKSBzY2FsZSgxLC0xKSI+T3BlcmF0aW9uYWwgSW1wYWN0IEVzdGltYXRlczwvdGV4dD4KCQkJPGcgdHJhbnNmb3JtPSIiPgoJCQkJPGcgdHJhbnNmb3JtPSIiPgoJCQkJCTxyZWN0IHg9IjQ0LjY2NjY2NjY2NjY2NjY3IiB5PSIyMC4wIiB3aWR0aD0iODIuNjY2NjY2NjY2NjY2NjciIGhlaWdodD0iMTMyLjgiIHN0eWxlPSJzdHJva2U6IHJnYigwJSwwJSwwJSk7IHN0cm9rZS1saW5lY2FwOiBidXR0OyBzdHJva2Utd2lkdGg6IDE7IGZpbGw6IHJnYig2JSw2JSw2JSk7IGZpbGwtcnVsZTogZXZlbm9kZDsiLz4KCQkJCQk8cmVjdCB4PSIxNjguNjY2NjY2NjY2NjY2NjYiIHk9IjIwLjAiIHdpZHRoPSI4Mi42NjY2NjY2NjY2NjY2NiIgaGVpZ2h0PSI2Ni40IiBzdHlsZT0ic3Ryb2tlOiByZ2IoMCUsMCUsMCUpOyBzdHJva2UtbGluZWNhcDogYnV0dDsgc3Ryb2tlLXdpZHRoOiAxOyBmaWxsOiByZ2IoMTglLDgwJSw0NCUpOyBmaWxsLXJ1bGU6IGV2ZW5vZGQ7Ii8+CgkJCQkJPHJlY3QgeD0iMjkyLjY2NjY2NjY2NjY2NjciIHk9IjIwLjAiIHdpZHRoPSI4Mi42NjY2NjY2NjY2NjY2OSIgaGVpZ2h0PSI0NC4yNjY2NjY2NjY2NjY2OCIgc3R5bGU9InN0cm9rZTogcmdiKDAlLDAlLDAlKTsgc3Ryb2tlLWxpbmVjYXA6IGJ1dHQ7IHN0cm9rZS13aWR0aDogMTsgZmlsbDogcmdiKDklLDQ5JSw5MCUpOyBmaWxsLXJ1bGU6IGV2ZW5vZGQ7Ii8+CgkJCQkJPGcgdHJhbnNmb3JtPSIiPgoJCQkJCQk8ZyB0cmFuc2Zvcm09IiBtYXRyaXgoMSwwLDAsMSw4NiwxNTguOCkiPgoJCQkJCQkJPHRleHQgeD0iLTYuMTI1IiB5PSItMi44MDAwMDAwMDAwMDAwMDA3IiBzdHlsZT0iZm9udC1mYW1pbHk6IFRpbWVzLVJvbWFuOyBmb250LXNpemU6IDdweDtmaWxsOiByZ2IoMCUsMCUsMCUpOyBzdHJva2U6bm9uZTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsLTUpIHNjYWxlKDEsLTEpIj4yLjQwPC90ZXh0PgoJCQkJCQk8L2c+CgkJCQkJCTxnIHRyYW5zZm9ybT0iIG1hdHJpeCgxLDAsMCwxLDIxMCw5Mi40KSI+CgkJCQkJCQk8dGV4dCB4PSItNi4xMjUiIHk9Ii0yLjgwMDAwMDAwMDAwMDAwMDciIHN0eWxlPSJmb250LWZhbWlseTogVGltZXMtUm9tYW47IGZvbnQtc2l6ZTogN3B4O2ZpbGw6IHJnYigwJSwwJSwwJSk7IHN0cm9rZTpub25lOyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCwtNSkgc2NhbGUoMSwtMSkiPjEuMjA8L3RleHQ+CgkJCQkJCTwvZz4KCQkJCQkJPGcgdHJhbnNmb3JtPSIgbWF0cml4KDEsMCwwLDEsMzM0LDcwLjI2NjY2NykiPgoJCQkJCQkJPHRleHQgeD0iLTYuMTI1IiB5PSItMi44MDAwMDAwMDAwMDAwMDA3IiBzdHlsZT0iZm9udC1mYW1pbHk6IFRpbWVzLVJvbWFuOyBmb250LXNpemU6IDdweDtmaWxsOiByZ2IoMCUsMCUsMCUpOyBzdHJva2U6bm9uZTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsLTUpIHNjYWxlKDEsLTEpIj4wLjgwPC90ZXh0PgoJCQkJCQk8L2c+CgkJCQkJPC9nPgoJCQkJPC9nPgoJCQkJPGcgdHJhbnNmb3JtPSIiPgoJCQkJCTxnIHRyYW5zZm9ybT0iIj4KCQkJCQkJPHBhdGggZD0iTSAyNCwyMCBMIDM5NiwyMCBaIiBzdHlsZT0ic3Ryb2tlOiByZ2IoMCUsMCUsMCUpOyBzdHJva2UtbGluZWNhcDogYnV0dDsgc3Ryb2tlLXdpZHRoOiAxOyIvPgoJCQkJCTwvZz4KCQkJCQk8ZyB0cmFuc2Zvcm09IiI+CgkJCQkJCTxwYXRoIGQ9Ik0gMjQsMjAgTCAyNCwxNSBaIiBzdHlsZT0ic3Ryb2tlOiByZ2IoMCUsMCUsMCUpOyBzdHJva2UtbGluZWNhcDogYnV0dDsgc3Ryb2tlLXdpZHRoOiAxOyIvPgoJCQkJCQk8cGF0aCBkPSJNIDE0OCwyMCBMIDE0OCwxNSBaIiBzdHlsZT0ic3Ryb2tlOiByZ2IoMCUsMCUsMCUpOyBzdHJva2UtbGluZWNhcDogYnV0dDsgc3Ryb2tlLXdpZHRoOiAxOyIvPgoJCQkJCQk8cGF0aCBkPSJNIDI3MiwyMCBMIDI3MiwxNSBaIiBzdHlsZT0ic3Ryb2tlOiByZ2IoMCUsMCUsMCUpOyBzdHJva2UtbGluZWNhcDogYnV0dDsgc3Ryb2tlLXdpZHRoOiAxOyIvPgoJCQkJCQk8cGF0aCBkPSJNIDM5NiwyMCBMIDM5NiwxNSBaIiBzdHlsZT0ic3Ryb2tlOiByZ2IoMCUsMCUsMCUpOyBzdHJva2UtbGluZWNhcDogYnV0dDsgc3Ryb2tlLXdpZHRoOiAxOyIvPgoJCQkJCTwvZz4KCQkJCQk8ZyB0cmFuc2Zvcm09IiI+CgkJCQkJCTxnIHRyYW5zZm9ybT0iIG1hdHJpeCgwLjk2NTkyNiwwLjI1ODgxOSwtMC4yNTg4MTksMC45NjU5MjYsODYsMTUpIj4KCQkJCQkJCTx0ZXh0IHg9Ii0yNy41MSIgeT0iLTcuMDAwMDAwMDAwMDAwMDAxIiBzdHlsZT0iZm9udC1mYW1pbHk6IFRpbWVzLVJvbWFuOyBmb250LXNpemU6IDdweDtmaWxsOiByZ2IoMCUsMCUsMCUpOyBzdHJva2U6bm9uZTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsLTE0KSBzY2FsZSgxLC0xKSI+WWllbGQgSW1wcm92ZW1lbnQ8L3RleHQ+CgkJCQkJCTwvZz4KCQkJCQkJPGcgdHJhbnNmb3JtPSIgbWF0cml4KDAuOTY1OTI2LDAuMjU4ODE5LC0wLjI1ODgxOSwwLjk2NTkyNiwyMTAsMTUpIj4KCQkJCQkJCTx0ZXh0IHg9Ii0xOS41MzciIHk9Ii03LjAwMDAwMDAwMDAwMDAwMSIgc3R5bGU9ImZvbnQtZmFtaWx5OiBUaW1lcy1Sb21hbjsgZm9udC1zaXplOiA3cHg7ZmlsbDogcmdiKDAlLDAlLDAlKTsgc3Ryb2tlOm5vbmU7IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLC0xNCkgc2NhbGUoMSwtMSkiPkVuZXJneSBTYXZlZDwvdGV4dD4KCQkJCQkJPC9nPgoJCQkJCQk8ZyB0cmFuc2Zvcm09IiBtYXRyaXgoMC45NjU5MjYsMC4yNTg4MTksLTAuMjU4ODE5LDAuOTY1OTI2LDMzNCwxNSkiPgoJCQkJCQkJPHRleHQgeD0iLTE2LjA0MDUiIHk9Ii03LjAwMDAwMDAwMDAwMDAwMSIgc3R5bGU9ImZvbnQtZmFtaWx5OiBUaW1lcy1Sb21hbjsgZm9udC1zaXplOiA3cHg7ZmlsbDogcmdiKDAlLDAlLDAlKTsgc3Ryb2tlOm5vbmU7IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLC0xNCkgc2NhbGUoMSwtMSkiPkNPMiBTYXZlZDwvdGV4dD4KCQkJCQkJPC9nPgoJCQkJCTwvZz4KCQkJCTwvZz4KCQkJCTxnIHRyYW5zZm9ybT0iIj4KCQkJCQk8ZyB0cmFuc2Zvcm09IiI+CgkJCQkJCTxwYXRoIGQ9Ik0gMjQsMjAgTCAyNCwxODYgWiIgc3R5bGU9InN0cm9rZTogcmdiKDAlLDAlLDAlKTsgc3Ryb2tlLWxpbmVjYXA6IGJ1dHQ7IHN0cm9rZS13aWR0aDogMTsiLz4KCQkJCQk8L2c+CgkJCQkJPGcgdHJhbnNmb3JtPSIiPgoJCQkJCQk8cGF0aCBkPSJNIDI0LDIwIEwgMTksMjAgWiIgc3R5bGU9InN0cm9rZTogcmdiKDAlLDAlLDAlKTsgc3Ryb2tlLWxpbmVjYXA6IGJ1dHQ7IHN0cm9rZS13aWR0aDogMTsiLz4KCQkJCQkJPHBhdGggZD0iTSAyNCw3NS4zMzMzMzMgTCAxOSw3NS4zMzMzMzMgWiIgc3R5bGU9InN0cm9rZTogcmdiKDAlLDAlLDAlKTsgc3Ryb2tlLWxpbmVjYXA6IGJ1dHQ7IHN0cm9rZS13aWR0aDogMTsiLz4KCQkJCQkJPHBhdGggZD0iTSAyNCwxMzAuNjY2NjY3IEwgMTksMTMwLjY2NjY2NyBaIiBzdHlsZT0ic3Ryb2tlOiByZ2IoMCUsMCUsMCUpOyBzdHJva2UtbGluZWNhcDogYnV0dDsgc3Ryb2tlLXdpZHRoOiAxOyIvPgoJCQkJCQk8cGF0aCBkPSJNIDI0LDE4NiBMIDE5LDE4NiBaIiBzdHlsZT0ic3Ryb2tlOiByZ2IoMCUsMCUsMCUpOyBzdHJva2UtbGluZWNhcDogYnV0dDsgc3Ryb2tlLXdpZHRoOiAxOyIvPgoJCQkJCTwvZz4KCQkJCQk8ZyB0cmFuc2Zvcm09IiI+CgkJCQkJCTxnIHRyYW5zZm9ybT0iIG1hdHJpeCgxLDAsMCwxLDE5LDIwKSI+CgkJCQkJCQk8dGV4dCB4PSItNS4wIiB5PSItNC4wIiBzdHlsZT0iZm9udC1mYW1pbHk6IFRpbWVzLVJvbWFuOyBmb250LXNpemU6IDEwcHg7ZmlsbDogcmdiKDAlLDAlLDAlKTsgc3Ryb2tlOm5vbmU7IiB0cmFuc2Zvcm09InRyYW5zbGF0ZSgwLC04KSBzY2FsZSgxLC0xKSI+MDwvdGV4dD4KCQkJCQkJPC9nPgoJCQkJCQk8ZyB0cmFuc2Zvcm09IiBtYXRyaXgoMSwwLDAsMSwxOSw3NS4zMzMzMzMpIj4KCQkJCQkJCTx0ZXh0IHg9Ii01LjAiIHk9Ii00LjAiIHN0eWxlPSJmb250LWZhbWlseTogVGltZXMtUm9tYW47IGZvbnQtc2l6ZTogMTBweDtmaWxsOiByZ2IoMCUsMCUsMCUpOyBzdHJva2U6bm9uZTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsLTgpIHNjYWxlKDEsLTEpIj4xPC90ZXh0PgoJCQkJCQk8L2c+CgkJCQkJCTxnIHRyYW5zZm9ybT0iIG1hdHJpeCgxLDAsMCwxLDE5LDEzMC42NjY2NjcpIj4KCQkJCQkJCTx0ZXh0IHg9Ii01LjAiIHk9Ii00LjAiIHN0eWxlPSJmb250LWZhbWlseTogVGltZXMtUm9tYW47IGZvbnQtc2l6ZTogMTBweDtmaWxsOiByZ2IoMCUsMCUsMCUpOyBzdHJva2U6bm9uZTsiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDAsLTgpIHNjYWxlKDEsLTEpIj4yPC90ZXh0PgoJCQkJCQk8L2c+CgkJCQkJCTxnIHRyYW5zZm9ybT0iIG1hdHJpeCgxLDAsMCwxLDE5LDE4NikiPgoJCQkJCQkJPHRleHQgeD0iLTUuMCIgeT0iLTQuMCIgc3R5bGU9ImZvbnQtZmFtaWx5OiBUaW1lcy1Sb21hbjsgZm9udC1zaXplOiAxMHB4O2ZpbGw6IHJnYigwJSwwJSwwJSk7IHN0cm9rZTpub25lOyIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoMCwtOCkgc2NhbGUoMSwtMSkiPjM8L3RleHQ+CgkJCQkJCTwvZz4KCQkJCQk8L2c+CgkJCQk8L2c+CgkJCTwvZz4KCQk8L2c+Cgk8L2c+Cjwvc3ZnPgo=" alt="Operational impact chart" />
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Recommended Actions Checklist</h3>
+            <p>Engineering actions derived from inspection evidence.</p>
+          </div>
+          <ul class="checklist"><li><span class="checkbox"></span><span>Inspect wafer heatmap activation against the raw wafer image.</span></li><li><span class="checkbox"></span><span>Review process logs for tool calibration, pressure, and thermal stability.</span></li><li><span class="checkbox"></span><span>Compare neighboring wafers from the same lot for repeated signatures.</span></li></ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <article class="panel compact">
+        <div class="panel-header">
+          <h3>Technical Metrics</h3>
+          <p>Compact appendix for engineering traceability.</p>
+        </div>
+        <div class="metric-grid">
+          <div class="metric-row"><span class="metric-label">Inspection ID</span><span class="metric-value">TEST-123</span></div><div class="metric-row"><span class="metric-label">Defect Class</span><span class="metric-value">Center</span></div><div class="metric-row"><span class="metric-label">Confidence</span><span class="metric-value">82.0%</span></div><div class="metric-row"><span class="metric-label">Inference Time</span><span class="metric-value">143 ms</span></div><div class="metric-row"><span class="metric-label">Severity</span><span class="metric-value">Low</span></div><div class="metric-row"><span class="metric-label">Yield Improvement</span><span class="metric-value">+2.4%</span></div><div class="metric-row"><span class="metric-label">Energy Saved</span><span class="metric-value">1.20 kWh</span></div><div class="metric-row"><span class="metric-label">CO2 Saved</span><span class="metric-value">0.80 kgCO2e</span></div><div class="metric-row"><span class="metric-label">Recent Batch Count</span><span class="metric-value">1</span></div>
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

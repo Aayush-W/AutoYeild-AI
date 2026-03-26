@@ -608,6 +608,103 @@ export default function SystemOverview({
         </div>
       )}
 
+      {/* MANUFACTURING METRICS HACKATHON DASHBOARD */}
+      {metrics?.manufacturing_analytics && (
+        <div className="card" style={{ marginTop: 24 }}>
+          <div className="card-header">
+            <div className="card-title">
+              <span className="material-symbols-rounded">factory</span>
+              MANUFACTURING ANALYTICS
+            </div>
+            <div
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: 9,
+                color: "var(--muted)",
+                border: "1px solid var(--stroke-major)",
+                padding: "2px 6px",
+                borderRadius: 4
+              }}
+            >
+              FAB-GRADE METRICS
+            </div>
+          </div>
+
+          <div className="grid-4" style={{ marginTop: 16 }}>
+            {/* RTY */}
+            <div className="metric-card">
+              <div className="metric-label">
+                <span className="material-symbols-rounded">model_training</span>
+                Rolled Throughput Yield (RTY)
+              </div>
+              <div className="metric-value">
+                {(metrics.manufacturing_analytics.rty.system_rty * 100).toFixed(1)}%
+              </div>
+              <div className="metric-foot">
+                Yield Uplift: +{metrics.manufacturing_analytics.rty.yield_gain_pct}%
+              </div>
+            </div>
+
+            {/* Defect Density */}
+            <div className="metric-card">
+              <div className="metric-label">
+                <span className="material-symbols-rounded">grid_on</span>
+                Defect Density
+              </div>
+              <div className="metric-value">
+                {metrics.manufacturing_analytics.defect_density.current.toFixed(3)} /cm²
+              </div>
+              <div className="metric-foot">
+                Reduced by {metrics.manufacturing_analytics.defect_density.reduction_pct}%
+              </div>
+            </div>
+
+            {/* GDBN */}
+            <div className="metric-card">
+              <div className="metric-label">
+                <span className="material-symbols-rounded">center_focus_weak</span>
+                GDBN Recovery
+              </div>
+              <div className="metric-value">
+                {metrics.manufacturing_analytics.gdbn.recovered_dies_pct}%
+              </div>
+              <div className="metric-foot">
+                Good Dies in Bad Neighborhood
+              </div>
+            </div>
+
+            {/* Kill Ratio */}
+            <div className="metric-card">
+              <div className="metric-label">
+                <span className="material-symbols-rounded">troubleshoot</span>
+                AI Kill Ratio
+              </div>
+              <div className="metric-value">
+                {metrics.manufacturing_analytics.kill_ratio.ai_ratio}
+              </div>
+              <div className="metric-foot">
+                Optical equivalent: {metrics.manufacturing_analytics.kill_ratio.optical_ratio}
+              </div>
+            </div>
+          </div>
+          
+          <div style={{ padding: "12px", borderTop: "1px dashed var(--stroke-major)", marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <span className="material-symbols-rounded" style={{ fontSize: 16, color: "var(--muted)", verticalAlign: "middle", marginRight: 8 }}>fact_check</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text)" }}>
+                Incoming Material AQL ({metrics.manufacturing_analytics.aql.threshold_pct}%): 
+                <strong className={metrics.manufacturing_analytics.aql.status === "Accept Lot" ? "chip success" : "chip warn"} style={{ marginLeft: 6 }}>
+                  {metrics.manufacturing_analytics.aql.status.toUpperCase()}
+                </strong>
+              </span>
+            </div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text)", fontWeight: 700 }}>
+              Est. Fab Savings: ₹{metrics.manufacturing_analytics.economics.estimated_fab_savings_crore} Crore/yr
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="card reveal" ref={tableRef}>
         <div className="card-header">
           <div className="card-title">

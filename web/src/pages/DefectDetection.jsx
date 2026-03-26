@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useInspection } from "../context/InspectionContext.jsx";
 import { useNavigate } from "react-router-dom";
 import {
@@ -5,7 +6,8 @@ import {
   ImpactSessionLedger,
   ImpactSourceCard,
 } from "../components/ImpactBoard.jsx";
-import { buildAnalysisReport, downloadAnalysisReport } from "../utils/reportBuilder.js";
+import { generateAnalysisReport } from "../api/client.js";
+import { buildAnalysisReportPayload, downloadAnalysisReport } from "../utils/reportBuilder.js";
 
 // All data logic PRESERVED
 const DEFECT_DESCRIPTIONS = {
@@ -39,6 +41,7 @@ export default function DefectDetection() {
     impactSummary,
   } = useInspection();
   const navigate = useNavigate();
+  const [reportLoading, setReportLoading] = useState(false);
   const hasData = Boolean(inspection);
 
   const label = hasData ? inspection.defect_class : null;
@@ -50,8 +53,14 @@ export default function DefectDetection() {
 
   const histBatches = history.length ? [...history].reverse().slice(0, 4) : [];
 
-  const handleDownloadReport = () => {
-    const report = buildAnalysisReport({
+  const handleDownloadReport = async () => {
+    if (!inspection || reportLoading) {
+      return;
+    }
+
+    setReportLoading(true);
+
+    const reportPayload = buildAnalysisReportPayload({
       inspection,
       history,
       metrics,
@@ -60,7 +69,15 @@ export default function DefectDetection() {
       impactHistory,
       impactSummary,
     });
-    downloadAnalysisReport(report);
+
+    try {
+      const detailedReport = await generateAnalysisReport(reportPayload);
+      downloadAnalysisReport(detailedReport);
+    } catch (err) {
+      window.alert(err.message || "Failed to generate the PDF report.");
+    } finally {
+      setReportLoading(false);
+    }
   };
 
   return (
@@ -77,9 +94,9 @@ export default function DefectDetection() {
           <div style={{ display: "flex", gap: 8 }}>
             <button className="btn" onClick={handleDownloadReport}>
               <span className="material-symbols-rounded" style={{ fontSize: 14 }}>
-                download
+                {reportLoading ? "hourglass_top" : "download"}
               </span>
-              Download JSON Report
+              {reportLoading ? "Generating PDF Report..." : "Download PDF Report"}
             </button>
             <span className={`chip ${severityChip}`}>{severity}</span>
             <span className="chip info">{inspection.inference_time_ms} ms</span>
@@ -210,6 +227,103 @@ export default function DefectDetection() {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MANUFACTURING METRICS HACKATHON DASHBOARD */}
+      {hasData && metrics?.manufacturing_analytics && (
+        <div className="card" style={{ marginTop: 24 }}>
+          <div className="card-header">
+            <div className="card-title">
+              <span className="material-symbols-rounded">factory</span>
+              MANUFACTURING ANALYTICS
+            </div>
+            <div
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: 9,
+                color: "var(--muted)",
+                border: "1px solid var(--stroke-major)",
+                padding: "2px 6px",
+                borderRadius: 4
+              }}
+            >
+              FAB-GRADE METRICS
+            </div>
+          </div>
+
+          <div className="grid-4" style={{ marginTop: 16 }}>
+            {/* RTY */}
+            <div className="metric-card">
+              <div className="metric-label">
+                <span className="material-symbols-rounded">model_training</span>
+                Rolled Throughput Yield (RTY)
+              </div>
+              <div className="metric-value">
+                {(metrics.manufacturing_analytics.rty.system_rty * 100).toFixed(1)}%
+              </div>
+              <div className="metric-foot">
+                Yield Uplift: +{metrics.manufacturing_analytics.rty.yield_gain_pct}%
+              </div>
+            </div>
+
+            {/* Defect Density */}
+            <div className="metric-card">
+              <div className="metric-label">
+                <span className="material-symbols-rounded">grid_on</span>
+                Defect Density
+              </div>
+              <div className="metric-value">
+                {metrics.manufacturing_analytics.defect_density.current.toFixed(3)} /cm²
+              </div>
+              <div className="metric-foot">
+                Reduced by {metrics.manufacturing_analytics.defect_density.reduction_pct}%
+              </div>
+            </div>
+
+            {/* GDBN */}
+            <div className="metric-card">
+              <div className="metric-label">
+                <span className="material-symbols-rounded">center_focus_weak</span>
+                GDBN Recovery
+              </div>
+              <div className="metric-value">
+                {metrics.manufacturing_analytics.gdbn.recovered_dies_pct}%
+              </div>
+              <div className="metric-foot">
+                Good Dies in Bad Neighborhood
+              </div>
+            </div>
+
+            {/* Kill Ratio */}
+            <div className="metric-card">
+              <div className="metric-label">
+                <span className="material-symbols-rounded">troubleshoot</span>
+                AI Kill Ratio
+              </div>
+              <div className="metric-value">
+                {metrics.manufacturing_analytics.kill_ratio.ai_ratio}
+              </div>
+              <div className="metric-foot">
+                Optical equivalent: {metrics.manufacturing_analytics.kill_ratio.optical_ratio}
+              </div>
+            </div>
+          </div>
+          
+          <div style={{ padding: "12px", borderTop: "1px dashed var(--stroke-major)", marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <span className="material-symbols-rounded" style={{ fontSize: 16, color: "var(--muted)", verticalAlign: "middle", marginRight: 8 }}>fact_check</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text)" }}>
+                Incoming Material AQL ({metrics.manufacturing_analytics.aql.threshold_pct}%): 
+                <strong className={metrics.manufacturing_analytics.aql.status === "Accept Lot" ? "chip success" : "chip warn"} style={{ marginLeft: 6 }}>
+                  {metrics.manufacturing_analytics.aql.status.toUpperCase()}
+                </strong>
+              </span>
+            </div>
+            <div style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text)", fontWeight: 700 }}>
+              Est. Fab Savings: ₹{metrics.manufacturing_analytics.economics.estimated_fab_savings_crore} Crore/yr
             </div>
           </div>
         </div>

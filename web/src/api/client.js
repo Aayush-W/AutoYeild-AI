@@ -40,3 +40,63 @@ export async function getMetrics() {
   }
   return response.json();
 }
+
+export async function generateAnalysisReport(reportPayload) {
+  const response = await fetch(`${API_BASE}/api/report`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(reportPayload),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || "Failed to generate report");
+  }
+
+  const contentDisposition = response.headers.get("Content-Disposition") || "";
+  const filenameMatch = contentDisposition.match(/filename="([^"]+)"/i);
+  const filename = filenameMatch?.[1] || "AutoYield_AI_Inspection_Report.pdf";
+  const blob = await response.blob();
+
+  return { blob, filename };
+}
+
+export async function getRetrainReviewQueue() {
+  const response = await fetch(`${API_BASE}/api/retrain/review-queue`);
+  if (!response.ok) {
+    throw new Error("Failed to load review queue");
+  }
+  return response.json();
+}
+
+export async function submitReviewLabel(reviewId, expertLabel) {
+  const response = await fetch(`${API_BASE}/api/retrain/review-queue/${reviewId}/submit`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ expert_label: expertLabel }),
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || "Failed to submit expert label");
+  }
+
+  return response.json();
+}
+
+export async function markReviewReviewed(reviewId) {
+  const response = await fetch(`${API_BASE}/api/retrain/review-queue/${reviewId}/mark-reviewed`, {
+    method: "POST",
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || "Failed to mark review as reviewed");
+  }
+
+  return response.json();
+}

@@ -39,6 +39,77 @@ _gradcam_lock = threading.Lock()
 _transform = get_inference_transform()
 
 
+def summarize_gradcam_overlay(overlay_path: str) -> dict[str, float | int | str]:
+    """
+    Estimate coarse attention-map descriptors from the saved Grad-CAM overlay.
+
+    The saved overlay blends the raw image with a JET heatmap. We approximate
+    model attention by scoring pixels where the red channel dominates, then
+    derive a dominant region, spread score, hotspot count, and max intensity.
+    """
+    overlay = cv2.imread(str(overlay_path))
+    if overlay is None:
+        return {
+            "dominant_region": "unknown",
+            "spread_score": 0.0,
+            "num_hotspots": 0,
+            "max_activation": 0.0,
+        }
+
+    rgb = cv2.cvtColor(overlay, cv2.COLOR_BGR2RGB).astype(np.float32) / 255.0
+    red = rgb[:, :, 0]
+    green = rgb[:, :, 1]
+    blue = rgb[:, :, 2]
+
+    attention = np.clip(red - 0.5 * (green + blue), 0.0, 1.0)
+    max_activation = float(attention.max()) if attention.size else 0.0
+
+    threshold = max(0.28, max_activation * 0.55)
+    mask = (attention >= threshold).astype(np.uint8)
+    spread_score = float(mask.mean()) if mask.size else 0.0
+
+    num_labels, labels, stats, _ = cv2.connectedComponentsWithStats(mask, connectivity=8)
+    hotspot_count = 0
+    min_area = max(6, int(mask.size * 0.0015))
+    for label_index in range(1, num_labels):
+        area = int(stats[label_index, cv2.CC_STAT_AREA])
+        if area >= min_area:
+            hotspot_count += 1
+
+    h, w = attention.shape
+    yy, xx = np.ogrid[:h, :w]
+    center_y = h / 2.0
+    center_x = w / 2.0
+    norm_y = (yy - center_y) / max(h / 2.0, 1.0)
+    norm_x = (xx - center_x) / max(w / 2.0, 1.0)
+    radius = np.sqrt(norm_x**2 + norm_y**2)
+
+    region_masks = {
+        "center zone": radius <= 0.35,
+        "edge ring": radius >= 0.72,
+        "upper region": (radius > 0.35) & (yy < center_y),
+        "lower region": (radius > 0.35) & (yy >= center_y),
+        "left region": (radius > 0.35) & (xx < center_x),
+        "right region": (radius > 0.35) & (xx >= center_x),
+    }
+
+    region_scores = {}
+    for region_name, region_mask in region_masks.items():
+        region_attention = attention[region_mask]
+        region_scores[region_name] = float(region_attention.mean()) if region_attention.size else 0.0
+
+    dominant_region = max(region_scores, key=region_scores.get) if region_scores else "unknown"
+    if max(region_scores.values(), default=0.0) < 0.02:
+        dominant_region = "diffuse / weak signal"
+
+    return {
+        "dominant_region": dominant_region,
+        "spread_score": round(spread_score, 3),
+        "num_hotspots": hotspot_count,
+        "max_activation": round(max_activation, 3),
+    }
+
+
 # ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------

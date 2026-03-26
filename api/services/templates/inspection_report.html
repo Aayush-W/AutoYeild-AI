@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>AutoYield AI Inspection Report</title>
+  <style>
+{{ styles }}
+  </style>
+</head>
+<body>
+  <main class="report-shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">AutoYield AI Report Export</p>
+        <h1>{{ report_title }}</h1>
+      </div>
+      <div class="hero-meta">
+        <div class="meta-card">
+          <span>Inspection ID</span>
+          <strong>{{ inspection_id }}</strong>
+        </div>
+        <div class="meta-card">
+          <span>Generated</span>
+          <strong>{{ generated_at }}</strong>
+        </div>
+      </div>
+    </header>
+
+    <section class="section">
+      <div class="section-heading">
+        <h2>1. Executive Dashboard</h2>
+        <p>Visual KPI summary for engineering review.</p>
+      </div>
+      <div class="kpi-grid">
+        {{ kpi_cards }}
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="two-column">
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Prediction Confidence Chart</h3>
+            <p>Relative class probabilities from the inference engine.</p>
+          </div>
+          <img class="chart-image" src="{{ confidence_chart }}" alt="Prediction confidence chart" />
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Structured Insights</h3>
+            <p>Key findings for rapid scan review.</p>
+          </div>
+          {{ bullet_insights }}
+        </article>
+      </div>
+    </section>
+
+    <section class="section page-break">
+      <div class="section-heading">
+        <h2>2. Explainability Visualization</h2>
+        <p>Original wafer image, Grad-CAM overlay, and supporting activation metrics.</p>
+      </div>
+      <div class="two-column visuals">
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Original Wafer Image</h3>
+          </div>
+          <img class="visual-image" src="{{ wafer_image }}" alt="Original wafer image" />
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Activation Heatmap Overlay</h3>
+          </div>
+          <img class="visual-image" src="{{ heatmap_image }}" alt="Heatmap overlay" />
+        </article>
+      </div>
+      <article class="panel compact">
+        <div class="panel-header">
+          <h3>Explainability Metrics</h3>
+        </div>
+        <div class="metric-grid">
+          {{ heatmap_metrics }}
+        </div>
+      </article>
+    </section>
+
+    <section class="section">
+      <div class="two-column">
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Drift Monitoring Graph</h3>
+            <p>Confidence trend across recent inspections with threshold marker.</p>
+          </div>
+          <img class="chart-image" src="{{ drift_chart }}" alt="Drift trend chart" />
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Defect Distribution</h3>
+            <p>Recent class mix across batch history.</p>
+          </div>
+          <img class="chart-image" src="{{ distribution_chart }}" alt="Defect distribution chart" />
+        </article>
+      </div>
+    </section>
+
+    <section class="section page-break">
+      <div class="two-column">
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Root Cause Evidence</h3>
+            <p>Signals supporting engineering interpretation.</p>
+          </div>
+          {{ root_cause_signals }}
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Recent Batch Metrics</h3>
+            <p>Recent system context and session-level summary.</p>
+          </div>
+          <div class="metric-grid">
+            {{ batch_summary }}
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="two-column">
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Operational Impact Charts</h3>
+            <p>Yield and sustainability effect estimates for this inspection.</p>
+          </div>
+          <img class="chart-image" src="{{ impact_chart }}" alt="Operational impact chart" />
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <h3>Recommended Actions Checklist</h3>
+            <p>Engineering actions derived from inspection evidence.</p>
+          </div>
+          {{ actions_checklist }}
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <article class="panel compact">
+        <div class="panel-header">
+          <h3>Technical Metrics</h3>
+          <p>Compact appendix for engineering traceability.</p>
+        </div>
+        <div class="metric-grid">
+          {{ technical_metrics }}
+        </div>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,12 +1,62 @@
+import { useEffect, useState } from "react";
 import { useInspection } from "../context/InspectionContext.jsx";
 import { useNavigate } from "react-router-dom";
+
+function ChecklistSection({ title, items, onToggle }) {
+  if (!items?.length) {
+    return null;
+  }
+
+  return (
+    <div style={{ marginBottom: 14 }}>
+      <div className="stat-foot" style={{ marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+        {title}
+      </div>
+      <div style={{ display: "grid", gap: 8 }}>
+        {items.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            className="insight-action"
+            onClick={() => onToggle?.(item.id)}
+            style={{
+              border: "1px solid var(--stroke)",
+              background: item.checked ? "var(--bg-1)" : "transparent",
+              width: "100%",
+              textAlign: "left",
+              cursor: "pointer",
+            }}
+          >
+            <span className="material-symbols-rounded">
+              {item.checked ? "check_box" : "check_box_outline_blank"}
+            </span>
+            <div
+              className="insight-action-text"
+              style={{
+                textDecoration: item.checked ? "line-through" : "none",
+                opacity: item.checked ? 0.7 : 1,
+              }}
+            >
+              {item.label}
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function RootCause() {
   const { inspection } = useInspection();
   const navigate = useNavigate();
   const hasData = Boolean(inspection);
   const reasoning = inspection?.reasoning ?? {};
-  const summary = reasoning.summary ?? reasoning.cause_summary ?? "";
+  const rootCauseUi = reasoning.root_cause_ui ?? {};
+  const summary = rootCauseUi.summary_paragraph ?? reasoning.summary ?? reasoning.cause_summary ?? "";
+  const probableRootCause = rootCauseUi.probable_root_cause ?? {};
+  const correctiveAction = rootCauseUi.recommended_corrective_action ?? {};
+  const [workOrderSections, setWorkOrderSections] = useState([]);
+  const [isAcknowledged, setIsAcknowledged] = useState(false);
 
   const severityMap = {
     Critical: "danger",
@@ -16,14 +66,55 @@ export default function RootCause() {
     Minimal: "",
   };
   const chipVariant = severityMap[reasoning.severity_assessment] ?? "warn";
+  const hasWorkOrder = workOrderSections.length > 0;
+  const completedCount = workOrderSections.reduce(
+    (total, section) => total + section.items.filter((item) => item.checked).length,
+    0
+  );
+  const totalCount = workOrderSections.reduce((total, section) => total + section.items.length, 0);
+
+  useEffect(() => {
+    setWorkOrderSections([]);
+    setIsAcknowledged(false);
+  }, [inspection?.inspection_id]);
+
+  const handleCreateWorkOrder = () => {
+    const nextSections = (correctiveAction.sections ?? []).map((section, sectionIndex) => ({
+      ...section,
+      items: (section.items ?? []).map((item, itemIndex) => ({
+        id: `${sectionIndex}-${itemIndex}`,
+        label: item,
+        checked: false,
+      })),
+    }));
+    setWorkOrderSections(nextSections);
+    setIsAcknowledged(false);
+  };
+
+  const handleToggleChecklistItem = (itemId) => {
+    setWorkOrderSections((prev) =>
+      prev.map((section) => ({
+        ...section,
+        items: section.items.map((item) =>
+          item.id === itemId ? { ...item, checked: !item.checked } : item
+        ),
+      }))
+    );
+  };
+
+  const handleAcknowledge = () => {
+    if (!hasWorkOrder) {
+      return;
+    }
+    setIsAcknowledged(true);
+  };
 
   return (
     <>
-      {/* Section header */}
       <div className="section-header">
         <div>
           <div className="section-title">Root Cause Analysis</div>
-          <div className="section-sub">LLM-powered defect origin insights</div>
+          <div className="section-sub">Rule-first root cause analysis with structured Gemini enrichment</div>
         </div>
         {hasData && (
           <span className="chip info" style={{ textTransform: "capitalize" }}>
@@ -49,7 +140,6 @@ export default function RootCause() {
         </div>
       )}
 
-      {/* Evidence Input */}
       <div className="card">
         <div className="card-title" style={{ marginBottom: 14 }}>
           <span className="material-symbols-rounded">data_object</span>
@@ -57,10 +147,10 @@ export default function RootCause() {
         </div>
         <div className="grid-4" style={{ gap: 16 }}>
           {[
-            { label: "Defect Type", value: hasData ? inspection.defect_class : "—" },
-            { label: "Confidence", value: hasData ? `${Math.round(inspection.confidence * 100)}%` : "—" },
-            { label: "Inspection ID", value: hasData ? inspection.inspection_id : "—" },
-            { label: "Timestamp", value: hasData ? inspection.timestamp?.split(" ")[1] ?? "—" : "—" },
+            { label: "Defect Type", value: hasData ? inspection.defect_class : "-" },
+            { label: "Confidence", value: hasData ? `${Math.round(inspection.confidence * 100)}%` : "-" },
+            { label: "Inspection ID", value: hasData ? inspection.inspection_id : "-" },
+            { label: "Timestamp", value: hasData ? inspection.timestamp?.split(" ")[1] ?? "-" : "-" },
           ].map((stat) => (
             <div key={stat.label}>
               <div className="stat-foot">{stat.label}</div>
@@ -77,7 +167,6 @@ export default function RootCause() {
         </div>
       </div>
 
-      {/* Risk Assessment */}
       <div className="alert warn">
         <div className="alert-icon">
           <span className="material-symbols-rounded" style={{ color: "var(--warning)" }}>warning</span>
@@ -87,7 +176,7 @@ export default function RootCause() {
           <div className="alert-detail">
             {reasoning.severity_assessment
               ? `${reasoning.severity_assessment} risk based on current defect pattern.`
-              : "2–5% yield loss if uncorrected. Immediate inspection recommended."}
+              : "Immediate engineering review recommended."}
           </div>
         </div>
         <span className={`chip ${chipVariant}`}>
@@ -95,7 +184,6 @@ export default function RootCause() {
         </span>
       </div>
 
-      {/* GenAI Summary */}
       {summary && (
         <div className="reasoning-panel">
           <div className="reasoning-panel-title">
@@ -110,39 +198,65 @@ export default function RootCause() {
       )}
 
       <div className="grid-2">
-        {/* Root Cause */}
         <div className="reasoning-panel">
           <div className="reasoning-panel-title">
             <span className="material-symbols-rounded" style={{ fontSize: 14 }}>manage_search</span>
             Probable Root Cause
           </div>
-          <div className="reasoning-panel-body">
-            {reasoning.probable_root_cause ??
-              "Mechanical contact during wafer handling or transport. Likely caused by improper end-effector alignment or debris on handling equipment."}
+          <div className="stat-foot" style={{ marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+            Root Cause Identified
           </div>
-          <div className="stat-foot" style={{ marginTop: 8 }}>
-            {reasoning.pattern_analysis
-              ? `Pattern: ${reasoning.pattern_analysis}`
-              : "Affected process: Wafer Transport & Handling"}
+          <div className="reasoning-panel-body" style={{ marginBottom: 12 }}>
+            {probableRootCause.root_cause_identified ?? reasoning.probable_root_cause ?? "Root cause pending review."}
+          </div>
+          {(probableRootCause.evidence_signals ?? []).length > 0 && (
+            <>
+              <div className="stat-foot" style={{ marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                Evidence Supporting This Conclusion
+              </div>
+              <ul style={{ margin: "0 0 12px 18px", padding: 0, color: "var(--secondary)", fontSize: 12, lineHeight: 1.6 }}>
+                {probableRootCause.evidence_signals.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </>
+          )}
+          <div className="reasoning-panel-body">
+            {probableRootCause.explanation ?? reasoning.pattern_analysis ?? "Supporting evidence is not available."}
           </div>
         </div>
 
-        {/* Corrective Action */}
         <div className="reasoning-panel">
-          <div className="reasoning-panel-title">
-            <span className="material-symbols-rounded" style={{ fontSize: 14 }}>build</span>
-            Recommended Corrective Action
-          </div>
-          <div className="reasoning-panel-body">
-            {reasoning.recommended_action ??
-              "Inspect and recalibrate robotic handler end-effectors. Clean all contact surfaces. Verify vacuum chuck condition and alignment. Schedule preventive maintenance."}
-          </div>
+        <div className="reasoning-panel-title">
+          <span className="material-symbols-rounded" style={{ fontSize: 14 }}>build</span>
+          Recommended Corrective Action
+        </div>
+          {hasWorkOrder ? (
+            <div>
+              <div className="stat-foot" style={{ marginBottom: 12 }}>
+                {completedCount}/{totalCount} tasks completed
+                {isAcknowledged ? " · acknowledged" : ""}
+              </div>
+              {workOrderSections.map((section, index) => (
+                <ChecklistSection
+                  key={index}
+                  title={section.title}
+                  items={section.items}
+                  onToggle={handleToggleChecklistItem}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="reasoning-panel-body">
+              Click <strong>Create Work Order</strong> to generate the corrective-action checklist.
+            </div>
+          )}
           <div style={{ marginTop: 14, display: "flex", gap: 10 }}>
-            <button className="btn sm">
+            <button className="btn sm" onClick={handleAcknowledge} disabled={!hasWorkOrder}>
               <span className="material-symbols-rounded" style={{ fontSize: 14 }}>check</span>
-              Mark Acknowledged
+              {isAcknowledged ? "Acknowledged" : "Mark Acknowledged"}
             </button>
-            <button className="btn primary sm">
+            <button className="btn primary sm" onClick={handleCreateWorkOrder}>
               <span className="material-symbols-rounded" style={{ fontSize: 14 }}>assignment_add</span>
               Create Work Order
             </button>

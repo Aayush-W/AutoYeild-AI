@@ -7,3 +7,8 @@ numpy
 motor
 pymongo
 python-dotenv
+faiss-cpu
+sentence-transformers
+plotly
+kaleido
+weasyprint

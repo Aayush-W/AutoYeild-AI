@@ -1,9 +1,21 @@
 import { useState } from "react";
 import { useInspection } from "../context/InspectionContext.jsx";
+import { generateAnalysisReport } from "../api/client.js";
+import { buildAnalysisReportPayload, downloadAnalysisReport } from "../utils/reportBuilder.js";
 
 export default function LogsArtifacts() {
-  const { inspection, history, metrics, refreshDashboard } = useInspection();
+  const {
+    inspection,
+    history,
+    metrics,
+    refreshDashboard,
+    impactInputs,
+    impactResult,
+    impactHistory,
+    impactSummary,
+  } = useInspection();
   const [activeTab, setActiveTab] = useState("inspection");
+  const [reportLoading, setReportLoading] = useState(false);
 
   const tabs = [
     { key: "inspection", label: "Latest Inspection", icon: "science" },
@@ -45,6 +57,33 @@ export default function LogsArtifacts() {
       : "History is empty.",
   };
 
+  const handleDownloadReport = async () => {
+    if (!inspection || reportLoading) {
+      return;
+    }
+
+    setReportLoading(true);
+
+    const reportPayload = buildAnalysisReportPayload({
+      inspection,
+      history,
+      metrics,
+      impactInputs,
+      impactResult,
+      impactHistory,
+      impactSummary,
+    });
+
+    try {
+      const detailedReport = await generateAnalysisReport(reportPayload);
+      downloadAnalysisReport(detailedReport);
+    } catch (err) {
+      window.alert(err.message || "Failed to generate the PDF report.");
+    } finally {
+      setReportLoading(false);
+    }
+  };
+
   return (
     <>
       <div className="section-header">
@@ -52,10 +91,18 @@ export default function LogsArtifacts() {
           <div className="section-title">Logs &amp; Artifacts</div>
           <div className="section-sub">Raw API payloads and model metrics</div>
         </div>
-        <button className="btn sm" onClick={refreshDashboard}>
-          <span className="material-symbols-rounded" style={{ fontSize: 14 }}>refresh</span>
-          Refresh
-        </button>
+        <div style={{ display: "flex", gap: 8 }}>
+          <button className="btn sm" onClick={handleDownloadReport} disabled={!inspection || reportLoading}>
+            <span className="material-symbols-rounded" style={{ fontSize: 14 }}>
+              {reportLoading ? "hourglass_top" : "download"}
+            </span>
+            {reportLoading ? "Generating PDF..." : "Download PDF"}
+          </button>
+          <button className="btn sm" onClick={refreshDashboard}>
+            <span className="material-symbols-rounded" style={{ fontSize: 14 }}>refresh</span>
+            Refresh
+          </button>
+        </div>
       </div>
 
       {/* Quick stats */}
