@@ -123,6 +123,8 @@ def generate_gradcam(image_path: str) -> tuple[str, str]:
 
     Thread-safe via _gradcam_lock.
     """
+    import gc
+
     image = Image.open(image_path).convert("RGB")
     input_tensor = _transform(image).unsqueeze(0).to(DEVICE)
 
@@ -172,6 +174,15 @@ def generate_gradcam(image_path: str) -> tuple[str, str]:
         heatmap = heatmap / max_val
 
     heatmap_np = heatmap.cpu().numpy()
+
+    # --- Free all gradient/activation tensors immediately after use ---
+    del acts, grads, pooled_grads, weighted_acts, heatmap
+    del _activations[:], _gradients[:]
+    del output, input_tensor
+    model.zero_grad(set_to_none=True)
+    gc.collect()
+    # -----------------------------------------------------------------
+
     heatmap_np = cv2.resize(heatmap_np, IMAGE_SIZE)
     heatmap_np = np.uint8(255 * heatmap_np)
 
@@ -182,4 +193,10 @@ def generate_gradcam(image_path: str) -> tuple[str, str]:
     output_path = OUTPUT_DIR / f"gradcam_{Path(image_path).name}"
     cv2.imwrite(str(output_path), overlay)
 
+    # Free image arrays
+    del image_np, heatmap_np, heatmap_color, overlay
+    gc.collect()
+
     return class_names[pred_class], str(output_path)
+
+

@@ -7,7 +7,7 @@ EfficientNet-only training code remains unchanged elsewhere.
 """
 from __future__ import annotations
 
-import hashlib
+import gc
 import json
 import os
 import threading
@@ -30,15 +30,10 @@ SUPPORTED_MODEL_BUILDERS = {
 }
 
 
-def _compute_file_sha256(path: Path, chunk_size: int = 1 << 20) -> str:
-    h = hashlib.sha256()
-    with path.open("rb") as f:
-        while True:
-            chunk = f.read(chunk_size)
-            if not chunk:
-                break
-            h.update(chunk)
-    return h.hexdigest()
+def _get_file_fingerprint(path: Path) -> str:
+    """Lightweight fingerprint using mtime+size — avoids reading the whole file."""
+    stat = path.stat()
+    return f"{stat.st_mtime}_{stat.st_size}"
 
 
 def _build_model(model_type: str, num_classes: int) -> nn.Module:
@@ -115,11 +110,13 @@ def load_model_and_classes(
     model = model.to(device)
     model.eval()
 
-    stat = model_path.stat()
+    # Free raw checkpoint dict immediately to recover ~50MB RAM
+    del checkpoint, state_dict
+    gc.collect()
+
     meta = {
         "model_path": str(model_path),
-        "model_mtime": str(stat.st_mtime),
-        "model_sha256": _compute_file_sha256(model_path),
+        "model_fingerprint": _get_file_fingerprint(model_path),
         "model_type": model_type,
         "classes_source": "classes.json" if classes_json.exists() else "checkpoint",
     }
