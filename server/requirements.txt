@@ -9,6 +9,17 @@ pymongo
 python-dotenv
 faiss-cpu
 sentence-transformers
-plotly
-kaleido
-weasyprint
+
+# ML, Vision, and Image Processing
+torch
+torchvision
+opencv-python-headless
+pillow
+tqdm
+
+# Visual PDF Report Generation
+reportlab
+
+# Interactive Demonstration
+streamlit
+
