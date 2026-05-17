@@ -73,20 +73,24 @@ export default function ImageIngestion() {
       </div>
 
       {/* Batch file list preview (simulated) */}
-      <div className="batch-file-list">
+      {/* Sample Image Previews */}
+      <div className="section-rule" style={{ marginTop: "16px", marginBottom: "24px" }}>
+        <div className="section-rule-line" />
+        <div className="section-rule-text">// ACCEPTABLE WAFER FORMATS (DATASET SAMPLES)</div>
+        <div className="section-rule-line" />
+      </div>
+
+      <div style={{ display: "flex", gap: "16px", marginBottom: "32px", overflowX: "auto" }}>
         {[
-          { name: file?.name ?? "WFR-2023-A4-001.tiff", status: file ? "waiting" : "waiting" },
-          { name: "WFR-2023-A4-002.tiff", status: "waiting" },
-          { name: "WFR-2023-A4-003.tiff", status: "waiting" },
-        ].map((f, i) => (
-          <div className="batch-file-item" key={i}>
-            <div className="batch-file-icon">
-              <span className="material-symbols-rounded" style={{ fontSize: 13 }}>image</span>
-            </div>
-            <div className="batch-file-name">{f.name}</div>
-            <div className={`batch-file-status ${i === 0 && loading ? "processing" : f.status}`}>
-              {i === 0 && loading ? "PROCESSING..." : "WAITING"}
-            </div>
+          { src: "/samples/sample_center.jpg", name: "Center Defect", type: "SEM Scan (26x26)" },
+          { src: "/samples/sample_edgering.jpg", name: "Edge Ring", type: "SEM Scan (26x26)" },
+          { src: "/samples/sample_scratch.jpg", name: "Surface Scratch", type: "SEM Scan (26x26)" },
+          { src: "/samples/sample_clean.jpg", name: "Clean Wafer", type: "SEM Scan (26x26)" }
+        ].map((img, i) => (
+          <div key={i} style={{ flex: 1, minWidth: "150px", background: "var(--bg-1)", border: "1px solid var(--stroke-major)", padding: "12px", borderRadius: "8px" }}>
+            <img src={img.src} alt={img.name} style={{ width: "100%", height: "140px", objectFit: "contain", background: "#000", borderRadius: "4px", marginBottom: "12px", border: "1px solid var(--stroke-dim)" }} />
+            <div style={{ fontSize: "13px", color: "var(--foreground)", fontFamily: "var(--font-mono)" }}>{img.name}</div>
+            <div style={{ fontSize: "11px", color: "var(--secondary)", marginTop: "4px" }}>{img.type}</div>
           </div>
         ))}
       </div>
