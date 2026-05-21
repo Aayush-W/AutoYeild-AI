@@ -28,9 +28,27 @@ const navGroups = [
   },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen = false, onClose }) {
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isOpen ? "is-open" : ""}`}>
+      <div className="sidebar-mobile-bar">
+        <div className="brand">
+          <div className="brand-logo">AY</div>
+          <div className="brand-text">
+            <h1>AutoYield AI</h1>
+            <span>Semiconductor Inspection</span>
+          </div>
+        </div>
+        <button
+          type="button"
+          className="sidebar-close-btn"
+          onClick={onClose}
+          aria-label="Close navigation"
+        >
+          <span className="material-symbols-rounded">close</span>
+        </button>
+      </div>
+
       {/* Brand */}
       <div className="brand">
         <div className="brand-logo">AY</div>
@@ -50,6 +68,7 @@ export default function Sidebar() {
                 key={item.path}
                 to={item.path}
                 className={({ isActive }) => `nav-item${isActive ? " active" : ""}`}
+                onClick={onClose}
               >
                 <span className="material-symbols-rounded">{item.icon}</span>
                 {item.label}

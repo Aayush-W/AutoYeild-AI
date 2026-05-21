@@ -15,7 +15,7 @@ const PAGE_TITLES = {
 
 };
 
-export default function Topbar({ overviewMode, setOverviewMode }) {
+export default function Topbar({ overviewMode, setOverviewMode, onToggleSidebar }) {
   const { pathname } = useLocation();
   const { metrics } = useInspection();
   const isOverviewRoute = pathname === "/overview";
@@ -27,6 +27,14 @@ export default function Topbar({ overviewMode, setOverviewMode }) {
   return (
     <header className="topbar">
       <div className="topbar-left">
+        <button
+          type="button"
+          className="topbar-nav-toggle"
+          onClick={onToggleSidebar}
+          aria-label="Toggle navigation"
+        >
+          <span className="material-symbols-rounded">menu</span>
+        </button>
         <div className="topbar-breadcrumb">
           <span>AUTOYIELD.AI</span>
           <span style={{ opacity: 0.4 }}>{">"}</span>

@@ -688,7 +688,17 @@ export default function SystemOverview({
             </div>
           </div>
           
-          <div style={{ padding: "12px", borderTop: "1px dashed var(--stroke-major)", marginTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div
+            className="manufacturing-summary-bar"
+            style={{
+              padding: "12px",
+              borderTop: "1px dashed var(--stroke-major)",
+              marginTop: 12,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
             <div>
               <span className="material-symbols-rounded" style={{ fontSize: 16, color: "var(--muted)", verticalAlign: "middle", marginRight: 8 }}>fact_check</span>
               <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--text)" }}>
@@ -723,6 +733,7 @@ export default function SystemOverview({
         </div>
 
         <div
+          className="recent-inspections-head"
           style={{
             display: "grid",
             gridTemplateColumns: "1fr 120px 80px 80px 100px",
@@ -759,8 +770,8 @@ export default function SystemOverview({
                   gap: 8,
                   padding: "10px 12px",
                 }}
-              >
-                <div className="inspection-left" style={{ gap: 8 }}>
+                >
+                <div className="inspection-left recent-inspection-cell" data-label="Inspection ID" style={{ gap: 8 }}>
                   <div className="badge">
                     <span className="material-symbols-rounded">science</span>
                   </div>
@@ -775,6 +786,8 @@ export default function SystemOverview({
                   </div>
                 </div>
                 <div
+                  className="recent-inspection-cell"
+                  data-label="Class"
                   style={{
                     fontFamily: "var(--font-mono)",
                     fontSize: 12,
@@ -787,12 +800,20 @@ export default function SystemOverview({
                 >
                   {item.defect_class}
                 </div>
-                <div style={{ display: "flex", alignItems: "center" }}>
+                <div
+                  className="recent-inspection-cell"
+                  data-label="Confidence"
+                  style={{ display: "flex", alignItems: "center" }}
+                >
                   <div className="progress thick" style={{ flex: 1 }}>
                     <span style={{ width: `${Math.round(item.confidence * 100)}%` }} />
                   </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center" }}>
+                <div
+                  className="recent-inspection-cell"
+                  data-label="Drift"
+                  style={{ display: "flex", alignItems: "center" }}
+                >
                   {item.drift_detected ? (
                     <span className="chip warn">DRIFT</span>
                   ) : (
@@ -800,6 +821,8 @@ export default function SystemOverview({
                   )}
                 </div>
                 <div
+                  className="recent-inspection-cell"
+                  data-label="Timestamp"
                   style={{
                     fontFamily: "var(--font-mono)",
                     fontSize: 10,
