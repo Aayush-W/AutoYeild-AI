@@ -22,6 +22,7 @@ export default function OverviewIntroOverlay({ onComplete }) {
   }, [onComplete]);
 
   useEffect(() => {
+    didExitRef.current = false;
     const startTime = performance.now();
     let rafId = null;
 
@@ -53,7 +54,9 @@ export default function OverviewIntroOverlay({ onComplete }) {
       }
       if (exitTimerRef.current) {
         clearTimeout(exitTimerRef.current);
+        exitTimerRef.current = null;
       }
+      didExitRef.current = false;
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [startExit]);
